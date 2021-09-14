@@ -1,7 +1,5 @@
 data "aws_availability_zones" "available" {}
 
-data "aws_partition" "current" {}
-
 data "aws_eks_cluster" "cluster" {
   name = module.eks.cluster_id
 }
