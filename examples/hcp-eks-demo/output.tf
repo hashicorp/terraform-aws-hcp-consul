@@ -14,3 +14,7 @@ output "consul_url" {
     hcp_consul_cluster.main.consul_private_endpoint_url
   )
 }
+
+output "kubeconfig_filename" {
+  value = abspath(module.eks.kubeconfig_filename)
+}
