@@ -16,12 +16,6 @@ variable "region" {
   default     = "us-west-2"
 }
 
-# variable "vpc_cidr_block" {
-#   type        = string
-#   description = "The CIDR block to create the VPC in"
-#   default     = "172.25.16.0/20"
-# }
-
 variable "hvn_id" {
   type        = string
   description = "The name of your HCP HVN"

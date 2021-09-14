@@ -15,7 +15,7 @@ resource "kubernetes_secret" "consul_secrets" {
 resource "helm_release" "consul" {
   name       = "consul"
   repository = "https://helm.releases.hashicorp.com"
-  version    = "0.33.0"
+  version    = var.chart_version
   chart      = "consul"
 
   values = [

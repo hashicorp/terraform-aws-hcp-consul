@@ -3,6 +3,7 @@
  * Required Variables
  *
  */
+
 variable "boostrap_acl_token" {
   type        = string
   description = "The ACL bootstrap token used to create necessary ACL tokens for the Helm chart"
@@ -36,4 +37,16 @@ variable "k8s_api_endpoint" {
 variable "cluster_id" {
   type        = string
   description = "The ID of the Consul cluster that is managing the clients"
+}
+
+/*
+ *
+ * Optional Variables
+ *
+ */
+
+variable "chart_version" {
+  type        = string
+  description = "The Consul Helm chart version to use"
+  default     = "0.33.0"
 }
