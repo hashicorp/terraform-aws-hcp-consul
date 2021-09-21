@@ -1,20 +1,3 @@
-terraform {
-  required_providers {
-    aws = {
-      source  = "hashicorp/aws"
-      version = "~> 3.43"
-    }
-    hcp = {
-      source  = "hashicorp/hcp"
-      version = "~> 0.7"
-    }
-  }
-}
-
-provider "aws" {
-  region = var.region
-}
-
 data "aws_availability_zones" "available" {}
 
 module "vpc" {
