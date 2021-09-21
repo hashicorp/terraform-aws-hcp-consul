@@ -22,25 +22,29 @@ resource "hcp_hvn" "main" {
   cidr_block     = var.hvn_cidr_block
 }
 
+module "aws_hcp_consul" {
+  source                    = "../../../terraform-aws-hcp-consul"
+  hvn_id                    = hcp_hvn.main.hvn_id
+  vpc_id                    = module.vpc.vpc_id
+  route_table_ids           = module.vpc.public_route_table_ids
+  security_group_ids        = [module.vpc.default_security_group_id]
+
+  # This is required because the hcp_hvn.main.hvn_id does not block
+  # on HVN creation, and thus we need to wait until the HVN is
+  # successfully created.
+  depends_on         = [hcp_hvn.main]
+}
+
 resource "hcp_consul_cluster" "main" {
   cluster_id      = var.cluster_id
   hvn_id          = hcp_hvn.main.hvn_id
-  public_endpoint = var.enable_public_url
+  public_endpoint = !var.disable_public_url
   size            = var.size
   tier            = var.tier
 }
 
 resource "hcp_consul_cluster_root_token" "token" {
   cluster_id = hcp_consul_cluster.main.cluster_id
-}
-
-module "aws_hcp_consul" {
-  depends_on = [hcp_hvn.main]
-  source                    = "../../../terraform-aws-hcp-consul"
-  hvn_id                    = hcp_hvn.main.hvn_id
-  vpc_id                    = module.vpc.vpc_id
-  route_table_ids           = module.vpc.public_route_table_ids
-  security_group_ids        = [module.vpc.default_security_group_id]
 }
 
 module "aws_ec2_consul_client" {

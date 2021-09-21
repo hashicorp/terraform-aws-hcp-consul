@@ -1,13 +1,13 @@
 /*
- *
- * Optional Variables
- *
- */
+  *
+  * Optional Variables
+  *
+  */
 
 variable "cluster_id" {
   type        = string
   description = "The name of your HCP Consul cluster"
-  default     = "hcp-consul-tf-cluster"
+  default     = "cluster-eks-demo"
 }
 
 variable "region" {
@@ -28,10 +28,10 @@ variable "hvn_cidr_block" {
   default     = "172.25.32.0/20"
 }
 
-variable "enable_public_url" {
+variable "disable_public_url" {
   type        = bool
   description = "A boolean that determines whether the Consul cluster has a public URL"
-  default     = true
+  default     = false
 }
 
 variable "size" {
