@@ -1,14 +1,5 @@
-output "client_peer_vpc_id" {
+output "client_vpc_id" {
   value = module.vpc.vpc_id
-}
-
-output "client_public_ips" {
-  value = module.aws_ec2_consul_client.client_public_ips
-}
-
-output "client_ssh_private_key" {
-  value     = module.aws_ec2_consul_client.ssh_private_key
-  sensitive = true
 }
 
 output "consul_root_token" {
