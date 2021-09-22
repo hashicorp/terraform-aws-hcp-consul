@@ -33,6 +33,13 @@ resource "aws_instance" "consul_client" {
   associate_public_ip_address = true
   subnet_id                   = var.subnet_id
   vpc_security_group_ids      = [var.security_group_id]
+  user_data                   = templatefile("${path.module}/templates/install-consul.sh", {
+    consul_version = "1.10.2+ent",
+    consul_config  = var.client_config_file,
+    consul_ca      = base64decode(var.client_ca_file),
+    consul_service = file("${path.module}/templates/consul.service"),
+    consul_acl_token = var.root_token
+  })
 
   tags = {
     Name = "${random_id.id.dec}-hcp-consul-client-instance"
@@ -41,83 +48,6 @@ resource "aws_instance" "consul_client" {
   lifecycle {
     create_before_destroy = false
     prevent_destroy       = false
-  }
-
-  provisioner "file" {
-    content     = base64decode(var.client_config_file)
-    destination = "/home/ubuntu/client_config.json"
-
-    connection {
-      type        = "ssh"
-      user        = "ubuntu"
-      private_key = tls_private_key.key.private_key_pem
-      host        = self.public_ip
-    }
-  }
-
-  provisioner "file" {
-    content     = base64decode(var.client_ca_file)
-    destination = "/home/ubuntu/ca.pem"
-
-    connection {
-      type        = "ssh"
-      user        = "ubuntu"
-      private_key = tls_private_key.key.private_key_pem
-      host        = self.public_ip
-    }
-  }
-
-  provisioner "file" {
-    content = templatefile("${path.module}/templates/client_acl.json", {
-      consul_acl_token = var.root_token
-    })
-    destination = "/home/ubuntu/client_acl.json"
-
-    connection {
-      type        = "ssh"
-      user        = "ubuntu"
-      private_key = tls_private_key.key.private_key_pem
-      host        = self.public_ip
-    }
-  }
-
-  provisioner "file" {
-    source      = "${path.module}/templates/consul.service"
-    destination = "/home/ubuntu/consul.service"
-
-    connection {
-      type        = "ssh"
-      user        = "ubuntu"
-      private_key = tls_private_key.key.private_key_pem
-      host        = self.public_ip
-    }
-  }
-
-  provisioner "file" {
-    content = templatefile("${path.module}/templates/install-consul.sh", {
-      consul_version = "1.10.2+ent",
-    })
-    destination = "/home/ubuntu/install-consul.sh"
-
-    connection {
-      type        = "ssh"
-      user        = "ubuntu"
-      private_key = tls_private_key.key.private_key_pem
-      host        = self.public_ip
-    }
-  }
-
-  provisioner "remote-exec" {
-    inline = [
-      "chmod +x /home/ubuntu/install-consul.sh",
-      "/home/ubuntu/install-consul.sh"
-    ]
-    connection {
-      type        = "ssh"
-      user        = "ubuntu"
-      private_key = tls_private_key.key.private_key_pem
-      host        = self.public_ip
-    }
   }
 }
 

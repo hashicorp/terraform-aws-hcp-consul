@@ -1,7 +1,0 @@
-{
-    "acl": {
-      "tokens": {
-        "agent": "${consul_acl_token}"
-      }
-    }
-}
