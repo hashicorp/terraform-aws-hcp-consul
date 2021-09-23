@@ -29,7 +29,7 @@ echo "${sidecar_service}" > sidecar.service
 # Consul Dependencies
 curl --silent -o consul.zip https://releases.hashicorp.com/consul/${consul_version}/consul_${consul_version}_linux_amd64.zip
 unzip consul.zip
-sudo chown root:root consul
+sudo chown consul:consul consul
 sudo mv consul /usr/bin/
 
 echo "${consul_config}" | base64 -d > client_config.temp
@@ -52,9 +52,25 @@ export PATH=$PATH:/usr/local/go/bin
 # download and install demo app
 curl -OL https://github.com/hashicorp/demo-consul-101/archive/refs/heads/main.zip
 unzip main.zip
-cd /home/ubuntu/demo-consul-101-main/services/${demo_service_name} && sudo /usr/local/go/bin/go build
-mv ${demo_service_name} /usr/bin/
+cd /home/ubuntu/demo-consul-101-main/services/${demo_service_name}
+if [[ -d "assets" ]]; then
+  sudo /usr/local/go/bin/go install github.com/GeertJohan/go.rice/rice@latest
+  sudo mv /root/go/bin/rice /usr/bin/
+  /usr/bin/rice embed-go
+fi
+sudo /usr/local/go/bin/go build
+sudo mv ${demo_service_name} /usr/bin
 cd /home/ubuntu
+
+start_service "demo"
+
+common='{"service":{"name":"'${demo_service_name}'","port":8080,"check":{"http":"http://localhost:8080/health","method":"GET","interval":"1s","timeout":"1s"},"connect":{"sidecar_service":'
+if [ "${demo_service_name}" = "counting-service" ]; then
+  echo $common"{}}}}" > ${demo_service_name}.json
+else
+  echo $common'{"proxy":{"upstreams":[{"destination_name":"counting-service","local_bind_port":9001}]}}}}}' > ${demo_service_name}.json
+fi
+consul services register -token "${consul_acl_token}" ${demo_service_name}.json
 
 # install envoy
 sudo apt update
@@ -64,9 +80,6 @@ echo "deb [arch=amd64 signed-by=/usr/share/keyrings/getenvoy-keyring.gpg] https:
 sudo apt update
 sudo apt install -y getenvoy-envoy
 
-start_service "demo"
-
-echo '{"service":{"name":"'${demo_service_name}'","id":"'${demo_service_name}'","port":8080,"check":{"http":"http://localhost:8080/health","method":"GET","interval":"1s","timeout":"1s"},"connect":{"sidecar_service":{}}}}' > ${demo_service_name}.json
-consul services register -token "${consul_acl_token}" ${demo_service_name}.json
-
 start_service "sidecar"
+
+echo "done"
