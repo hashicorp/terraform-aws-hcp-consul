@@ -1,7 +1,3 @@
-output "client_vpc_id" {
-  value = module.vpc.vpc_id
-}
-
 output "consul_root_token" {
   value     = hcp_consul_cluster_root_token.token
   sensitive = true
