@@ -56,7 +56,7 @@ module "aws_hcp_consul" {
   # This is required because the hcp_hvn.main.hvn_id does not block
   # on HVN creation, and thus we need to wait until the HVN is
   # successfully created.
-  depends_on         = [hcp_hvn.main]
+  depends_on = [hcp_hvn.main]
 }
 
 resource "hcp_consul_cluster" "main" {
