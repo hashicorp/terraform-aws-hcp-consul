@@ -10,3 +10,7 @@ output "consul_url" {
     hcp_consul_cluster.main.consul_private_endpoint_url
   )
 }
+
+output "service_instance_ids" {
+  value = module.aws_ec2_consul_client
+}
