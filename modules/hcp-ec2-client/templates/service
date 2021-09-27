@@ -1,0 +1,19 @@
+[Unit]
+Description="${service_name}"
+Requires=network-online.target
+After=network-online.target
+
+[Service]
+Environment="PORT=8080"
+Type=simple
+User=${service_name}
+Group=${service_name}
+ExecStart=${service_cmd}
+ExecReload=/bin/kill --signal HUP $MAINPID
+KillMode=process
+KillSignal=SIGTERM
+Restart=on-failure
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target
