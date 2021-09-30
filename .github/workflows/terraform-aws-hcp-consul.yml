@@ -1,5 +1,11 @@
-name: 'AWS HCP Consul Terraform Module'
-on: [push, pull_request]
+name: Terraform Module Checks
+
+on:
+  push:
+    branches:
+    - main
+  pull_request:
+
 jobs:
   terraform-fmt:
     runs-on: ubuntu-latest
