@@ -23,15 +23,15 @@ resource "hcp_hvn" "main" {
 }
 
 module "aws_hcp_consul" {
-  source                    = "../../../terraform-aws-hcp-consul"
-  hvn_id                    = hcp_hvn.main.hvn_id
-  vpc_id                    = module.vpc.vpc_id
-  route_table_ids           = module.vpc.public_route_table_ids
+  source          = "../../../terraform-aws-hcp-consul"
+  hvn_id          = hcp_hvn.main.hvn_id
+  vpc_id          = module.vpc.vpc_id
+  route_table_ids = module.vpc.public_route_table_ids
 
   # This is required because the hcp_hvn.main.hvn_id does not block
   # on HVN creation, and thus we need to wait until the HVN is
   # successfully created.
-  depends_on         = [hcp_hvn.main]
+  depends_on = [hcp_hvn.main]
 }
 
 resource "hcp_consul_cluster" "main" {
@@ -47,13 +47,13 @@ resource "hcp_consul_cluster_root_token" "token" {
 }
 
 module "aws_ec2_consul_client" {
-  depends_on              = [module.aws_hcp_consul]
-  source                  = "../../modules/hcp-ec2-client"
-  subnet_id               = module.vpc.public_subnets[0]
-  security_group_id       = module.aws_hcp_consul.security_group_ids[0]
-  allowed_ssh_cidr_blocks = ["0.0.0.0/0"]
+  depends_on               = [module.aws_hcp_consul]
+  source                   = "../../modules/hcp-ec2-client"
+  subnet_id                = module.vpc.public_subnets[0]
+  security_group_id        = module.aws_hcp_consul.security_group_ids[0]
+  allowed_ssh_cidr_blocks  = ["0.0.0.0/0"]
   allowed_http_cidr_blocks = ["0.0.0.0/0"]
-  client_config_file      = hcp_consul_cluster.main.consul_config_file
-  client_ca_file          = hcp_consul_cluster.main.consul_ca_file
-  root_token              = hcp_consul_cluster_root_token.token.secret_id
+  client_config_file       = hcp_consul_cluster.main.consul_config_file
+  client_ca_file           = hcp_consul_cluster.main.consul_ca_file
+  root_token               = hcp_consul_cluster_root_token.token.secret_id
 }

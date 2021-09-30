@@ -91,7 +91,7 @@ resource "aws_security_group_rule" "hcp_consul_existing_grp" {
 
 # If no security_group_ids were provided, create a new security_group.
 resource "aws_security_group" "hcp_consul" {
-  count = length(var.security_group_ids) == 0 ? 1 : 0
+  count       = length(var.security_group_ids) == 0 ? 1 : 0
   name_prefix = "hcp_consul"
   description = "HCP Consul security group"
   vpc_id      = data.aws_vpc.selected.id
@@ -99,7 +99,7 @@ resource "aws_security_group" "hcp_consul" {
 
 # If no security_group_ids were provided, use the new security_group.
 resource "aws_security_group_rule" "hcp_consul_new_grp" {
-  count = length(var.security_group_ids) == 0 ? length(local.ingress_consul_rules) : 0
+  count             = length(var.security_group_ids) == 0 ? length(local.ingress_consul_rules) : 0
   description       = local.ingress_consul_rules[count.index].description
   protocol          = local.ingress_consul_rules[count.index].protocol
   security_group_id = aws_security_group.hcp_consul[0].id
@@ -111,7 +111,7 @@ resource "aws_security_group_rule" "hcp_consul_new_grp" {
 
 # If no security_group_ids were provided, allow egress on the new security_group.
 resource "aws_security_group_rule" "allow_all_egress" {
-  count = length(var.security_group_ids) == 0 ? 1 : 0
+  count             = length(var.security_group_ids) == 0 ? 1 : 0
   description       = "Allow egress access to the Internet."
   protocol          = "-1"
   security_group_id = aws_security_group.hcp_consul[0].id
@@ -123,7 +123,7 @@ resource "aws_security_group_rule" "allow_all_egress" {
 
 # If no security_group_ids were provided, allow self ingress on the new security_group.
 resource "aws_security_group_rule" "allow_self" {
-  count = length(var.security_group_ids) == 0 ? 1 : 0
+  count             = length(var.security_group_ids) == 0 ? 1 : 0
   description       = "Allow egress access to the Internet."
   protocol          = "-1"
   security_group_id = aws_security_group.hcp_consul[0].id

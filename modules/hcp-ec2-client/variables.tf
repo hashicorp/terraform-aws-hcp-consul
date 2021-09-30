@@ -31,5 +31,5 @@ variable "root_token" {
 }
 
 variable "security_group_id" {
-  type        = string
+  type = string
 }
