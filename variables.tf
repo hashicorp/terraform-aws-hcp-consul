@@ -22,4 +22,5 @@ variable "route_table_ids" {
 variable "security_group_ids" {
   type        = list(string)
   description = "A list of security group IDs which should allow inbound Consul client traffic"
+  default     = []
 }

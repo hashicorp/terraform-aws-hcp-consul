@@ -18,7 +18,7 @@ setup_deps () {
   # Dependencies added
   sudo add-apt-repository universe -y
   sudo apt update -yq
-  sudo apt install apt-transport-https gnupg2 curl lsb-release
+  sudo apt install -yq apt-transport-https gnupg2 curl lsb-release
   curl -sL 'https://deb.dl.getenvoy.io/public/gpg.8115BA8E629CC074.key' | sudo gpg --dearmor -o /usr/share/keyrings/getenvoy-keyring.gpg
   echo "deb [arch=amd64 signed-by=/usr/share/keyrings/getenvoy-keyring.gpg] https://deb.dl.getenvoy.io/public/deb/ubuntu $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/getenvoy.list
   sudo apt update -yq

@@ -11,6 +11,6 @@ output "consul_url" {
   )
 }
 
-output "service_instance_ids" {
+output "clients" {
   value = module.aws_ec2_consul_client
 }
