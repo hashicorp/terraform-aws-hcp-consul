@@ -50,7 +50,7 @@ module "aws_ec2_consul_client" {
   depends_on               = [module.aws_hcp_consul]
   source                   = "../../modules/hcp-ec2-client"
   subnet_id                = module.vpc.public_subnets[0]
-  security_group_id        = module.aws_hcp_consul.security_group_ids[0]
+  security_group_id        = module.aws_hcp_consul.security_group_id
   allowed_ssh_cidr_blocks  = ["0.0.0.0/0"]
   allowed_http_cidr_blocks = ["0.0.0.0/0"]
   client_config_file       = hcp_consul_cluster.main.consul_config_file

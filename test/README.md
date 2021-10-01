@@ -10,5 +10,5 @@ environment variables.
 
 To run the tests, run this within the test/ directory:
 ```
-go test -v -timeout 30m
+go test ./... -v -timeout 30m
 ```

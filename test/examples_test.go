@@ -11,12 +11,12 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestTerraform_EC2Demo(t *testing.T) {
+func TestTerraform_EC2DemoExample(t *testing.T) {
 	r := require.New(t)
 	terraformOptions := terraform.WithDefaultRetryableErrors(t, &terraform.Options{
 		TerraformDir: "../examples/hcp-ec2-demo",
 		Vars: map[string]interface{}{
-			"cluster_id": "ec2-test",
+			"cluster_id": "test-ec2-example",
 		},
 		NoColor: true,
 	})
