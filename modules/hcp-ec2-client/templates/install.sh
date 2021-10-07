@@ -51,8 +51,10 @@ jq -n --arg token "${consul_acl_token}" '{"acl": {"tokens": {"agent": "\($token)
 
 # Replace the relative path with the explicit path where consul will run
 echo "$(jq '.ca_file = "/etc/consul.d/ca.pem"' client_config.temp )" > client_config.json
+echo '{"ports": { "grpc": 8502 }}' > ports.json
 sudo mv client_config.json /etc/consul.d
 sudo mv client_acl.json /etc/consul.d
+sudo mv ports.json /etc/consul.d
 sudo mv ca.pem /etc/consul.d
 
 start_service "consul"

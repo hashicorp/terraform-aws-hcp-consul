@@ -59,7 +59,7 @@ resource "aws_instance" "consul_client_dashboard" {
     }),
     sidecar_service = templatefile("${path.module}/templates/service", {
       service_name = "sidecar",
-      service_cmd  = "/usr/bin/consul connect proxy -sidecar-for dashboard-service -token ${var.root_token}",
+      service_cmd  = "/usr/bin/consul connect envoy -sidecar-for dashboard-service -token ${var.root_token}",
     }),
   })
 
@@ -96,7 +96,7 @@ resource "aws_instance" "consul_client_counting" {
     }),
     sidecar_service = templatefile("${path.module}/templates/service", {
       service_name = "sidecar",
-      service_cmd  = "/usr/bin/consul connect proxy -sidecar-for counting-service -token ${var.root_token}",
+      service_cmd  = "/usr/bin/consul connect envoy -sidecar-for counting-service -token ${var.root_token}",
     }),
   })
 
