@@ -59,7 +59,7 @@ func TestTerraform_EC2DemoExample(t *testing.T) {
 		}
 		t.Logf("unexpected number of services registered: %v", registered)
 		return false
-	}, 1*time.Minute, 5*time.Second)
+	}, 2*time.Minute, 10*time.Second)
 
 	var clients struct {
 		CountingURL  string `json:"counting_url"`

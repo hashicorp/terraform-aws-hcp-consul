@@ -124,7 +124,7 @@ resource "aws_security_group_rule" "allow_all_egress" {
 # If no security_group_ids were provided, allow self ingress on the new security_group.
 resource "aws_security_group_rule" "allow_self" {
   count             = length(var.security_group_ids) == 0 ? 1 : 0
-  description       = "Allow egress access to the Internet."
+  description       = "Allow members of this security group to communicate over all ports"
   protocol          = "-1"
   security_group_id = aws_security_group.hcp_consul[0].id
   self              = true
