@@ -26,6 +26,7 @@ locals {
     },
   ]
 
+  # If a list of security_group_ids was provided, construct a rule set.
   hcp_consul_security_groups = flatten([
     for _, sg in var.security_group_ids : [
       for _, rule in local.ingress_consul_rules : {
@@ -76,7 +77,8 @@ resource "aws_route" "peering" {
   vpc_peering_connection_id = aws_vpc_peering_connection_accepter.peer.vpc_peering_connection_id
 }
 
-resource "aws_security_group_rule" "hcp_consul" {
+# If a list of security_group_ids was provided, set rules on those.
+resource "aws_security_group_rule" "hcp_consul_existing_grp" {
   count             = length(local.hcp_consul_security_groups)
   description       = local.hcp_consul_security_groups[count.index].description
   protocol          = local.hcp_consul_security_groups[count.index].protocol
@@ -84,5 +86,49 @@ resource "aws_security_group_rule" "hcp_consul" {
   cidr_blocks       = [data.hcp_hvn.selected.cidr_block]
   from_port         = local.hcp_consul_security_groups[count.index].port
   to_port           = local.hcp_consul_security_groups[count.index].port
+  type              = "ingress"
+}
+
+# If no security_group_ids were provided, create a new security_group.
+resource "aws_security_group" "hcp_consul" {
+  count       = length(var.security_group_ids) == 0 ? 1 : 0
+  name_prefix = "hcp_consul"
+  description = "HCP Consul security group"
+  vpc_id      = data.aws_vpc.selected.id
+}
+
+# If no security_group_ids were provided, use the new security_group.
+resource "aws_security_group_rule" "hcp_consul_new_grp" {
+  count             = length(var.security_group_ids) == 0 ? length(local.ingress_consul_rules) : 0
+  description       = local.ingress_consul_rules[count.index].description
+  protocol          = local.ingress_consul_rules[count.index].protocol
+  security_group_id = aws_security_group.hcp_consul[0].id
+  cidr_blocks       = [data.hcp_hvn.selected.cidr_block]
+  from_port         = local.ingress_consul_rules[count.index].port
+  to_port           = local.ingress_consul_rules[count.index].port
+  type              = "ingress"
+}
+
+# If no security_group_ids were provided, allow egress on the new security_group.
+resource "aws_security_group_rule" "allow_all_egress" {
+  count             = length(var.security_group_ids) == 0 ? 1 : 0
+  description       = "Allow egress access to the Internet."
+  protocol          = "-1"
+  security_group_id = aws_security_group.hcp_consul[0].id
+  cidr_blocks       = ["0.0.0.0/0"]
+  from_port         = 0
+  to_port           = 0
+  type              = "egress"
+}
+
+# If no security_group_ids were provided, allow self ingress on the new security_group.
+resource "aws_security_group_rule" "allow_self" {
+  count             = length(var.security_group_ids) == 0 ? 1 : 0
+  description       = "Allow members of this security group to communicate over all ports"
+  protocol          = "-1"
+  security_group_id = aws_security_group.hcp_consul[0].id
+  self              = true
+  from_port         = 0
+  to_port           = 0
   type              = "ingress"
 }

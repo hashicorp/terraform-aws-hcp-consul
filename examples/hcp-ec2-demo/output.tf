@@ -1,5 +1,5 @@
 output "consul_root_token" {
-  value     = hcp_consul_cluster_root_token.token
+  value     = hcp_consul_cluster_root_token.token.secret_id
   sensitive = true
 }
 
@@ -11,6 +11,6 @@ output "consul_url" {
   )
 }
 
-output "service_instance_ids" {
+output "clients" {
   value = module.aws_ec2_consul_client
 }

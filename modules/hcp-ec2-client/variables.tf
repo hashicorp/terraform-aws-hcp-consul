@@ -9,6 +9,12 @@ variable "allowed_ssh_cidr_blocks" {
   default     = []
 }
 
+variable "allowed_http_cidr_blocks" {
+  description = "A list of CIDR-formatted IP address ranges from which the EC2 Instances will allow connections over 8080"
+  type        = list(string)
+  default     = []
+}
+
 variable "client_config_file" {
   type        = string
   description = "The client config file provided by HCP"
@@ -25,5 +31,5 @@ variable "root_token" {
 }
 
 variable "security_group_id" {
-  type        = string
+  type = string
 }
