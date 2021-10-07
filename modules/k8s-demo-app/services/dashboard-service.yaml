@@ -1,0 +1,78 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: dashboard
+spec:
+  selector:
+    app: dashboard
+  ports:
+    - name: http
+      protocol: TCP
+      port: 9002
+      targetPort: 9002
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: dashboard
+automountServiceAccountToken: true
+---
+apiVersion: consul.hashicorp.com/v1alpha1
+kind: ServiceDefaults
+metadata:
+  name: dashboard
+spec:
+  protocol: "tcp"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dashboard
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      service: dashboard
+      app: dashboard
+  template:
+    metadata:
+      labels:
+        service: dashboard
+        app: dashboard
+      annotations:
+        consul.hashicorp.com/connect-inject: "true"
+        consul.hashicorp.com/connect-service-upstreams: "counting:9001"
+    spec:
+      serviceAccountName: dashboard
+      containers:
+      - name: dashboard
+        image: hashicorp/dashboard-service:0.0.4
+        ports:
+        - containerPort: 9002
+          name: http
+        env:
+        - name: COUNTING_SERVICE_URL
+          value: "http://localhost:9001"
+---
+apiVersion: consul.hashicorp.com/v1alpha1
+kind: IngressGateway
+metadata:
+  name: ingress-gateway
+spec:
+  listeners:
+    - port: 8080
+      protocol: tcp
+      services:
+        - name: dashboard
+---
+apiVersion: consul.hashicorp.com/v1alpha1
+kind: ServiceIntentions
+metadata:
+  name: dashboard
+spec:
+  destination:
+    name: dashboard
+  sources:
+    - name: ingress-gateway
+      action: allow

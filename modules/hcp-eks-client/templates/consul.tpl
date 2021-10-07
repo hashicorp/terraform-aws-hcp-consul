@@ -2,7 +2,7 @@ global:
   enabled: false
   name: consul
   datacenter: ${datacenter}
-  image: "hashicorp/consul-enterprise:1.10.2-ent"
+  image: "hashicorp/consul-enterprise:1.10.3-ent"
   acls:
     manageSystemACLs: true
     bootstrapToken:
@@ -40,3 +40,10 @@ ui:
 
 controller:
   enabled: true
+
+ingressGateways:
+  enabled: true
+  gateways:
+    - name: ingress-gateway
+      service:
+        type: LoadBalancer

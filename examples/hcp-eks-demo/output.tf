@@ -1,9 +1,5 @@
-output "client_vpc_id" {
-  value = module.vpc.vpc_id
-}
-
 output "consul_root_token" {
-  value     = hcp_consul_cluster_root_token.token
+  value     = hcp_consul_cluster_root_token.token.secret_id
   sensitive = true
 }
 
@@ -17,4 +13,8 @@ output "consul_url" {
 
 output "kubeconfig_filename" {
   value = abspath(module.eks.kubeconfig_filename)
+}
+
+output "dashboard_url" {
+  value = module.demo_app.dashboard_url
 }

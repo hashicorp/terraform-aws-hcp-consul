@@ -88,3 +88,8 @@ module "eks_consul_client" {
   # the node group is successfully created.
   depends_on = [module.eks]
 }
+
+module "demo_app" {
+  source     = "../../modules/k8s-demo-app"
+  depends_on = [module.eks_consul_client]
+}
