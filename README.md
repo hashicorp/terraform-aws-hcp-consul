@@ -24,6 +24,7 @@ To support these examples, a few submodules are provided as useful utilities.
 
 - [hcp-ec2-client](https://github.com/hashicorp/terraform-aws-hcp-consul/tree/main/modules/hcp-ec2-client) - installs Consul and runs Consul clients with EC2 virtual machines.
 - [hcp-eks-client](https://github.com/hashicorp/terraform-aws-hcp-consul/tree/main/modules/hcp-eks-client) - installs the [Consul Helm chart](https://www.consul.io/docs/k8s/helm) on the provided Kubernetes cluster.
+- [k8s-demo-app](https://github.com/hashicorp/terraform-aws-hcp-consul/tree/main/modules/k8s-demo-app) - installs a demo application onto the Kubernetes cluster, using the Consul service mesh.
 
 ## License
 
