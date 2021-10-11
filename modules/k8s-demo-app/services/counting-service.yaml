@@ -49,3 +49,14 @@ spec:
         image: hashicorp/counting-service:0.0.2
         ports:
           - containerPort: 9001
+---
+apiVersion: consul.hashicorp.com/v1alpha1
+kind: ServiceIntentions
+metadata:
+  name: counting
+spec:
+  destination:
+    name: counting
+  sources:
+    - name: dashboard
+      action: allow
