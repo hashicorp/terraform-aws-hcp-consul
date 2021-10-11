@@ -39,19 +39,20 @@ locals {
   ])
 }
 
-data "hcp_hvn" "selected" {
-  hvn_id = var.hvn_id
-}
-
 data "aws_region" "current" {}
 
 data "aws_vpc" "selected" {
   id = var.vpc_id
 }
 
+data "aws_subnet" "selected" {
+  count = length(var.subnet_ids)
+  id    = var.subnet_ids[count.index]
+}
+
 resource "hcp_aws_network_peering" "default" {
-  peering_id      = "${data.hcp_hvn.selected.hvn_id}-peering"
-  hvn_id          = data.hcp_hvn.selected.hvn_id
+  peering_id      = "${var.hvn.hvn_id}-${data.aws_vpc.selected.id}"
+  hvn_id          = var.hvn.hvn_id
   peer_vpc_id     = data.aws_vpc.selected.id
   peer_account_id = data.aws_vpc.selected.owner_id
   peer_vpc_region = data.aws_region.current.name
@@ -63,17 +64,18 @@ resource "aws_vpc_peering_connection_accepter" "peer" {
 }
 
 resource "hcp_hvn_route" "peering_route" {
+  count            = length(var.subnet_ids)
   depends_on       = [aws_vpc_peering_connection_accepter.peer]
-  hvn_link         = data.hcp_hvn.selected.self_link
-  hvn_route_id     = "${data.hcp_hvn.selected.hvn_id}-peering-route"
-  destination_cidr = data.aws_vpc.selected.cidr_block
+  hvn_link         = var.hvn.self_link
+  hvn_route_id     = var.subnet_ids[count.index]
+  destination_cidr = data.aws_subnet.selected[count.index].cidr_block
   target_link      = hcp_aws_network_peering.default.self_link
 }
 
 resource "aws_route" "peering" {
   count                     = length(var.route_table_ids)
   route_table_id            = var.route_table_ids[count.index]
-  destination_cidr_block    = data.hcp_hvn.selected.cidr_block
+  destination_cidr_block    = var.hvn.cidr_block
   vpc_peering_connection_id = aws_vpc_peering_connection_accepter.peer.vpc_peering_connection_id
 }
 
@@ -83,7 +85,7 @@ resource "aws_security_group_rule" "hcp_consul_existing_grp" {
   description       = local.hcp_consul_security_groups[count.index].description
   protocol          = local.hcp_consul_security_groups[count.index].protocol
   security_group_id = local.hcp_consul_security_groups[count.index].security_group_id
-  cidr_blocks       = [data.hcp_hvn.selected.cidr_block]
+  cidr_blocks       = [var.hvn.cidr_block]
   from_port         = local.hcp_consul_security_groups[count.index].port
   to_port           = local.hcp_consul_security_groups[count.index].port
   type              = "ingress"
@@ -103,7 +105,7 @@ resource "aws_security_group_rule" "hcp_consul_new_grp" {
   description       = local.ingress_consul_rules[count.index].description
   protocol          = local.ingress_consul_rules[count.index].protocol
   security_group_id = aws_security_group.hcp_consul[0].id
-  cidr_blocks       = [data.hcp_hvn.selected.cidr_block]
+  cidr_blocks       = [var.hvn.cidr_block]
   from_port         = local.ingress_consul_rules[count.index].port
   to_port           = local.ingress_consul_rules[count.index].port
   type              = "ingress"

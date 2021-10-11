@@ -22,14 +22,10 @@ resource "hcp_hvn" "main" {
 
 module "aws_hcp_consul" {
   source          = "../../../terraform-aws-hcp-consul"
-  hvn_id          = hcp_hvn.main.hvn_id
+  hvn             = hcp_hvn.main
   vpc_id          = module.vpc.vpc_id
+  subnet_ids      = module.vpc.public_subnets
   route_table_ids = module.vpc.public_route_table_ids
-
-  # This is required because the hcp_hvn.main.hvn_id does not block
-  # on HVN creation, and thus we need to wait until the HVN is
-  # successfully created.
-  depends_on = [hcp_hvn.main]
 }
 
 resource "hcp_consul_cluster" "main" {
