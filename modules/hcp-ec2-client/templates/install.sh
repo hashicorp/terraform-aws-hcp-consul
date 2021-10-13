@@ -85,6 +85,9 @@ if [ "${demo_service_name}" = "counting-service" ]; then
   echo $common"{}}}}" > ${demo_service_name}.json
 else
   echo $common'{"proxy":{"upstreams":[{"destination_name":"counting-service","local_bind_port":9001}]}}}}}' > ${demo_service_name}.json
+
+  # Set up intentions so that the services can communicate to each other
+  consul intention create -token "${consul_acl_token}" -allow dashboard-service counting-service
 fi
 consul services register -token "${consul_acl_token}" ${demo_service_name}.json
 
