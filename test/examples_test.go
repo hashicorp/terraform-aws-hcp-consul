@@ -13,15 +13,23 @@ import (
 
 func TestTerraform_EC2DemoExample(t *testing.T) {
 	r := require.New(t)
+
+	tmpDir, err := CreateTestTerraform(t, "../examples/hcp-ec2-demo")
+	r.NoError(err)
 	terraformOptions := terraform.WithDefaultRetryableErrors(t, &terraform.Options{
-		TerraformDir: "../examples/hcp-ec2-demo",
+		TerraformDir: tmpDir,
 		Vars: map[string]interface{}{
-			"cluster_id": "test-ec2-example",
+			"cluster_id": "test-ec2",
+			"hvn_id":     "test-ec2",
 		},
 		NoColor: true,
 	})
 
 	t.Cleanup(func() {
+		// Set Vars to nil because the destroy can fail validation based on
+		// variables provided, such as length of an identifier, and the variables
+		// are not necessary for a destroy operation.
+		terraformOptions.Vars = nil
 		terraform.Destroy(t, terraformOptions)
 	})
 
@@ -80,15 +88,24 @@ func TestTerraform_EC2DemoExample(t *testing.T) {
 
 func TestTerraform_EKSDemoExample(t *testing.T) {
 	r := require.New(t)
+
+	tmpDir, err := CreateTestTerraform(t, "../examples/hcp-eks-demo")
+	r.NoError(err)
+
 	terraformOptions := terraform.WithDefaultRetryableErrors(t, &terraform.Options{
-		TerraformDir: "../examples/hcp-eks-demo",
+		TerraformDir: tmpDir,
 		Vars: map[string]interface{}{
-			"cluster_id": "test-eks-example",
+			"cluster_id": "test-eks",
+			"hvn_id":     "test-eks",
 		},
 		NoColor: true,
 	})
 
 	t.Cleanup(func() {
+		// Set Vars to nil because the destroy can fail validation based on
+		// variables provided, such as length of an identifier, and the variables
+		// are not necessary for a destroy operation.
+		terraformOptions.Vars = nil
 		terraform.Destroy(t, terraformOptions)
 	})
 

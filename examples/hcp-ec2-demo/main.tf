@@ -21,7 +21,8 @@ resource "hcp_hvn" "main" {
 }
 
 module "aws_hcp_consul" {
-  source          = "../../../terraform-aws-hcp-consul"
+  source = "hashicorp/hcp-consul/aws"
+
   hvn             = hcp_hvn.main
   vpc_id          = module.vpc.vpc_id
   subnet_ids      = module.vpc.public_subnets
@@ -41,8 +42,8 @@ resource "hcp_consul_cluster_root_token" "token" {
 }
 
 module "aws_ec2_consul_client" {
-  depends_on               = [module.aws_hcp_consul]
-  source                   = "../../modules/hcp-ec2-client"
+  source = "hashicorp/hcp-consul/aws//modules/hcp-ec2-client"
+
   subnet_id                = module.vpc.public_subnets[0]
   security_group_id        = module.aws_hcp_consul.security_group_id
   allowed_ssh_cidr_blocks  = ["0.0.0.0/0"]
@@ -50,4 +51,6 @@ module "aws_ec2_consul_client" {
   client_config_file       = hcp_consul_cluster.main.consul_config_file
   client_ca_file           = hcp_consul_cluster.main.consul_ca_file
   root_token               = hcp_consul_cluster_root_token.token.secret_id
+
+  depends_on = [module.aws_hcp_consul]
 }
