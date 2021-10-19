@@ -1,4 +1,4 @@
-package test
+package examples
 
 import (
 	"net/http"
@@ -14,7 +14,7 @@ import (
 func TestTerraform_EC2DemoExample(t *testing.T) {
 	r := require.New(t)
 
-	tmpDir, err := CreateTestTerraform(t, "../examples/hcp-ec2-demo")
+	tmpDir, err := CreateTestTerraform(t, "../../examples/hcp-ec2-demo")
 	r.NoError(err)
 
 	terraformOptions := terraform.WithDefaultRetryableErrors(t, &terraform.Options{
@@ -97,7 +97,7 @@ func TestTerraform_EC2DemoExample(t *testing.T) {
 func TestTerraform_EKSDemoExample(t *testing.T) {
 	r := require.New(t)
 
-	tmpDir, err := CreateTestTerraform(t, "../examples/hcp-eks-demo")
+	tmpDir, err := CreateTestTerraform(t, "../../examples/hcp-eks-demo")
 	r.NoError(err)
 
 	terraformOptions := terraform.WithDefaultRetryableErrors(t, &terraform.Options{
