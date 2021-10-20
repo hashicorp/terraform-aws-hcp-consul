@@ -46,7 +46,8 @@ resource "hcp_hvn" "main" {
 }
 
 module "aws_hcp_consul" {
-  source             = "../../../terraform-aws-hcp-consul"
+  source = "hashicorp/hcp-consul/aws"
+
   hvn                = hcp_hvn.main
   vpc_id             = module.vpc.vpc_id
   subnet_ids         = module.vpc.public_subnets
@@ -67,7 +68,7 @@ resource "hcp_consul_cluster_root_token" "token" {
 }
 
 module "eks_consul_client" {
-  source = "../../modules/hcp-eks-client"
+  source = "hashicorp/hcp-consul/aws//modules/hcp-eks-client"
 
   cluster_id       = hcp_consul_cluster.main.cluster_id
   consul_hosts     = jsondecode(base64decode(hcp_consul_cluster.main.consul_config_file))["retry_join"]
@@ -85,6 +86,6 @@ module "eks_consul_client" {
 }
 
 module "demo_app" {
-  source     = "../../modules/k8s-demo-app"
+  source     = "hashicorp/hcp-consul/aws//modules/k8s-demo-app"
   depends_on = [module.eks_consul_client]
 }
