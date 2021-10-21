@@ -26,10 +26,6 @@ func TestTerraform_EC2DemoExample(t *testing.T) {
 	})
 
 	t.Cleanup(func() {
-		// Set Vars to nil because the destroy can fail validation based on
-		// variables provided, such as length of an identifier, and the variables
-		// are not necessary for a destroy operation.
-		terraformOptions.Vars = nil
 		terraform.Destroy(t, terraformOptions)
 	})
 
@@ -102,10 +98,6 @@ func TestTerraform_EKSDemoExample(t *testing.T) {
 	})
 
 	t.Cleanup(func() {
-		// Set Vars to nil because the destroy can fail validation based on
-		// variables provided, such as length of an identifier, and the variables
-		// are not necessary for a destroy operation.
-		terraformOptions.Vars = nil
 		terraform.Destroy(t, terraformOptions)
 	})
 
