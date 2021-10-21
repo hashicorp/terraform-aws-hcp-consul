@@ -6,8 +6,12 @@ terraform {
     }
     hcp = {
       source  = "hashicorp/hcp"
-      version = ">= 0.15.0"
+      version = ">= 0.18.0"
     }
+  }
+
+  provider_meta "hcp" {
+    module_name = "hcp-consul"
   }
 }
 
