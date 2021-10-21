@@ -6,7 +6,7 @@ terraform {
     }
     hcp = {
       source  = "hashicorp/hcp"
-      version = ">= 0.15.0"
+      version = ">= 0.18.0"
     }
     kubernetes = {
       source  = "hashicorp/kubernetes"
@@ -20,6 +20,10 @@ terraform {
       source  = "gavinbunney/kubectl"
       version = ">= 1.11.3"
     }
+  }
+
+  provider_meta "hcp" {
+    module_name = "hcp-consul"
   }
 }
 

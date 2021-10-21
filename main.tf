@@ -3,12 +3,16 @@ terraform {
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      version = "~> 3.43"
+      version = ">= 3.43.0"
     }
     hcp = {
       source  = "hashicorp/hcp"
-      version = ">= 0.15.0"
+      version = ">= 0.18.0"
     }
+  }
+
+  provider_meta "hcp" {
+    module_name = "hcp-consul"
   }
 }
 
