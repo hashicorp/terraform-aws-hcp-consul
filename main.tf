@@ -55,7 +55,7 @@ data "aws_subnet" "selected" {
 }
 
 resource "hcp_aws_network_peering" "default" {
-  peering_id      = "${var.hvn.hvn_id}-${data.aws_vpc.selected.id}"
+  peering_id      = "${data.aws_vpc.selected.id}-peering"
   hvn_id          = var.hvn.hvn_id
   peer_vpc_id     = data.aws_vpc.selected.id
   peer_account_id = data.aws_vpc.selected.owner_id
