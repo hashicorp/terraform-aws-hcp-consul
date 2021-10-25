@@ -2,6 +2,35 @@
 
 Terraform module for connecting a HashiCorp Cloud Platform (HCP) Consul cluster to AWS.
 
+## Usage
+
+This module connects a HashiCorp Virtual Network (HVN) with an AWS VPC, ensuring
+that all networking rules are in place to allow a Consul client to communicate
+with the HCP Consul servers. The module accomplishes this in four steps:
+
+1. Create and accept a peering connection between the HVN and VPC
+2. Create HVN routes that will direct HCP traffic to the CIDR ranges of the
+   subnets.
+3. Create AWS routes for each AWS route table that will direct traffic to the
+   HVN's own CIDR range.
+4. Create AWS ingress rules necessary for HCP Consul to communicate to Consul
+   clients.
+
+```hcl
+module "aws_hcp_consul" {
+  source = "hashicorp/hcp-consul/aws"
+
+  hvn             = hcp_hvn.main
+  vpc_id          = "vpc-0daa4a0915f1857db"
+  subnet_ids      = ["subnet-098e9eb4bdd582522", "subnet-198e9eb4bdd582522"]
+  route_table_ids = ["rtb-079170034b7a99118", "rtb-179170034b7a99118"]
+
+  # Optionally provide security_group_ids. A new security group will be created
+  if none are provided.
+  security_group_ids = ["sg-0ba8d296a786e93c7"]
+}
+```
+
 ## Examples
 
 A number of examples are provided which will run the following setup:
