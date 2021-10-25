@@ -26,7 +26,7 @@ module "aws_hcp_consul" {
   route_table_ids = ["rtb-079170034b7a99118", "rtb-179170034b7a99118"]
 
   # Optionally provide security_group_ids. A new security group will be created
-  if none are provided.
+  # if none are provided.
   security_group_ids = ["sg-0ba8d296a786e93c7"]
 }
 ```
