@@ -38,7 +38,7 @@ resource "hcp_consul_cluster" "main" {
 }
 
 resource "hcp_consul_cluster_root_token" "token" {
-  cluster_id = hcp_consul_cluster.main.cluster_id
+  cluster_id = hcp_consul_cluster.main.id
 }
 
 module "aws_ec2_consul_client" {
