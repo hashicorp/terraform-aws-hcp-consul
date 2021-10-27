@@ -64,7 +64,7 @@ resource "hcp_consul_cluster" "main" {
 }
 
 resource "hcp_consul_cluster_root_token" "token" {
-  cluster_id = hcp_consul_cluster.main.cluster_id
+  cluster_id = hcp_consul_cluster.main.id
 }
 
 module "eks_consul_client" {
