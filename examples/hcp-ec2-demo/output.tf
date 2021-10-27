@@ -14,3 +14,11 @@ output "consul_url" {
 output "clients" {
   value = module.aws_ec2_consul_client
 }
+
+output "nomad" {
+  value = "http://${module.aws_ec2_consul_client.host_dns}:4646"
+}
+
+output "hashicups" {
+  value = "http://${module.aws_ec2_consul_client.host_dns}:8080"
+}

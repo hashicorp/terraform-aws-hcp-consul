@@ -31,8 +31,8 @@ The HCP Consul cluster can be accessed via the outputs `consul_url` and
 
 #### EC2 instances
 
-**Warning**: These instances, by default, are publicly accessible on port 8080,
-make sure to delete them when done.
+**Warning**: This instance, by default, is publicly accessible on port 8080 and 4646,
+make sure to delete it when done.
 
-The EC2 applications be accessed via the `clients` output, providing URLs to the
-two demo services, as well as the AWS instance IDs.
+The EC2 applications be accessed via the `hashicups` output, providing URL to the
+demo app.
