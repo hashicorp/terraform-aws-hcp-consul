@@ -51,9 +51,12 @@ func TestTerraform_EC2DemoExample(t *testing.T) {
 			return false
 		}
 
-		// We expect 5 total services, 1 for the Consul service, and 2 each for
-		// counting and dashboard service.
-		if len(svcs) == 5 {
+		// We expect 13 total services: 
+		//   1 for the Consul servers
+		//   1 for the Nomad servers
+		//   1 for the Nomand clients
+		//   10 for the 5 services with their sidecars
+		if len(svcs) == 13 {
 			return true
 		}
 
@@ -65,18 +68,12 @@ func TestTerraform_EC2DemoExample(t *testing.T) {
 		return false
 	}, 2*time.Minute, 10*time.Second)
 
-	var clients struct {
-		CountingURL  string `json:"counting_url"`
-		DashboardURL string `json:"dashboard_url"`
-	}
-	terraform.OutputStruct(t, terraformOptions, "clients", &clients)
-
-	resp, err := http.Get(clients.CountingURL)
+	resp, err := http.Get(terraform.Output(t, terraformOptions, "nomad"))
 	// We really just care that the service is reachable
 	r.NoError(err)
 	resp.Body.Close()
 
-	resp, err = http.Get(clients.DashboardURL)
+	resp, err = http.Get(terraform.Output(t, terraformOptions, "hashicups"))
 	// We really just care that the service is reachable
 	r.NoError(err)
 	resp.Body.Close()

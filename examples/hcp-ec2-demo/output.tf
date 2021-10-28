@@ -11,8 +11,8 @@ output "consul_url" {
   )
 }
 
-output "clients" {
-  value = module.aws_ec2_consul_client
+output "nomad_ec2_id" {
+  value = module.aws_ec2_consul_client.host_id
 }
 
 output "nomad" {
