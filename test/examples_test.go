@@ -16,6 +16,7 @@ func TestTerraform_EC2DemoExample(t *testing.T) {
 
 	tmpDir, err := CreateTestTerraform(t, "../examples/hcp-ec2-demo")
 	r.NoError(err)
+
 	terraformOptions := terraform.WithDefaultRetryableErrors(t, &terraform.Options{
 		TerraformDir: tmpDir,
 		Vars: map[string]interface{}{
