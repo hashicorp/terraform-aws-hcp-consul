@@ -15,6 +15,6 @@ output "kubeconfig_filename" {
   value = abspath(module.eks.kubeconfig_filename)
 }
 
-output "dashboard_url" {
-  value = module.demo_app.dashboard_url
+output "hashicups_url" {
+  value = module.demo_app.hashicups_url
 }

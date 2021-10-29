@@ -23,7 +23,9 @@ module "vpc" {
 }
 
 module "eks" {
-  source          = "terraform-aws-modules/eks/aws"
+  source  = "terraform-aws-modules/eks/aws"
+  version = "17.22.0"
+
   cluster_name    = "hcp-${var.cluster_id}"
   cluster_version = "1.21"
   subnets         = module.vpc.private_subnets

@@ -6,6 +6,7 @@ metadata:
 spec:
   listeners:
     - port: 8080
-      protocol: tcp
+      protocol: http
       services:
-        - name: dashboard
+        - name: frontend
+          hosts: ["*"]

@@ -33,10 +33,10 @@ client:
   join: ${consul_hosts}
 
 connectInject:
+  transparentProxy:
+    defaultEnabled: true
   enabled: true
-
-ui:
-  enabled: true
+  default: true
 
 controller:
   enabled: true
@@ -47,3 +47,5 @@ ingressGateways:
     - name: ingress-gateway
       service:
         type: LoadBalancer
+        ports:
+        - port: 8080
