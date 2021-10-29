@@ -14,7 +14,7 @@ setup_deps () {
   curl -sL 'https://deb.dl.getenvoy.io/public/gpg.8115BA8E629CC074.key' | gpg --dearmor -o /usr/share/keyrings/getenvoy-keyring.gpg
   echo "deb [arch=amd64 signed-by=/usr/share/keyrings/getenvoy-keyring.gpg] https://deb.dl.getenvoy.io/public/deb/ubuntu $(lsb_release -cs) main" | tee /etc/apt/sources.list.d/getenvoy.list
   apt update -qy
-  apt install -qy apt-transport-https gnupg2 curl lsb-release nomad consul getenvoy-envoy unzip jq
+  apt install -qy apt-transport-https gnupg2 curl lsb-release nomad consul-enterprise.x86_64 getenvoy-envoy unzip jq
 
 	curl -fsSL https://get.docker.com -o get-docker.sh
 	sh ./get-docker.sh
