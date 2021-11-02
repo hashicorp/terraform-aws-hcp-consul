@@ -14,7 +14,7 @@ setup_deps () {
   curl -sL 'https://deb.dl.getenvoy.io/public/gpg.8115BA8E629CC074.key' | gpg --dearmor -o /usr/share/keyrings/getenvoy-keyring.gpg
   echo "deb [arch=amd64 signed-by=/usr/share/keyrings/getenvoy-keyring.gpg] https://deb.dl.getenvoy.io/public/deb/ubuntu $(lsb_release -cs) main" | tee /etc/apt/sources.list.d/getenvoy.list
   apt update -qy
-  apt install -qy apt-transport-https gnupg2 curl lsb-release nomad consul-enterprise getenvoy-envoy unzip jq
+  apt install -qy apt-transport-https gnupg2 curl lsb-release nomad consul-enterprise getenvoy-envoy unzip jq apache2-utils nginx
 
 	curl -fsSL https://get.docker.com -o get-docker.sh
 	sh ./get-docker.sh
@@ -43,6 +43,13 @@ setup_consul() {
 	jq '.bind_addr = "{{ GetPrivateInterfaces | include \"network\" \"10.0.0.0/8\" | attr \"address\" }}"' client.temp.3 > /etc/consul.d/client.json
 }
 
+setup_nginx() {
+	mkdir -p /etc/nginx/
+	echo "${consul_acl_token}" | htpasswd -i -c /etc/nginx/.htaccess nomad
+	echo "${nginx_conf}" | base64 -d > /etc/nginx/nginx.conf
+	systemctl restart nginx
+}
+
 cd /home/ubuntu/
 
 echo "${consul_service}" | base64 -d > consul.service
@@ -52,6 +59,7 @@ echo "${hashicups}" | base64 -d > hashicups.nomad
 setup_networking
 setup_deps
 
+setup_nginx
 setup_consul
 
 start_service "consul"

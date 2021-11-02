@@ -29,10 +29,13 @@ terraform init && terraform apply
 The HCP Consul cluster can be accessed via the outputs `consul_url` and
 `consul_root_token`.
 
+#### Nomad 
+
+This example is running on nomad, which can be accessed via the outputs `nomad_url` with the username `nomad` and `consul_root_token`.
+
 #### EC2 instances
 
 **Warning**: This instance, by default, is publicly accessible on port 8080 and 4646,
 make sure to delete it when done.
 
-The EC2 applications be accessed via the `hashicups` output, providing URL to the
-demo app.
+The EC2 applications be accessed via the `hashicups_url` output, providing URL to the demo app.

@@ -26,12 +26,12 @@ resource "aws_security_group_rule" "allow_ssh_inbound" {
 }
 
 resource "aws_security_group_rule" "allow_nomad_inbound" {
-  count       = length(var.allowed_ssh_cidr_blocks) >= 1 ? 1 : 0
+  count       = length(var.allowed_http_cidr_blocks) >= 1 ? 1 : 0
   type        = "ingress"
-  from_port   = 4646
-  to_port     = 4646
+  from_port   = 8081
+  to_port     = 8081
   protocol    = "tcp"
-  cidr_blocks = var.allowed_ssh_cidr_blocks
+  cidr_blocks = var.allowed_http_cidr_blocks
 
   security_group_id = var.security_group_id
 }
@@ -67,7 +67,8 @@ resource "aws_instance" "nomad_host" {
         service_name = "nomad",
         service_cmd  = "/usr/bin/nomad agent -dev-connect -consul-token=${var.root_token}",
       })),
-      hashicups = base64encode(file("${path.module}/templates/hashicups.nomad")),
+      hashicups  = base64encode(file("${path.module}/templates/hashicups.nomad")),
+      nginx_conf = base64encode(file("${path.module}/templates/nginx.conf")),
     })),
   })
 
