@@ -6,8 +6,6 @@ After=network-online.target
 [Service]
 Environment="PORT=8080"
 Type=simple
-User=${service_name}
-Group=${service_name}
 ExecStart=${service_cmd}
 ExecReload=/bin/kill --signal HUP $MAINPID
 KillMode=process

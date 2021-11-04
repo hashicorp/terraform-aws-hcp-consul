@@ -16,6 +16,7 @@ func TestTerraform_EC2DemoExample(t *testing.T) {
 
 	tmpDir, err := CreateTestTerraform(t, "../examples/hcp-ec2-demo")
 	r.NoError(err)
+
 	terraformOptions := terraform.WithDefaultRetryableErrors(t, &terraform.Options{
 		TerraformDir: tmpDir,
 		Vars: map[string]interface{}{
@@ -32,6 +33,20 @@ func TestTerraform_EC2DemoExample(t *testing.T) {
 	terraform.InitAndApply(t, terraformOptions)
 
 	aclToken := terraform.Output(t, terraformOptions, "consul_root_token")
+
+	client := &http.Client{}
+	r.Eventually(func() bool {
+		req, err := http.NewRequest("GET", terraform.Output(t, terraformOptions, "nomad_url"), nil)
+		req.SetBasicAuth("nomad", aclToken)
+		resp, err := client.Do(req)
+		// We really just care that the service is reachable
+		if err != nil {
+			return false
+		}
+		resp.Body.Close()
+		return true
+	}, 10*time.Minute, 10*time.Second)
+
 	consulUrl := terraform.Output(t, terraformOptions, "consul_url")
 	parsedURL, err := url.Parse(consulUrl)
 	r.NoError(err)
@@ -51,9 +66,12 @@ func TestTerraform_EC2DemoExample(t *testing.T) {
 			return false
 		}
 
-		// We expect 5 total services, 1 for the Consul service, and 2 each for
-		// counting and dashboard service.
-		if len(svcs) == 5 {
+		// We expect 13 total services:
+		//   1 for the Consul servers
+		//   1 for the Nomad servers
+		//   1 for the Nomand clients
+		//   10 for the 5 services with their sidecars
+		if len(svcs) == 13 {
 			return true
 		}
 
@@ -63,23 +81,17 @@ func TestTerraform_EC2DemoExample(t *testing.T) {
 		}
 		t.Logf("unexpected number of services registered: %v", registered)
 		return false
+	}, 10*time.Minute, 10*time.Second)
+
+	r.Eventually(func() bool {
+		resp, err := http.Get(terraform.Output(t, terraformOptions, "hashicups_url"))
+		// We really just care that the service is reachable
+		if err != nil {
+			return false
+		}
+		resp.Body.Close()
+		return true
 	}, 2*time.Minute, 10*time.Second)
-
-	var clients struct {
-		CountingURL  string `json:"counting_url"`
-		DashboardURL string `json:"dashboard_url"`
-	}
-	terraform.OutputStruct(t, terraformOptions, "clients", &clients)
-
-	resp, err := http.Get(clients.CountingURL)
-	// We really just care that the service is reachable
-	r.NoError(err)
-	resp.Body.Close()
-
-	resp, err = http.Get(clients.DashboardURL)
-	// We really just care that the service is reachable
-	r.NoError(err)
-	resp.Body.Close()
 }
 
 func TestTerraform_EKSDemoExample(t *testing.T) {
