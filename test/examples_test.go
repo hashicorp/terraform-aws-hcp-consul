@@ -33,6 +33,20 @@ func TestTerraform_EC2DemoExample(t *testing.T) {
 	terraform.InitAndApply(t, terraformOptions)
 
 	aclToken := terraform.Output(t, terraformOptions, "consul_root_token")
+
+	client := &http.Client{}
+	r.Eventually(func() bool {
+		req, err := http.NewRequest("GET", terraform.Output(t, terraformOptions, "nomad_url"), nil)
+		req.SetBasicAuth("nomad", aclToken)
+		resp, err := client.Do(req)
+		// We really just care that the service is reachable
+		if err != nil {
+			return false
+		}
+		resp.Body.Close()
+		return true
+	}, 10*time.Minute, 10*time.Second)
+
 	consulUrl := terraform.Output(t, terraformOptions, "consul_url")
 	parsedURL, err := url.Parse(consulUrl)
 	r.NoError(err)
@@ -52,7 +66,7 @@ func TestTerraform_EC2DemoExample(t *testing.T) {
 			return false
 		}
 
-		// We expect 13 total services: 
+		// We expect 13 total services:
 		//   1 for the Consul servers
 		//   1 for the Nomad servers
 		//   1 for the Nomand clients
@@ -67,17 +81,17 @@ func TestTerraform_EC2DemoExample(t *testing.T) {
 		}
 		t.Logf("unexpected number of services registered: %v", registered)
 		return false
+	}, 10*time.Minute, 10*time.Second)
+
+	r.Eventually(func() bool {
+		resp, err := http.Get(terraform.Output(t, terraformOptions, "hashicups_url"))
+		// We really just care that the service is reachable
+		if err != nil {
+			return false
+		}
+		resp.Body.Close()
+		return true
 	}, 2*time.Minute, 10*time.Second)
-
-	resp, err := http.Get(terraform.Output(t, terraformOptions, "nomad"))
-	// We really just care that the service is reachable
-	r.NoError(err)
-	resp.Body.Close()
-
-	resp, err = http.Get(terraform.Output(t, terraformOptions, "hashicups"))
-	// We really just care that the service is reachable
-	r.NoError(err)
-	resp.Body.Close()
 }
 
 func TestTerraform_EKSDemoExample(t *testing.T) {

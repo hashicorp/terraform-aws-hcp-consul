@@ -21,7 +21,7 @@ resource "hcp_hvn" "main" {
 }
 
 module "aws_hcp_consul" {
-  source = "../../../terraform-aws-hcp-consul"
+  source = "hashicorp/hcp-consul/aws"
 
   hvn             = hcp_hvn.main
   vpc_id          = module.vpc.vpc_id
@@ -42,7 +42,7 @@ resource "hcp_consul_cluster_root_token" "token" {
 }
 
 module "aws_ec2_consul_client" {
-  source = "../../modules/hcp-ec2-client"
+  source = "hashicorp/hcp-consul/aws//modules/hcp-ec2-client"
 
   subnet_id                = module.vpc.public_subnets[0]
   security_group_id        = module.aws_hcp_consul.security_group_id
