@@ -35,7 +35,7 @@ This example is running on nomad, which can be accessed via the outputs `nomad_u
 
 #### EC2 instances
 
-**Warning**: This instance, by default, is publicly accessible on port 8080 and 4646,
+**Warning**: This instance, by default, is publicly accessible on port 8080 and 8081,
 make sure to delete it when done.
 
 The EC2 applications be accessed via the `hashicups_url` output, providing URL to the demo app.
