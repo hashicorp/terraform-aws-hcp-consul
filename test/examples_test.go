@@ -135,9 +135,11 @@ func TestTerraform_EKSDemoExample(t *testing.T) {
 			return false
 		}
 
-		// We expect 6 total services, 1 for the Consul service, 1 for the ingress
-		// gateway, and 2 each for counting and dashboard service.
-		if len(svcs) == 6 {
+		// We expect 12 total services.
+		// - 1 for the Consul service
+		// - 1 for the ingress gateway
+		// - 10 for the demo app and corresponding sidecar proxies
+		if len(svcs) == 12 {
 			return true
 		}
 
@@ -149,8 +151,8 @@ func TestTerraform_EKSDemoExample(t *testing.T) {
 		return false
 	}, 1*time.Minute, 5*time.Second)
 
-	dashboardURL := terraform.Output(t, terraformOptions, "dashboard_url")
-	resp, err := http.Get(dashboardURL)
+	hashicups := terraform.Output(t, terraformOptions, "hashicups_url")
+	resp, err := http.Get(hashicups)
 	// We really just care that the service is reachable
 	r.NoError(err)
 	resp.Body.Close()

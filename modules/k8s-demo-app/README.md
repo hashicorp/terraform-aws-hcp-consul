@@ -2,6 +2,10 @@
 
 A Terraform module used to install a demo application for HCP Consul.
 
-This module will install two services, `dashboard` and `counting`, along with
-their associated deployments, service accounts, etc. Alongside, it will use
-Consul CRDs to configure an ingress gateway to expose the `dashboard` service.
+⚠️ **IMPORTANT:** This module will deploy an example application that is
+available publicly over the internet. This should only be used for example
+purposes and deleted when done.
+
+This module will install the HashiCups demo application, a common example app
+used through HashiCorp tutorials. The `frontend` service will be exposed via an
+Ingress Gateway.
