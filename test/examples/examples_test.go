@@ -157,3 +157,66 @@ func TestTerraform_EKSDemoExample(t *testing.T) {
 	r.NoError(err)
 	resp.Body.Close()
 }
+
+func TestTerraform_ECSDemoExample(t *testing.T) {
+	r := require.New(t)
+
+	tmpDir, err := CreateTestTerraform(t, "../../examples/hcp-ecs-demo")
+	r.NoError(err)
+
+	terraformOptions := terraform.WithDefaultRetryableErrors(t, &terraform.Options{
+		TerraformDir: tmpDir,
+		Vars: map[string]interface{}{
+			"cluster_id": "test-ecs",
+			"hvn_id":     "test-ecs",
+		},
+		NoColor: true,
+	})
+
+	t.Cleanup(func() {
+		terraform.Destroy(t, terraformOptions)
+	})
+
+	terraform.InitAndApply(t, terraformOptions)
+
+	aclToken := terraform.Output(t, terraformOptions, "consul_root_token")
+	consulURL := terraform.Output(t, terraformOptions, "consul_url")
+	parsedURL, err := url.Parse(consulURL)
+	r.NoError(err)
+
+	c := &api.Config{
+		Address: parsedURL.Host,
+		Scheme:  parsedURL.Scheme,
+		Token:   aclToken,
+	}
+	consul, err := api.NewClient(c)
+	r.NoError(err)
+
+	r.Eventually(func() bool {
+		svcs, _, err := consul.Catalog().Services(nil)
+		if err != nil {
+			t.Logf("failed to query Consul services: %s", err)
+			return false
+		}
+
+		// We expect 12 total services.
+		// - 1 for the Consul service
+		// - 10 for the demo app and corresponding sidecar proxies
+		if len(svcs) == 11 {
+			return true
+		}
+
+		var registered []string
+		for k := range svcs {
+			registered = append(registered, k)
+		}
+		t.Logf("unexpected number of services registered: %v", registered)
+		return false
+	}, 1*time.Minute, 5*time.Second)
+
+	hashicups := terraform.Output(t, terraformOptions, "hashicups_url")
+	resp, err := http.Get(hashicups)
+	// We really just care that the service is reachable
+	r.NoError(err)
+	resp.Body.Close()
+}
