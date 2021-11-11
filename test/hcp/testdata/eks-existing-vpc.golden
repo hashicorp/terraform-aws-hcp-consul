@@ -77,6 +77,7 @@ module "eks" {
 
   node_groups = {
     application = {
+      name_prefix      = "hashicups"
       instance_types   = ["t3a.medium"]
       desired_capacity = 3
       max_capacity     = 3
