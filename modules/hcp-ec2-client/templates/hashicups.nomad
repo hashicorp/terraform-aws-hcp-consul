@@ -5,20 +5,20 @@ job "hashicups" {
     network {
       mode = "bridge"
       port "http" {
-        static = 8080
+        static = 80
       }
     }
 
     service {
       name = "frontend"
-      port = "8080"
+      port = "80"
 
       connect {
         sidecar_service {
           proxy {
             upstreams {
               destination_name = "product-public-api"
-              local_bind_port  = 5000
+              local_bind_port  = 18080
             }            
           }
         }
@@ -31,34 +31,6 @@ job "hashicups" {
       config {
         image = "hashicorpdemoapp/frontend:v0.0.5"
         ports = ["http"]
-        volumes = ["local/config.conf:/etc/nginx/conf.d/default.conf"]
-      }
-
-
-      template {
-        data = <<EOF
-server {
-	listen       8080;
-	server_name  localhost;
-	proxy_http_version 1.1;
-	proxy_set_header Upgrade $http_upgrade;
-	proxy_set_header Connection "Upgrade";
-	proxy_set_header Host $host;
-	location / {
-		root   /usr/share/nginx/html;
-		index  index.html index.htm;
-	}
-	location /api {
-		proxy_pass http://localhost:5000;
-	}
-	error_page   500 502 503 504  /50x.html;
-	location = /50x.html {
-		root   /usr/share/nginx/html;
-	}
-}
-EOF
-
-        destination = "local/config.conf"
       }
     }
   }
@@ -162,24 +134,13 @@ EOF
       driver = "docker"
 
       config {
-        image   = "hashicorpdemoapp/product-api:v0.0.17"
-        volumes = ["local/config.json:/config/config.json"]
+        image   = "hashicorpdemoapp/product-api:v0.0.18"
       }
 
       env {
         CONFIG_FILE = "/config/config.json"
-      }
-
-      template {
-        data = <<EOF
-{
-  "db_connection": "host=localhost port=5000 user=postgres password=password dbname=products sslmode=disable",
-  "bind_address": "0.0.0.0:9090",
-  "metrics_address": "0.0.0.0:9091"
-}
-EOF
-
-        destination = "local/config.json"
+				DB_CONNECTION = "host=localhost port=5000 user=postgres password=password dbname=products sslmode=disable"
+				BIND_ADDRESS = "0.0.0.0:9090"
       }
     }
   }
