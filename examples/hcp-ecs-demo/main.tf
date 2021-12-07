@@ -39,6 +39,22 @@ resource "hcp_consul_cluster" "main" {
   tier            = var.tier
 }
 
+resource "consul_config_entry" "service_intentions" {
+  name = "*"
+  kind = "service-intentions"
+
+  config_json = jsonencode({
+    Sources = [
+      {
+        Action     = "allow"
+        Name       = "*"
+        Precedence = 9
+        Type       = "consul"
+      },
+    ]
+  })
+}
+
 resource "hcp_consul_cluster_root_token" "token" {
   cluster_id = hcp_consul_cluster.main.id
 }
