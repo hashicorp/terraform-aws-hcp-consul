@@ -45,6 +45,22 @@ provider "kubernetes" {
   token                  = data.aws_eks_cluster_auth.cluster.token
 }
 
+provider "helm" {
+  alias = "eks-2"
+  kubernetes {
+    host                   = data.aws_eks_cluster.cluster2.endpoint
+    cluster_ca_certificate = base64decode(data.aws_eks_cluster.cluster2.certificate_authority.0.data)
+    token                  = data.aws_eks_cluster_auth.cluster2.token
+  }
+}
+
+provider "kubernetes" {
+  alias                  = "eks-2"
+  host                   = data.aws_eks_cluster.cluster2.endpoint
+  cluster_ca_certificate = base64decode(data.aws_eks_cluster.cluster2.certificate_authority.0.data)
+  token                  = data.aws_eks_cluster_auth.cluster2.token
+}
+
 provider "kubectl" {
   host                   = data.aws_eks_cluster.cluster.endpoint
   cluster_ca_certificate = base64decode(data.aws_eks_cluster.cluster.certificate_authority.0.data)

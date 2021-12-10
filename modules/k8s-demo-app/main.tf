@@ -25,7 +25,7 @@ resource "kubectl_manifest" "applications" {
 
 data "kubernetes_service" "ingress" {
   metadata {
-    name = "consul-ingress-gateway"
+    name = "${var.prefix}-ingress-gateway"
   }
 
   depends_on = [kubectl_manifest.applications]

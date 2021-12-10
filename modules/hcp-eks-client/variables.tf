@@ -48,5 +48,5 @@ variable "cluster_id" {
 variable "chart_version" {
   type        = string
   description = "The Consul Helm chart version to use"
-  default     = "0.33.0"
+  default     = "0.38.0"
 }

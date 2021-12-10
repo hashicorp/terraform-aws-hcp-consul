@@ -1,8 +1,12 @@
 global:
+  enableConsulNamespaces: true
   enabled: false
-  name: consul
+  name: consul-${cluster_id}
   datacenter: ${datacenter}
-  image: "hashicorp/consul-enterprise:1.10.3-ent"
+  image: "hashicorp/consul-enterprise:1.11.0-ent-rc"
+  adminPartitions:
+    enabled: true
+    name: ${cluster_id}
   acls:
     manageSystemACLs: true
     bootstrapToken:

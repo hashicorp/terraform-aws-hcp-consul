@@ -4,15 +4,19 @@ output "consul_root_token" {
 }
 
 output "consul_url" {
-  value = hcp_consul_cluster.main.public_endpoint ? (
-    hcp_consul_cluster.main.consul_public_endpoint_url
+  value = data.hcp_consul_cluster.main.public_endpoint ? (
+    data.hcp_consul_cluster.main.consul_public_endpoint_url
     ) : (
-    hcp_consul_cluster.main.consul_private_endpoint_url
+    data.hcp_consul_cluster.main.consul_private_endpoint_url
   )
 }
 
 output "kubeconfig_filename" {
   value = abspath(module.eks.kubeconfig_filename)
+}
+
+output "kubeconfig_filename-2" {
+  value = abspath(module.eks-2.kubeconfig_filename)
 }
 
 output "hashicups_url" {
