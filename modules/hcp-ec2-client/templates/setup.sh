@@ -65,11 +65,11 @@ setup_consul
 start_service "consul"
 start_service "nomad"
 
-consul intention create -token "${consul_acl_token}" -allow '*' '*' || true
 
-# nomad service is type simple and might not be up and running just yet.
+# nomad and consul service is type simple and might not be up and running just yet.
 sleep 10
 
+consul intention create -token "${consul_acl_token}" -allow '*' '*' || true
 nomad run hashicups.nomad
 
 echo "done"
