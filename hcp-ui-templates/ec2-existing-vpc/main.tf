@@ -17,7 +17,7 @@ locals {
   cluster_id     = "{{ .ClusterID }}"
   vpc_id         = "{{ .VPCID }}"
   route_table_id = "{{ .RouteTableID }}"
-  subnet1        = "{{ .Subnet1 }}"
+  public_subnet1 = "{{ .PublicSubnet1 }}"
 }
 
 provider "aws" {
@@ -37,7 +37,7 @@ module "aws_hcp_consul" {
 
   hvn             = hcp_hvn.main
   vpc_id          = local.vpc_id
-  subnet_ids      = [local.subnet1]
+  subnet_ids      = [local.public_subnet1]
   route_table_ids = [local.route_table_id]
 }
 
@@ -56,7 +56,7 @@ module "aws_ec2_consul_client" {
   source  = "hashicorp/hcp-consul/aws//modules/hcp-ec2-client"
   version = "0.3.0"
 
-  subnet_id                = local.subnet1
+  subnet_id                = local.public_subnet1
   security_group_id        = module.aws_hcp_consul.security_group_id
   allowed_ssh_cidr_blocks  = ["0.0.0.0/0"]
   allowed_http_cidr_blocks = ["0.0.0.0/0"]
