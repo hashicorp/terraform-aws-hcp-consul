@@ -11,10 +11,6 @@ output "consul_url" {
   )
 }
 
-output "nomad_ec2_id" {
-  value = module.aws_ec2_consul_client.host_id
-}
-
 output "nomad_url" {
   value = "http://${module.aws_ec2_consul_client.host_dns}:8081"
 }
