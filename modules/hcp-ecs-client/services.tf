@@ -1,6 +1,6 @@
 module "acl-controller" {
   source  = "hashicorp/consul-ecs/aws//modules/acl-controller"
-  version = "0.2.0"
+  version = "~> 0.2.0"
 
   log_configuration = {
     logDriver = "awslogs"
@@ -22,7 +22,7 @@ module "acl-controller" {
 
 module "frontend" {
   source  = "hashicorp/consul-ecs/aws//modules/mesh-task"
-  version = "0.2.0"
+  version = "~> 0.2.0"
 
   family = "frontend"
   container_definitions = [
@@ -106,7 +106,7 @@ resource "aws_ecs_service" "frontend" {
 
 module "public_api" {
   source  = "hashicorp/consul-ecs/aws//modules/mesh-task"
-  version = "0.2.0"
+  version = "~> 0.2.0"
 
 
   family = "public_api"
@@ -200,7 +200,7 @@ resource "aws_ecs_service" "public_api" {
 
 module "payment_api" {
   source  = "hashicorp/consul-ecs/aws//modules/mesh-task"
-  version = "0.2.0"
+  version = "~> 0.2.0"
 
   family = "payment_api"
   container_definitions = [
@@ -270,7 +270,7 @@ resource "aws_ecs_service" "payment_api" {
 
 module "product_api" {
   source  = "hashicorp/consul-ecs/aws//modules/mesh-task"
-  version = "0.2.0"
+  version = "~> 0.2.0"
 
   family = "product_api"
   container_definitions = [
@@ -357,7 +357,7 @@ resource "aws_ecs_service" "product_api" {
 
 module "product_db" {
   source  = "hashicorp/consul-ecs/aws//modules/mesh-task"
-  version = "0.2.0"
+  version = "~> 0.2.0"
 
   family = "product_db"
   container_definitions = [
