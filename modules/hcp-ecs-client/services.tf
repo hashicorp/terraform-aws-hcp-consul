@@ -70,8 +70,7 @@ module "frontend" {
     }
   }
 
-  port             = local.frontend_port
-  consul_ecs_image = "docker.mirror.hashicorp.services/hashicorpdev/consul-ecs:latest"
+  port = local.frontend_port
 
   retry_join        = var.client_retry_join
   consul_datacenter = var.datacenter
@@ -170,8 +169,7 @@ module "public_api" {
     }
   }
 
-  port             = "8080"
-  consul_ecs_image = "docker.mirror.hashicorp.services/hashicorpdev/consul-ecs:latest"
+  port = "8080"
 
   retry_join        = var.client_retry_join
   consul_datacenter = var.datacenter
@@ -241,8 +239,7 @@ module "payment_api" {
     }
   }
 
-  port             = "8080"
-  consul_ecs_image = "docker.mirror.hashicorp.services/hashicorpdev/consul-ecs:latest"
+  port = "8080"
 
   retry_join        = var.client_retry_join
   consul_datacenter = var.datacenter
@@ -329,8 +326,7 @@ module "product_api" {
     }
   }
 
-  port             = "8080"
-  consul_ecs_image = "docker.mirror.hashicorp.services/hashicorpdev/consul-ecs:latest"
+  port = "8080"
 
   retry_join        = var.client_retry_join
   consul_datacenter = var.datacenter
@@ -414,8 +410,7 @@ module "product_db" {
     }
   }
 
-  port             = "5432"
-  consul_ecs_image = "docker.mirror.hashicorp.services/hashicorpdev/consul-ecs:latest"
+  port = "5432"
 
   retry_join        = var.client_retry_join
   consul_datacenter = var.datacenter
