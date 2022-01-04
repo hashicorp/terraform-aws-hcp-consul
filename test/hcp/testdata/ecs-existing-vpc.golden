@@ -84,7 +84,7 @@ resource "hcp_consul_cluster_root_token" "token" {
 
 module "aws_ecs_cluster" {
   source  = "hashicorp/hcp-consul/aws//modules/hcp-ecs-client"
-  version = "~> 0.3.1"
+  version = "~> 0.4.0"
 
   private_subnet_ids       = [local.private_subnet1, local.private_subnet2]
   public_subnet_ids        = [local.public_subnet1, local.public_subnet2]
