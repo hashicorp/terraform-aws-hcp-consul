@@ -29,8 +29,8 @@ locals {
   cluster_id     = "{{ .ClusterID }}"
   vpc_id         = "{{ .VPCID }}"
   route_table_id = "{{ .RouteTableID }}"
-  subnet1        = "{{ .Subnet1 }}"
-  subnet2        = "{{ .Subnet2 }}"
+  public_subnet1 = "{{ .PublicSubnet1 }}"
+  public_subnet2 = "{{ .PublicSubnet2 }}"
 }
 
 provider "aws" {
@@ -72,7 +72,7 @@ module "eks" {
 
   cluster_name    = "${local.cluster_id}-eks"
   cluster_version = "1.21"
-  subnets         = [local.subnet1, local.subnet2]
+  subnets         = [local.public_subnet1, local.public_subnet2]
   vpc_id          = local.vpc_id
 
   node_groups = {
@@ -99,7 +99,7 @@ module "aws_hcp_consul" {
 
   hvn                = hcp_hvn.main
   vpc_id             = local.vpc_id
-  subnet_ids         = [local.subnet1, local.subnet2]
+  subnet_ids         = [local.public_subnet1, local.public_subnet2]
   route_table_ids    = [local.route_table_id]
   security_group_ids = [module.eks.cluster_primary_security_group_id]
 }

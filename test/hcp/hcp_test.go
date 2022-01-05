@@ -12,13 +12,15 @@ import (
 )
 
 type HCPTemplate struct {
-	VPCRegion    string
-	HVNRegion    string
-	VPCID        string
-	ClusterID    string
-	RouteTableID string
-	Subnet1      string
-	Subnet2      string
+	VPCRegion      string
+	HVNRegion      string
+	VPCID          string
+	ClusterID      string
+	RouteTableID   string
+	PublicSubnet1  string
+	PublicSubnet2  string
+	PrivateSubnet1 string
+	PrivateSubnet2 string
 }
 
 const (
@@ -47,12 +49,12 @@ func TestHCPTemplates(t *testing.T) {
 			name:         "ec2-existing-vpc",
 			templatePath: filepath.Join(hcpRootDir, "ec2-existing-vpc", "main.tf"),
 			templateValues: HCPTemplate{
-				VPCRegion:    "us-east-1",
-				HVNRegion:    "us-west-2",
-				ClusterID:    "consul-quickstart-2634271483588",
-				VPCID:        "vpc-071d21e09127bb012",
-				RouteTableID: "rtb-02b0b92efeae83c28",
-				Subnet1:      "subnet-04afc1709a875ad5d",
+				VPCRegion:     "us-east-1",
+				HVNRegion:     "us-west-2",
+				ClusterID:     "consul-quickstart-2634271483588",
+				VPCID:         "vpc-071d21e09127bb012",
+				RouteTableID:  "rtb-02b0b92efeae83c28",
+				PublicSubnet1: "subnet-04afc1709a875ad5d",
 			},
 		},
 		{
@@ -68,13 +70,35 @@ func TestHCPTemplates(t *testing.T) {
 			name:         "eks-existing-vpc",
 			templatePath: filepath.Join(hcpRootDir, "eks-existing-vpc", "main.tf"),
 			templateValues: HCPTemplate{
-				VPCRegion:    "eu-west-1",
-				HVNRegion:    "eu-west-2",
-				ClusterID:    "consul-quickstart-4634271483588",
-				VPCID:        "vpc-171d21e09127bb012",
-				RouteTableID: "rtb-12b0b92efeae83c28",
-				Subnet1:      "subnet-14afc1709a875ad5d",
-				Subnet2:      "subnet-1aa8d55f44387908d",
+				VPCRegion:     "eu-west-1",
+				HVNRegion:     "eu-west-2",
+				ClusterID:     "consul-quickstart-4634271483588",
+				VPCID:         "vpc-171d21e09127bb012",
+				RouteTableID:  "rtb-12b0b92efeae83c28",
+				PublicSubnet1: "subnet-14afc1709a875ad5d",
+				PublicSubnet2: "subnet-1aa8d55f44387908d",
+			},
+		},
+		{
+			name:         "ecs",
+			templatePath: filepath.Join(hcpRootDir, "ecs", "main.tf"),
+			templateValues: HCPTemplate{
+				VPCRegion: "us-west-2",
+				HVNRegion: "us-west-2",
+				ClusterID: "consul-quickstart-3634271483588",
+			},
+		},
+		{
+			name:         "ecs-existing-vpc",
+			templatePath: filepath.Join(hcpRootDir, "ecs-existing-vpc", "main.tf"),
+			templateValues: HCPTemplate{
+				VPCRegion:     "eu-west-1",
+				HVNRegion:     "eu-west-2",
+				ClusterID:     "consul-quickstart-4634271483588",
+				VPCID:         "vpc-171d21e09127bb012",
+				RouteTableID:  "rtb-12b0b92efeae83c28",
+				PublicSubnet1: "subnet-14afc1709a875ad5d",
+				PublicSubnet2: "subnet-1aa8d55f44387908d",
 			},
 		},
 	}

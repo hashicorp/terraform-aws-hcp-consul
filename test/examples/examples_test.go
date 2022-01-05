@@ -137,9 +137,8 @@ func TestTerraform_EKSDemoExample(t *testing.T) {
 
 		// We expect 12 total services.
 		// - 1 for the Consul service
-		// - 1 for the ingress gateway
 		// - 10 for the demo app and corresponding sidecar proxies
-		if len(svcs) == 12 {
+		if len(svcs) == 11 {
 			return true
 		}
 
@@ -199,7 +198,7 @@ func TestTerraform_ECSDemoExample(t *testing.T) {
 			return false
 		}
 
-		// We expect 12 total services.
+		// We expect 11 total services.
 		// - 1 for the Consul service
 		// - 10 for the demo app and corresponding sidecar proxies
 		if len(svcs) == 11 {
@@ -212,7 +211,7 @@ func TestTerraform_ECSDemoExample(t *testing.T) {
 		}
 		t.Logf("unexpected number of services registered: %v", registered)
 		return false
-	}, 1*time.Minute, 5*time.Second)
+	}, 10*time.Minute, 1*time.Minute)
 
 	hashicups := terraform.Output(t, terraformOptions, "hashicups_url")
 	resp, err := http.Get(hashicups)

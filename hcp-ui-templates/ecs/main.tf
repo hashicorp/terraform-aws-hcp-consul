@@ -1,10 +1,43 @@
+terraform {
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 3.43"
+    }
+    hcp = {
+      source  = "hashicorp/hcp"
+      version = ">= 0.18.0"
+    }
+  }
+
+  provider_meta "hcp" {
+    module_name = "hcp-consul"
+  }
+}
+
+provider "consul" {
+  address    = hcp_consul_cluster.main.consul_public_endpoint_url
+  datacenter = hcp_consul_cluster.main.datacenter
+  token      = hcp_consul_cluster_root_token.token.secret_id
+}
+
+locals {
+  vpc_region = "{{ .VPCRegion }}"
+  hvn_region = "{{ .HVNRegion }}"
+  cluster_id = "{{ .ClusterID }}"
+}
+
+provider "aws" {
+  region = local.vpc_region
+}
+
 data "aws_availability_zones" "available" {}
 
 module "vpc" {
   source  = "terraform-aws-modules/vpc/aws"
   version = "3.10.0"
 
-  name                 = "${var.cluster_id}-vpc"
+  name                 = "${local.cluster_id}-vpc"
   cidr                 = "10.0.0.0/16"
   azs                  = data.aws_availability_zones.available.names
   private_subnets      = ["10.0.1.0/24", "10.0.2.0/24", "10.0.3.0/24"]
@@ -14,12 +47,11 @@ module "vpc" {
   single_nat_gateway   = true
 }
 
-# The HVN created in HCP
 resource "hcp_hvn" "main" {
-  hvn_id         = var.hvn_id
+  hvn_id         = "${local.cluster_id}-hvn"
   cloud_provider = "aws"
-  region         = var.region
-  cidr_block     = var.hvn_cidr_block
+  region         = local.hvn_region
+  cidr_block     = "172.25.32.0/20"
 }
 
 module "aws_hcp_consul" {
@@ -32,11 +64,10 @@ module "aws_hcp_consul" {
 }
 
 resource "hcp_consul_cluster" "main" {
-  cluster_id      = var.cluster_id
+  cluster_id      = local.cluster_id
   hvn_id          = hcp_hvn.main.hvn_id
-  public_endpoint = !var.disable_public_url
-  size            = var.size
-  tier            = var.tier
+  public_endpoint = true
+  tier            = "development"
 }
 
 resource "consul_config_entry" "service_intentions" {
@@ -60,7 +91,8 @@ resource "hcp_consul_cluster_root_token" "token" {
 }
 
 module "aws_ecs_cluster" {
-  source = "hashicorp/hcp-consul/aws//modules/hcp-ecs-client"
+  source  = "hashicorp/hcp-consul/aws//modules/hcp-ecs-client"
+  version = "~> 0.4.0"
 
   private_subnet_ids       = module.vpc.private_subnets
   public_subnet_ids        = module.vpc.public_subnets
@@ -72,10 +104,27 @@ module "aws_ecs_cluster" {
   client_ca_file           = hcp_consul_cluster.main.consul_ca_file
   client_gossip_key        = jsondecode(base64decode(hcp_consul_cluster.main.consul_config_file))["encrypt"]
   client_retry_join        = jsondecode(base64decode(hcp_consul_cluster.main.consul_config_file))["retry_join"]
-  region                   = var.region
+  region                   = local.vpc_region
   root_token               = hcp_consul_cluster_root_token.token.secret_id
   consul_url               = hcp_consul_cluster.main.consul_private_endpoint_url
   datacenter               = hcp_consul_cluster.main.datacenter
 
   depends_on = [module.aws_hcp_consul]
+}
+
+output "consul_root_token" {
+  value     = hcp_consul_cluster_root_token.token.secret_id
+  sensitive = true
+}
+
+output "consul_url" {
+  value = hcp_consul_cluster.main.public_endpoint ? (
+    hcp_consul_cluster.main.consul_public_endpoint_url
+    ) : (
+    hcp_consul_cluster.main.consul_private_endpoint_url
+  )
+}
+
+output "hashicups_url" {
+  value = "http://${module.aws_ecs_cluster.hashicups_url}"
 }
