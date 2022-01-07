@@ -129,11 +129,12 @@ resource "hcp_consul_cluster_root_token" "token" {
 
 module "eks_consul_client" {
   source  = "hashicorp/hcp-consul/aws//modules/hcp-eks-client"
-  version = "0.3.0"
+  version = "~> 0.4.1"
 
   cluster_id       = hcp_consul_cluster.main.cluster_id
   consul_hosts     = jsondecode(base64decode(hcp_consul_cluster.main.consul_config_file))["retry_join"]
   k8s_api_endpoint = module.eks.cluster_endpoint
+  consul_version   = hcp_consul_cluster.main.consul_version
 
   boostrap_acl_token    = hcp_consul_cluster_root_token.token.secret_id
   consul_ca_file        = base64decode(hcp_consul_cluster.main.consul_ca_file)

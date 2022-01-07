@@ -2,7 +2,7 @@ global:
   enabled: false
   name: consul
   datacenter: ${datacenter}
-  image: "hashicorp/consul-enterprise:1.10.3-ent"
+  image: "hashicorp/consul-enterprise:${consul_version}-ent"
   acls:
     manageSystemACLs: true
     bootstrapToken:
