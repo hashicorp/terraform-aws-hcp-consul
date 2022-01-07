@@ -39,6 +39,11 @@ variable "cluster_id" {
   description = "The ID of the Consul cluster that is managing the clients"
 }
 
+variable "consul_version" {
+  type        = string
+  description = "The Consul version of the HCP servers"
+}
+
 /*
  *
  * Optional Variables

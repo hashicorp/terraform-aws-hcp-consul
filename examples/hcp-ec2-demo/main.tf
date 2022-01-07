@@ -51,6 +51,7 @@ module "aws_ec2_consul_client" {
   client_config_file       = hcp_consul_cluster.main.consul_config_file
   client_ca_file           = hcp_consul_cluster.main.consul_ca_file
   root_token               = hcp_consul_cluster_root_token.token.secret_id
+  consul_version           = hcp_consul_cluster.main.consul_version
 
   depends_on = [module.aws_hcp_consul]
 }

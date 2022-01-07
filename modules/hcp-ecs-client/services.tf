@@ -74,6 +74,7 @@ module "frontend" {
 
   retry_join        = var.client_retry_join
   consul_datacenter = var.datacenter
+  consul_image      = "public.ecr.aws/hashicorp/consul:${var.consul_version}"
 
   tls                       = true
   consul_server_ca_cert_arn = aws_secretsmanager_secret.ca_cert.arn
@@ -173,6 +174,7 @@ module "public_api" {
 
   retry_join        = var.client_retry_join
   consul_datacenter = var.datacenter
+  consul_image      = "public.ecr.aws/hashicorp/consul:${var.consul_version}"
 
   tls                       = true
   consul_server_ca_cert_arn = aws_secretsmanager_secret.ca_cert.arn
@@ -243,6 +245,7 @@ module "payment_api" {
 
   retry_join        = var.client_retry_join
   consul_datacenter = var.datacenter
+  consul_image      = "public.ecr.aws/hashicorp/consul:${var.consul_version}"
 
   tls                       = true
   consul_server_ca_cert_arn = aws_secretsmanager_secret.ca_cert.arn
@@ -330,6 +333,7 @@ module "product_api" {
 
   retry_join        = var.client_retry_join
   consul_datacenter = var.datacenter
+  consul_image      = "public.ecr.aws/hashicorp/consul:${var.consul_version}"
 
   tls                       = true
   consul_server_ca_cert_arn = aws_secretsmanager_secret.ca_cert.arn
@@ -414,6 +418,7 @@ module "product_db" {
 
   retry_join        = var.client_retry_join
   consul_datacenter = var.datacenter
+  consul_image      = "public.ecr.aws/hashicorp/consul:${var.consul_version}"
 
   tls                       = true
   consul_server_ca_cert_arn = aws_secretsmanager_secret.ca_cert.arn
