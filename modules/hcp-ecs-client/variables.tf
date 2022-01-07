@@ -60,6 +60,11 @@ variable "datacenter" {
   description = "The consul datacenter"
 }
 
+variable "consul_version" {
+  type        = string
+  description = "The Consul version of the HCP servers"
+}
+
 variable "region" {
   type        = string
   description = "The AWS region"
