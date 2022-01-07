@@ -58,7 +58,8 @@ resource "aws_instance" "nomad_host" {
     setup = base64gzip(templatefile("${path.module}/templates/setup.sh", {
       consul_config    = var.client_config_file,
       consul_ca        = var.client_ca_file,
-      consul_acl_token = var.root_token
+      consul_acl_token = var.root_token,
+      consul_version   = var.consul_version,
       consul_service = base64encode(templatefile("${path.module}/templates/service", {
         service_name = "consul",
         service_cmd  = "/usr/bin/consul agent -data-dir /var/consul -config-dir=/etc/consul.d/",

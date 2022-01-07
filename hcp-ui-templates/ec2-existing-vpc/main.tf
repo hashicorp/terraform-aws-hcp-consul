@@ -54,7 +54,7 @@ resource "hcp_consul_cluster_root_token" "token" {
 
 module "aws_ec2_consul_client" {
   source  = "hashicorp/hcp-consul/aws//modules/hcp-ec2-client"
-  version = "0.3.0"
+  version = "~> 0.4.1"
 
   subnet_id                = local.public_subnet1
   security_group_id        = module.aws_hcp_consul.security_group_id
@@ -63,6 +63,7 @@ module "aws_ec2_consul_client" {
   client_config_file       = hcp_consul_cluster.main.consul_config_file
   client_ca_file           = hcp_consul_cluster.main.consul_ca_file
   root_token               = hcp_consul_cluster_root_token.token.secret_id
+  consul_version           = hcp_consul_cluster.main.consul_version
 }
 
 output "consul_root_token" {

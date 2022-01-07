@@ -30,6 +30,11 @@ variable "root_token" {
   description = "The Consul Secret ID of the Consul root token"
 }
 
+variable "consul_version" {
+  type        = string
+  description = "The Consul version of the HCP servers"
+}
+
 variable "security_group_id" {
   type = string
 }
