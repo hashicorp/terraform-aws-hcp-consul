@@ -91,5 +91,5 @@ output "nomad_url" {
 }
 
 output "hashicups_url" {
-  value = "http://${module.aws_ec2_consul_client.host_dns}:8080"
+  value = "http://${module.aws_ec2_consul_client.host_dns}"
 }

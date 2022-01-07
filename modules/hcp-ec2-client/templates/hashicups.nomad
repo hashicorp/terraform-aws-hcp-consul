@@ -18,7 +18,7 @@ job "hashicups" {
           proxy {
             upstreams {
               destination_name = "product-public-api"
-              local_bind_port  = 18080
+              local_bind_port  = 8080
             }            
           }
         }
@@ -29,7 +29,7 @@ job "hashicups" {
       driver = "docker"
 
       config {
-        image = "hashicorpdemoapp/frontend:v0.0.5"
+        image = "hashicorpdemoapp/frontend:v0.0.7"
         ports = ["http"]
       }
     }
