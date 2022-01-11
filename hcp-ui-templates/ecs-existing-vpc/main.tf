@@ -1,3 +1,20 @@
+locals {
+  vpc_region         = "{{ .VPCRegion }}"
+  hvn_region         = "{{ .HVNRegion }}"
+  cluster_id         = "{{ .ClusterID }}"
+  hvn_cidr_block     = "172.25.32.0/20"
+  hvn_id             = "{{ .ClusterID }}-hvn"
+  disable_public_url = false
+  tier               = "development"
+  size               = null
+  vpc_id             = "{{ .VPCID }}"
+  route_table_id     = "{{ .RouteTableID }}"
+  public_subnet1     = "{{ .PublicSubnet1 }}"
+  public_subnet2     = "{{ .PublicSubnet2 }}"
+  private_subnet1    = "{{ .PrivateSubnet1 }}"
+  private_subnet2    = "{{ .PrivateSubnet2 }}"
+}
+
 terraform {
   required_providers {
     aws = {
@@ -10,9 +27,10 @@ terraform {
     }
   }
 
-  provider_meta "hcp" {
-    module_name = "hcp-consul"
-  }
+}
+
+provider "aws" {
+  region = local.vpc_region
 }
 
 provider "consul" {
@@ -20,30 +38,11 @@ provider "consul" {
   datacenter = hcp_consul_cluster.main.datacenter
   token      = hcp_consul_cluster_root_token.token.secret_id
 }
-
-locals {
-  vpc_region      = "{{ .VPCRegion }}"
-  hvn_region      = "{{ .HVNRegion }}"
-  cluster_id      = "{{ .ClusterID }}"
-  vpc_id          = "{{ .VPCID }}"
-  route_table_id  = "{{ .RouteTableID }}"
-  public_subnet1  = "{{ .PublicSubnet1 }}"
-  public_subnet2  = "{{ .PublicSubnet2 }}"
-  private_subnet1 = "{{ .PrivateSubnet1 }}"
-  private_subnet2 = "{{ .PrivateSubnet2 }}"
-}
-
-provider "aws" {
-  region = local.vpc_region
-}
-
-data "aws_availability_zones" "available" {}
-
 resource "hcp_hvn" "main" {
-  hvn_id         = "${local.cluster_id}-hvn"
+  hvn_id         = local.hvn_id
   cloud_provider = "aws"
   region         = local.hvn_region
-  cidr_block     = "172.25.32.0/20"
+  cidr_block     = local.hvn_cidr_block
 }
 
 module "aws_hcp_consul" {
@@ -58,8 +57,9 @@ module "aws_hcp_consul" {
 resource "hcp_consul_cluster" "main" {
   cluster_id      = local.cluster_id
   hvn_id          = hcp_hvn.main.hvn_id
-  public_endpoint = true
-  tier            = "development"
+  public_endpoint = !local.disable_public_url
+  size            = local.size
+  tier            = local.tier
 }
 
 resource "consul_config_entry" "service_intentions" {
@@ -99,12 +99,11 @@ module "aws_ecs_cluster" {
   region                   = local.vpc_region
   root_token               = hcp_consul_cluster_root_token.token.secret_id
   consul_url               = hcp_consul_cluster.main.consul_private_endpoint_url
-  datacenter               = hcp_consul_cluster.main.datacenter
   consul_version           = substr(hcp_consul_cluster.main.consul_version, 1, -1)
+  datacenter               = hcp_consul_cluster.main.datacenter
 
   depends_on = [module.aws_hcp_consul]
 }
-
 output "consul_root_token" {
   value     = hcp_consul_cluster_root_token.token.secret_id
   sensitive = true

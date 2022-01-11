@@ -10,9 +10,9 @@ variable "cluster_id" {
   default     = "cluster-ecs-demo"
 }
 
-variable "region" {
+variable "hvn_region" {
   type        = string
-  description = "The AWS region to create resources in"
+  description = "The HCP region to create resources in"
   default     = "us-west-2"
 }
 
