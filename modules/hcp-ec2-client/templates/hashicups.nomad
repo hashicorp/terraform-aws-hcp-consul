@@ -92,7 +92,7 @@ job "hashicups" {
       driver = "docker"
 
       config {
-        image = "hashicorpdemoapp/payments:v0.0.3"
+        image = "hashicorpdemoapp/payments:v0.0.16"
       }
     }
   }
@@ -134,7 +134,7 @@ job "hashicups" {
       driver = "docker"
 
       config {
-        image   = "hashicorpdemoapp/product-api:v0.0.18"
+        image   = "hashicorpdemoapp/product-api:v0.0.19"
       }
 
       env {
@@ -163,7 +163,7 @@ job "hashicups" {
       driver = "docker"
 
       config {
-        image = "hashicorpdemoapp/product-api-db:v0.0.17"
+        image = "hashicorpdemoapp/product-api-db:v0.0.19"
       }
 
       env {

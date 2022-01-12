@@ -16,6 +16,12 @@ variable "hvn_region" {
   default     = "us-west-2"
 }
 
+variable "vpc_region" {
+  type        = string
+  description = "The AWS region to create resources in"
+  default     = "us-west-2"
+}
+
 variable "hvn_id" {
   type        = string
   description = "The name of your HCP HVN"

@@ -46,7 +46,8 @@ resource "hcp_hvn" "main" {
 }
 
 module "aws_hcp_consul" {
-  source = "hashicorp/hcp-consul/aws"
+  source  = "hashicorp/hcp-consul/aws"
+  version = "~> 0.4.1"
 
   hvn             = hcp_hvn.main
   vpc_id          = local.vpc_id

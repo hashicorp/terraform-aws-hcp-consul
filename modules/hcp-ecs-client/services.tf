@@ -28,7 +28,7 @@ module "frontend" {
   container_definitions = [
     {
       name      = "frontend"
-      image     = "hashicorpdemoapp/frontend:v0.0.6"
+      image     = "hashicorpdemoapp/frontend:v0.0.7"
       essential = true
       portMappings = [
         {
@@ -208,7 +208,7 @@ module "payment_api" {
   container_definitions = [
     {
       name      = "payment_api"
-      image     = "hashicorpdemoapp/payments:v0.0.3"
+      image     = "hashicorpdemoapp/payments:v0.0.16"
       essential = true
       portMappings = [
         {
@@ -279,7 +279,7 @@ module "product_api" {
   container_definitions = [
     {
       name      = "product_api"
-      image     = "hashicorpdemoapp/product-api:v0.0.18"
+      image     = "hashicorpdemoapp/product-api:v0.0.19"
       essential = true
       portMappings = [
         {
@@ -367,7 +367,7 @@ module "product_db" {
   container_definitions = [
     {
       name      = "product_db"
-      image     = "hashicorpdemoapp/product-api-db:v0.0.17"
+      image     = "hashicorpdemoapp/product-api-db:v0.0.19"
       essential = true
       portMappings = [
         {
