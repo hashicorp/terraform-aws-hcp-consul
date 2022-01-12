@@ -1,3 +1,18 @@
+locals {
+  vpc_region         = "{{ .VPCRegion }}"
+  hvn_region         = "{{ .HVNRegion }}"
+  cluster_id         = "{{ .ClusterID }}"
+  hvn_cidr_block     = "172.25.32.0/20"
+  hvn_id             = "{{ .ClusterID }}-hvn"
+  disable_public_url = false
+  tier               = "development"
+  size               = null
+  vpc_id             = "{{ .VPCID }}"
+  route_table_id     = "{{ .RouteTableID }}"
+  public_subnet1     = "{{ .PublicSubnet1 }}"
+  public_subnet2     = "{{ .PublicSubnet2 }}"
+}
+
 terraform {
   required_providers {
     aws = {
@@ -6,31 +21,22 @@ terraform {
     }
     hcp = {
       source  = "hashicorp/hcp"
-      version = "~> 0.19"
+      version = ">= 0.18.0"
     }
     kubernetes = {
       source  = "hashicorp/kubernetes"
-      version = "~> 2.4"
+      version = ">= 2.4.1"
     }
     helm = {
       source  = "hashicorp/helm"
-      version = "~> 2.3"
+      version = ">= 2.3.0"
     }
     kubectl = {
       source  = "gavinbunney/kubectl"
-      version = "~> 1.11"
+      version = ">= 1.11.3"
     }
   }
-}
 
-locals {
-  vpc_region     = "{{ .VPCRegion }}"
-  hvn_region     = "{{ .HVNRegion }}"
-  cluster_id     = "{{ .ClusterID }}"
-  vpc_id         = "{{ .VPCID }}"
-  route_table_id = "{{ .RouteTableID }}"
-  public_subnet1 = "{{ .PublicSubnet1 }}"
-  public_subnet2 = "{{ .PublicSubnet2 }}"
 }
 
 provider "aws" {
@@ -86,16 +92,17 @@ module "eks" {
   }
 }
 
+# The HVN created in HCP
 resource "hcp_hvn" "main" {
-  hvn_id         = "${local.cluster_id}-hvn"
+  hvn_id         = local.hvn_id
   cloud_provider = "aws"
   region         = local.hvn_region
-  cidr_block     = "172.25.32.0/20"
+  cidr_block     = local.hvn_cidr_block
 }
 
 module "aws_hcp_consul" {
   source  = "hashicorp/hcp-consul/aws"
-  version = "0.3.0"
+  version = "~> 0.4.1"
 
   hvn                = hcp_hvn.main
   vpc_id             = local.vpc_id
@@ -107,8 +114,9 @@ module "aws_hcp_consul" {
 resource "hcp_consul_cluster" "main" {
   cluster_id      = local.cluster_id
   hvn_id          = hcp_hvn.main.hvn_id
-  public_endpoint = true
-  tier            = "development"
+  public_endpoint = !local.disable_public_url
+  size            = local.size
+  tier            = local.tier
 }
 
 resource "hcp_consul_cluster_root_token" "token" {
@@ -129,22 +137,29 @@ module "eks_consul_client" {
   datacenter            = hcp_consul_cluster.main.datacenter
   gossip_encryption_key = jsondecode(base64decode(hcp_consul_cluster.main.consul_config_file))["encrypt"]
 
+  # The EKS node group will fail to create if the clients are
+  # created at the same time. This forces the client to wait until
+  # the node group is successfully created.
   depends_on = [module.eks]
 }
 
 module "demo_app" {
-  source     = "hashicorp/hcp-consul/aws//modules/k8s-demo-app"
-  version    = "0.3.0"
+  source  = "hashicorp/hcp-consul/aws//modules/k8s-demo-app"
+  version = "~> 0.4.1"
+
   depends_on = [module.eks_consul_client]
 }
-
 output "consul_root_token" {
   value     = hcp_consul_cluster_root_token.token.secret_id
   sensitive = true
 }
 
 output "consul_url" {
-  value = hcp_consul_cluster.main.consul_public_endpoint_url
+  value = hcp_consul_cluster.main.public_endpoint ? (
+    hcp_consul_cluster.main.consul_public_endpoint_url
+    ) : (
+    hcp_consul_cluster.main.consul_private_endpoint_url
+  )
 }
 
 output "kubeconfig_filename" {

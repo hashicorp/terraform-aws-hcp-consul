@@ -14,11 +14,10 @@ module "vpc" {
   single_nat_gateway   = true
 }
 
-# The HVN created in HCP
 resource "hcp_hvn" "main" {
   hvn_id         = var.hvn_id
   cloud_provider = "aws"
-  region         = var.region
+  region         = var.hvn_region
   cidr_block     = var.hvn_cidr_block
 }
 
@@ -73,7 +72,7 @@ module "aws_ecs_cluster" {
   client_ca_file           = hcp_consul_cluster.main.consul_ca_file
   client_gossip_key        = jsondecode(base64decode(hcp_consul_cluster.main.consul_config_file))["encrypt"]
   client_retry_join        = jsondecode(base64decode(hcp_consul_cluster.main.consul_config_file))["retry_join"]
-  region                   = var.region
+  region                   = var.vpc_region
   root_token               = hcp_consul_cluster_root_token.token.secret_id
   consul_url               = hcp_consul_cluster.main.consul_private_endpoint_url
   consul_version           = substr(hcp_consul_cluster.main.consul_version, 1, -1)

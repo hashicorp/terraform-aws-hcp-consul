@@ -1,13 +1,5 @@
 data "aws_availability_zones" "available" {}
 
-data "aws_eks_cluster" "cluster" {
-  name = module.eks.cluster_id
-}
-
-data "aws_eks_cluster_auth" "cluster" {
-  name = module.eks.cluster_id
-}
-
 module "vpc" {
   source  = "terraform-aws-modules/vpc/aws"
   version = "2.78.0"
@@ -22,17 +14,26 @@ module "vpc" {
   enable_dns_hostnames = true
 }
 
+data "aws_eks_cluster" "cluster" {
+  name = module.eks.cluster_id
+}
+
+data "aws_eks_cluster_auth" "cluster" {
+  name = module.eks.cluster_id
+}
+
 module "eks" {
   source  = "terraform-aws-modules/eks/aws"
   version = "17.22.0"
 
-  cluster_name    = "hcp-${var.cluster_id}"
+  cluster_name    = "${var.cluster_id}-eks"
   cluster_version = "1.21"
-  subnets         = module.vpc.private_subnets
+  subnets         = module.vpc.public_subnets
   vpc_id          = module.vpc.vpc_id
 
   node_groups = {
     application = {
+      name_prefix      = "hashicups"
       instance_types   = ["t3a.medium"]
       desired_capacity = 3
       max_capacity     = 3
@@ -45,17 +46,18 @@ module "eks" {
 resource "hcp_hvn" "main" {
   hvn_id         = var.hvn_id
   cloud_provider = "aws"
-  region         = var.region
+  region         = var.hvn_region
   cidr_block     = var.hvn_cidr_block
 }
 
 module "aws_hcp_consul" {
-  source = "hashicorp/hcp-consul/aws"
+  source  = "hashicorp/hcp-consul/aws"
+  version = "~> 0.4.1"
 
   hvn                = hcp_hvn.main
   vpc_id             = module.vpc.vpc_id
-  subnet_ids         = module.vpc.private_subnets
-  route_table_ids    = module.vpc.private_route_table_ids
+  subnet_ids         = module.vpc.public_subnets
+  route_table_ids    = module.vpc.public_route_table_ids
   security_group_ids = [module.eks.cluster_primary_security_group_id]
 }
 
@@ -92,6 +94,8 @@ module "eks_consul_client" {
 }
 
 module "demo_app" {
-  source     = "hashicorp/hcp-consul/aws//modules/k8s-demo-app"
+  source  = "hashicorp/hcp-consul/aws//modules/k8s-demo-app"
+  version = "~> 0.4.1"
+
   depends_on = [module.eks_consul_client]
 }

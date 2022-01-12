@@ -28,7 +28,7 @@ terraform {
 }
 
 provider "aws" {
-  region = var.region
+  region = var.vpc_region
 }
 
 provider "helm" {
@@ -51,3 +51,4 @@ provider "kubectl" {
   token                  = data.aws_eks_cluster_auth.cluster.token
   load_config_file       = false
 }
+

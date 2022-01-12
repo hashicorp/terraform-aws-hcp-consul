@@ -2,7 +2,7 @@ data "aws_availability_zones" "available" {}
 
 module "vpc" {
   source  = "terraform-aws-modules/vpc/aws"
-  version = "2.78.0"
+  version = "3.10.0"
 
   name                 = "${var.cluster_id}-vpc"
   cidr                 = "10.0.0.0/16"
@@ -12,16 +12,16 @@ module "vpc" {
   enable_dns_hostnames = true
 }
 
-# The HVN created in HCP
 resource "hcp_hvn" "main" {
   hvn_id         = var.hvn_id
   cloud_provider = "aws"
-  region         = var.region
+  region         = var.hvn_region
   cidr_block     = var.hvn_cidr_block
 }
 
 module "aws_hcp_consul" {
-  source = "hashicorp/hcp-consul/aws"
+  source  = "hashicorp/hcp-consul/aws"
+  version = "~> 0.4.1"
 
   hvn             = hcp_hvn.main
   vpc_id          = module.vpc.vpc_id
@@ -42,7 +42,8 @@ resource "hcp_consul_cluster_root_token" "token" {
 }
 
 module "aws_ec2_consul_client" {
-  source = "hashicorp/hcp-consul/aws//modules/hcp-ec2-client"
+  source  = "hashicorp/hcp-consul/aws//modules/hcp-ec2-client"
+  version = "~> 0.4.1"
 
   subnet_id                = module.vpc.public_subnets[0]
   security_group_id        = module.aws_hcp_consul.security_group_id
