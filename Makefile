@@ -6,5 +6,11 @@ generate_templates:
 dummy_data: generate_templates
 	scripts/dummy_data.sh
 
+hashicups:
+	scripts/hashicups.sh
+
+dev:
+	scripts/dev.sh
+
 clean:
 	rm -rf examples/existing-vpc/output.json
