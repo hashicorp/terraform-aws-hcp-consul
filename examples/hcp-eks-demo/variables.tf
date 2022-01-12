@@ -7,13 +7,19 @@
 variable "cluster_id" {
   type        = string
   description = "The name of your HCP Consul cluster"
-  default     = "cluster-eks-demo"
+  default     = "dyu-eks-demo"
+}
+
+variable "hvn_region" {
+  type        = string
+  description = "The AWS region to create resources in"
+  default     = "us-west-2"
 }
 
 variable "region" {
   type        = string
   description = "The AWS region to create resources in"
-  default     = "us-west-2"
+  default     = "us-east-2"
 }
 
 variable "hvn_id" {
