@@ -24,7 +24,7 @@ module "frontend" {
   source  = "hashicorp/consul-ecs/aws//modules/mesh-task"
   version = "~> 0.2.0"
 
-  family = "frontend"
+  family = "frontend_${local.scope}"
   container_definitions = [
     {
       name      = "frontend"
@@ -55,7 +55,7 @@ module "frontend" {
 
   upstreams = [
     {
-      destination_name = "public_api"
+      destination_name = "public_api_${local.scope}"
       local_bind_port  = 8080
     },
   ]
@@ -110,7 +110,7 @@ module "public_api" {
   version = "~> 0.2.0"
 
 
-  family = "public_api"
+  family = "public_api_${local.scope}"
   container_definitions = [
     {
       name      = "public_api"
@@ -151,11 +151,11 @@ module "public_api" {
 
   upstreams = [
     {
-      destination_name = "product_api"
+      destination_name = "product_api_${local.scope}"
       local_bind_port  = 5000
     },
     {
-      destination_name = "payment_api"
+      destination_name = "payment_api_${local.scope}"
       local_bind_port  = 5001
     }
   ]
@@ -204,7 +204,7 @@ module "payment_api" {
   source  = "hashicorp/consul-ecs/aws//modules/mesh-task"
   version = "~> 0.2.0"
 
-  family = "payment_api"
+  family = "payment_api_${local.scope}"
   container_definitions = [
     {
       name      = "payment_api"
@@ -275,7 +275,7 @@ module "product_api" {
   source  = "hashicorp/consul-ecs/aws//modules/mesh-task"
   version = "~> 0.2.0"
 
-  family = "product_api"
+  family = "product_api_${local.scope}"
   container_definitions = [
     {
       name      = "product_api"
@@ -315,7 +315,7 @@ module "product_api" {
 
   upstreams = [
     {
-      destination_name = "product_db"
+      destination_name = "product_db_${local.scope}"
       local_bind_port  = 5000
     }
   ]
@@ -363,7 +363,7 @@ module "product_db" {
   source  = "hashicorp/consul-ecs/aws//modules/mesh-task"
   version = "~> 0.2.0"
 
-  family = "product_db"
+  family = "product_db_${local.scope}"
   container_definitions = [
     {
       name      = "product_db"
