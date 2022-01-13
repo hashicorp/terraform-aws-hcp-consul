@@ -1,18 +1,16 @@
 locals {
-  vpc_region         = "{{ .VPCRegion }}"
-  hvn_region         = "{{ .HVNRegion }}"
-  cluster_id         = "{{ .ClusterID }}"
-  hvn_cidr_block     = "172.25.32.0/20"
-  hvn_id             = "{{ .ClusterID }}-hvn"
-  disable_public_url = false
-  tier               = "development"
-  size               = null
-  vpc_id             = "{{ .VPCID }}"
-  route_table_id     = "{{ .RouteTableID }}"
-  public_subnet1     = "{{ .PublicSubnet1 }}"
-  public_subnet2     = "{{ .PublicSubnet2 }}"
-  private_subnet1    = "{{ .PrivateSubnet1 }}"
-  private_subnet2    = "{{ .PrivateSubnet2 }}"
+  vpc_region      = "{{ .VPCRegion }}"
+  hvn_region      = "{{ .HVNRegion }}"
+  cluster_id      = "{{ .ClusterID }}"
+  hvn_id          = "{{ .ClusterID }}-hvn"
+  hvn_cidr_block  = "172.25.32.0/20"
+  tier            = "development"
+  vpc_id          = "{{ .VPCID }}"
+  route_table_id  = "{{ .RouteTableID }}"
+  public_subnet1  = "{{ .PublicSubnet1 }}"
+  public_subnet2  = "{{ .PublicSubnet2 }}"
+  private_subnet1 = "{{ .PrivateSubnet1 }}"
+  private_subnet2 = "{{ .PrivateSubnet2 }}"
 }
 
 terraform {
@@ -58,8 +56,7 @@ module "aws_hcp_consul" {
 resource "hcp_consul_cluster" "main" {
   cluster_id      = local.cluster_id
   hvn_id          = hcp_hvn.main.hvn_id
-  public_endpoint = !local.disable_public_url
-  size            = local.size
+  public_endpoint = true
   tier            = local.tier
 }
 
