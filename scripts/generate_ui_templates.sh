@@ -3,7 +3,9 @@
 generate_base_terraform () {
   cat examples/hcp-$1-demo/providers.tf examples/hcp-$1-demo/main.tf examples/hcp-$1-demo/output.tf \
     | sed -e '/provider_meta/,+2d' \
-    | sed -e 's/var/local/g'
+    | sed -e 's/var/local/g' \
+    | sed -e 's/local\.tier/"development"/g' \
+    | sed -e 's/local\.hvn_cidr_block/"172.25.32.0\/20"/g'
 }
 
 generate_base_existing_vpc_terraform () {

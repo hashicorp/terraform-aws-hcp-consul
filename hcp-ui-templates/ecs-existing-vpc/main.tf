@@ -3,8 +3,6 @@ locals {
   hvn_region      = "{{ .HVNRegion }}"
   cluster_id      = "{{ .ClusterID }}"
   hvn_id          = "{{ .ClusterID }}-hvn"
-  hvn_cidr_block  = "172.25.32.0/20"
-  tier            = "development"
   vpc_id          = "{{ .VPCID }}"
   route_table_id  = "{{ .RouteTableID }}"
   public_subnet1  = "{{ .PublicSubnet1 }}"
@@ -40,7 +38,7 @@ resource "hcp_hvn" "main" {
   hvn_id         = local.hvn_id
   cloud_provider = "aws"
   region         = local.hvn_region
-  cidr_block     = local.hvn_cidr_block
+  cidr_block     = "172.25.32.0/20"
 }
 
 module "aws_hcp_consul" {
@@ -57,7 +55,7 @@ resource "hcp_consul_cluster" "main" {
   cluster_id      = local.cluster_id
   hvn_id          = hcp_hvn.main.hvn_id
   public_endpoint = true
-  tier            = local.tier
+  tier            = "development"
 }
 
 resource "consul_config_entry" "service_intentions" {
