@@ -92,7 +92,6 @@ resource "aws_ecs_service" "frontend" {
   desired_count   = 1
   network_configuration {
     subnets          = var.private_subnet_ids
-    assign_public_ip = true
     security_groups  = [var.security_group_id]
   }
   load_balancer {
@@ -192,7 +191,6 @@ resource "aws_ecs_service" "public_api" {
   desired_count   = 1
   network_configuration {
     subnets          = var.private_subnet_ids
-    assign_public_ip = true
     security_groups  = [var.security_group_id]
   }
   launch_type            = "FARGATE"
@@ -263,7 +261,6 @@ resource "aws_ecs_service" "payment_api" {
   desired_count   = 1
   network_configuration {
     subnets          = var.private_subnet_ids
-    assign_public_ip = true
     security_groups  = [var.security_group_id]
   }
   launch_type            = "FARGATE"
@@ -351,7 +348,6 @@ resource "aws_ecs_service" "product_api" {
   desired_count   = 1
   network_configuration {
     subnets          = var.private_subnet_ids
-    assign_public_ip = true
     security_groups  = [var.security_group_id]
   }
   launch_type            = "FARGATE"
@@ -436,7 +432,6 @@ resource "aws_ecs_service" "product_db" {
   desired_count   = 1
   network_configuration {
     subnets          = var.private_subnet_ids
-    assign_public_ip = true
     security_groups  = [var.security_group_id]
   }
   launch_type            = "FARGATE"

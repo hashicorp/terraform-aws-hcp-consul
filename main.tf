@@ -68,11 +68,11 @@ resource "aws_vpc_peering_connection_accepter" "peer" {
 }
 
 resource "hcp_hvn_route" "peering_route" {
-  count            = length(var.subnet_ids)
+  // count            = length(var.subnet_ids)
   depends_on       = [aws_vpc_peering_connection_accepter.peer]
   hvn_link         = var.hvn.self_link
-  hvn_route_id     = var.subnet_ids[count.index]
-  destination_cidr = data.aws_subnet.selected[count.index].cidr_block
+  hvn_route_id     = "${var.hvn.hvn_id}-peering-route" // var.subnet_ids[count.index]
+  destination_cidr = data.aws_vpc.selected.cidr_block // data.aws_subnet.selected[count.index].cidr_block
   target_link      = hcp_aws_network_peering.default.self_link
 }
 

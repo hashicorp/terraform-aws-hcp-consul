@@ -1,5 +1,5 @@
 locals {
-  secret_prefix = "consul-ecs-test"
+  secret_prefix = "pgl-hcp-demo"
   frontend_port = 80
 }
 
