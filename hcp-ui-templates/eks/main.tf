@@ -1,12 +1,8 @@
 locals {
-  vpc_region         = "{{ .VPCRegion }}"
-  hvn_region         = "{{ .HVNRegion }}"
-  cluster_id         = "{{ .ClusterID }}"
-  hvn_cidr_block     = "172.25.32.0/20"
-  hvn_id             = "{{ .ClusterID }}-hvn"
-  disable_public_url = false
-  tier               = "development"
-  size               = null
+  vpc_region = "{{ .VPCRegion }}"
+  hvn_region = "{{ .HVNRegion }}"
+  cluster_id = "{{ .ClusterID }}"
+  hvn_id     = "{{ .ClusterID }}-hvn"
 }
 
 terraform {
@@ -109,12 +105,12 @@ resource "hcp_hvn" "main" {
   hvn_id         = local.hvn_id
   cloud_provider = "aws"
   region         = local.hvn_region
-  cidr_block     = local.hvn_cidr_block
+  cidr_block     = "172.25.32.0/20"
 }
 
 module "aws_hcp_consul" {
   source  = "hashicorp/hcp-consul/aws"
-  version = "~> 0.4.1"
+  version = "~> 0.4.2"
 
   hvn                = hcp_hvn.main
   vpc_id             = module.vpc.vpc_id
@@ -126,9 +122,8 @@ module "aws_hcp_consul" {
 resource "hcp_consul_cluster" "main" {
   cluster_id      = local.cluster_id
   hvn_id          = hcp_hvn.main.hvn_id
-  public_endpoint = !local.disable_public_url
-  size            = local.size
-  tier            = local.tier
+  public_endpoint = true
+  tier            = "development"
 }
 
 resource "hcp_consul_cluster_root_token" "token" {
@@ -137,7 +132,7 @@ resource "hcp_consul_cluster_root_token" "token" {
 
 module "eks_consul_client" {
   source  = "hashicorp/hcp-consul/aws//modules/hcp-eks-client"
-  version = "~> 0.4.1"
+  version = "~> 0.4.2"
 
   cluster_id       = hcp_consul_cluster.main.cluster_id
   consul_hosts     = jsondecode(base64decode(hcp_consul_cluster.main.consul_config_file))["retry_join"]
@@ -157,7 +152,7 @@ module "eks_consul_client" {
 
 module "demo_app" {
   source  = "hashicorp/hcp-consul/aws//modules/k8s-demo-app"
-  version = "~> 0.4.1"
+  version = "~> 0.4.2"
 
   depends_on = [module.eks_consul_client]
 }

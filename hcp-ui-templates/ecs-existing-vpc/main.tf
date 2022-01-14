@@ -1,18 +1,14 @@
 locals {
-  vpc_region         = "{{ .VPCRegion }}"
-  hvn_region         = "{{ .HVNRegion }}"
-  cluster_id         = "{{ .ClusterID }}"
-  hvn_cidr_block     = "172.25.32.0/20"
-  hvn_id             = "{{ .ClusterID }}-hvn"
-  disable_public_url = false
-  tier               = "development"
-  size               = null
-  vpc_id             = "{{ .VPCID }}"
-  route_table_id     = "{{ .RouteTableID }}"
-  public_subnet1     = "{{ .PublicSubnet1 }}"
-  public_subnet2     = "{{ .PublicSubnet2 }}"
-  private_subnet1    = "{{ .PrivateSubnet1 }}"
-  private_subnet2    = "{{ .PrivateSubnet2 }}"
+  vpc_region      = "{{ .VPCRegion }}"
+  hvn_region      = "{{ .HVNRegion }}"
+  cluster_id      = "{{ .ClusterID }}"
+  hvn_id          = "{{ .ClusterID }}-hvn"
+  vpc_id          = "{{ .VPCID }}"
+  route_table_id  = "{{ .RouteTableID }}"
+  public_subnet1  = "{{ .PublicSubnet1 }}"
+  public_subnet2  = "{{ .PublicSubnet2 }}"
+  private_subnet1 = "{{ .PrivateSubnet1 }}"
+  private_subnet2 = "{{ .PrivateSubnet2 }}"
 }
 
 terraform {
@@ -42,12 +38,12 @@ resource "hcp_hvn" "main" {
   hvn_id         = local.hvn_id
   cloud_provider = "aws"
   region         = local.hvn_region
-  cidr_block     = local.hvn_cidr_block
+  cidr_block     = "172.25.32.0/20"
 }
 
 module "aws_hcp_consul" {
   source  = "hashicorp/hcp-consul/aws"
-  version = "~> 0.4.1"
+  version = "~> 0.4.2"
 
   hvn             = hcp_hvn.main
   vpc_id          = local.vpc_id
@@ -58,9 +54,8 @@ module "aws_hcp_consul" {
 resource "hcp_consul_cluster" "main" {
   cluster_id      = local.cluster_id
   hvn_id          = hcp_hvn.main.hvn_id
-  public_endpoint = !local.disable_public_url
-  size            = local.size
-  tier            = local.tier
+  public_endpoint = true
+  tier            = "development"
 }
 
 resource "consul_config_entry" "service_intentions" {
@@ -85,7 +80,7 @@ resource "hcp_consul_cluster_root_token" "token" {
 
 module "aws_ecs_cluster" {
   source  = "hashicorp/hcp-consul/aws//modules/hcp-ecs-client"
-  version = "~> 0.4.1"
+  version = "~> 0.4.2"
 
   private_subnet_ids       = [local.private_subnet1, local.private_subnet2]
   public_subnet_ids        = [local.public_subnet1, local.public_subnet2]

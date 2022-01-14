@@ -12,5 +12,8 @@ hashicups:
 dev:
 	scripts/dev.sh
 
+version:
+	scripts/version.sh
+
 clean:
 	rm -rf examples/existing-vpc/output.json

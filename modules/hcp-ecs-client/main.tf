@@ -1,5 +1,6 @@
 locals {
-  secret_prefix = "consul-ecs-test"
+  secret_prefix = random_id.id.dec
+  scope         = random_id.id.dec
   frontend_port = 80
 }
 
@@ -31,13 +32,12 @@ resource "aws_security_group_rule" "allow_http_inbound" {
 }
 
 resource "aws_ecs_cluster" "clients" {
-  name               = "${random_id.id.dec}-hcp-ecs-cluster"
+  name               = "hcp-ecs-cluster-${random_id.id.dec}"
   capacity_providers = ["FARGATE"]
 }
 
 resource "random_id" "id" {
-  prefix      = "consul-client"
-  byte_length = 8
+  byte_length = 2
 }
 
 resource "aws_secretsmanager_secret" "bootstrap_token" {

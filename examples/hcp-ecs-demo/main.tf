@@ -23,7 +23,7 @@ resource "hcp_hvn" "main" {
 
 module "aws_hcp_consul" {
   source  = "hashicorp/hcp-consul/aws"
-  version = "~> 0.4.1"
+  version = "~> 0.4.2"
 
   hvn             = hcp_hvn.main
   vpc_id          = module.vpc.vpc_id
@@ -34,8 +34,7 @@ module "aws_hcp_consul" {
 resource "hcp_consul_cluster" "main" {
   cluster_id      = var.cluster_id
   hvn_id          = hcp_hvn.main.hvn_id
-  public_endpoint = !var.disable_public_url
-  size            = var.size
+  public_endpoint = true
   tier            = var.tier
 }
 
@@ -61,7 +60,7 @@ resource "hcp_consul_cluster_root_token" "token" {
 
 module "aws_ecs_cluster" {
   source  = "hashicorp/hcp-consul/aws//modules/hcp-ecs-client"
-  version = "~> 0.4.1"
+  version = "~> 0.4.2"
 
   private_subnet_ids       = module.vpc.private_subnets
   public_subnet_ids        = module.vpc.public_subnets
