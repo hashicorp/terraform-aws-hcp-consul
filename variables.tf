@@ -18,11 +18,6 @@ variable "vpc_id" {
   description = "The ID of your AWS VPC"
 }
 
-variable "subnet_ids" {
-  type        = list(string)
-  description = "A list of subnet IDs which should route to/from the the HVN's CIDR"
-}
-
 variable "route_table_ids" {
   type        = list(string)
   description = "A list of route table IDs which should route to the the HVN's CIDR"
