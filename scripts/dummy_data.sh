@@ -14,14 +14,15 @@ output () {
 
 defaults () {
   file="hcp-ui-templates/$1/main.tf"
-  sed -i.bak "s/{{ \.ClusterID }}/$1-template/" $file
+  sed -i.bak "s/{{ \.ClusterID }}/$1/" $file
   sed -i.bak "s/{{ \.VPCRegion }}/us-west-2/" $file
   sed -i.bak "s/{{ \.HVNRegion }}/us-west-2/" $file
   sed -i.bak "s/{{ \.PublicSubnet1 }}/$(output ".public_subnet1.value")/" $file
   sed -i.bak "s/{{ \.PublicSubnet2 }}/$(output ".public_subnet2.value")/" $file
   sed -i.bak "s/{{ \.PrivateSubnet1 }}/$(output ".private_subnet1.value")/" $file
   sed -i.bak "s/{{ \.PrivateSubnet2 }}/$(output ".private_subnet2.value")/" $file
-  sed -i.bak "s/{{ \.RouteTableID }}/$(output ".public_route_table_id.value[0]")/" $file
+  sed -i.bak "s/{{ \.PublicRouteTableID }}/$(output ".public_route_table_id.value[0]")/" $file
+  sed -i.bak "s/{{ \.PrivateRouteTableID }}/$(output ".private_route_table_id.value[0]")/" $file
   sed -i.bak "s/{{ \.VPCID }}/$(output ".vpc_id.value")/" $file
   rm -rf $(dirname $file)/*.bak
 }

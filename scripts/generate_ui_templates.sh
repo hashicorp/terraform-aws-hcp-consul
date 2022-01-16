@@ -12,8 +12,8 @@ generate_base_existing_vpc_terraform () {
   generate_base_terraform $1 \
     | sed -e 's/module\.vpc\.vpc_id/local\.vpc_id/' \
     | sed -e 's/module\.vpc\.public_subnets\[0\]/local\.public_subnet1/' \
-    | sed -e 's/module\.vpc\.public_route_table_ids/\[local\.route_table_id\]/' \
-    | sed -e 's/module\.vpc\.private_route_table_ids/\[local\.route_table_id\]/'
+    | sed -e 's/module\.vpc\.public_route_table_ids/\[local\.public_route_table_id\]/' \
+    | sed -e 's/module\.vpc\.private_route_table_ids/\[local\.private_route_table_id\]/'
 }
 
 generate_existing_vpc_terraform () {
