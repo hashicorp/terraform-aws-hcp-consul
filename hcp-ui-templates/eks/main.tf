@@ -110,11 +110,10 @@ resource "hcp_hvn" "main" {
 
 module "aws_hcp_consul" {
   source  = "hashicorp/hcp-consul/aws"
-  version = "~> 0.4.2"
+  version = "~> 0.5.0"
 
   hvn                = hcp_hvn.main
   vpc_id             = module.vpc.vpc_id
-  subnet_ids         = module.vpc.public_subnets
   route_table_ids    = module.vpc.public_route_table_ids
   security_group_ids = [module.eks.cluster_primary_security_group_id]
 }
@@ -132,7 +131,7 @@ resource "hcp_consul_cluster_root_token" "token" {
 
 module "eks_consul_client" {
   source  = "hashicorp/hcp-consul/aws//modules/hcp-eks-client"
-  version = "~> 0.4.2"
+  version = "~> 0.5.0"
 
   cluster_id       = hcp_consul_cluster.main.cluster_id
   consul_hosts     = jsondecode(base64decode(hcp_consul_cluster.main.consul_config_file))["retry_join"]
@@ -152,10 +151,11 @@ module "eks_consul_client" {
 
 module "demo_app" {
   source  = "hashicorp/hcp-consul/aws//modules/k8s-demo-app"
-  version = "~> 0.4.2"
+  version = "~> 0.5.0"
 
   depends_on = [module.eks_consul_client]
 }
+
 output "consul_root_token" {
   value     = hcp_consul_cluster_root_token.token.secret_id
   sensitive = true

@@ -1,14 +1,15 @@
 locals {
-  vpc_region      = "eu-west-1"
-  hvn_region      = "eu-west-2"
-  cluster_id      = "consul-quickstart-4634271483588"
-  hvn_id          = "consul-quickstart-4634271483588-hvn"
-  vpc_id          = "vpc-171d21e09127bb012"
-  route_table_id  = "rtb-12b0b92efeae83c28"
-  public_subnet1  = "subnet-14afc1709a875ad5d"
-  public_subnet2  = "subnet-1aa8d55f44387908d"
-  private_subnet1 = "subnet-44afc1709a875ad5d"
-  private_subnet2 = "subnet-5aa8d55f44387908d"
+  vpc_region             = "eu-west-1"
+  hvn_region             = "eu-west-2"
+  cluster_id             = "consul-quickstart-4634271483588"
+  hvn_id                 = "consul-quickstart-4634271483588-hvn"
+  vpc_id                 = "vpc-171d21e09127bb012"
+  public_route_table_id  = "rtb-12b0b92efeae83c28"
+  private_route_table_id = "rtb-32b0b92efeae83c30"
+  public_subnet1         = "subnet-14afc1709a875ad5d"
+  public_subnet2         = "subnet-1aa8d55f44387908d"
+  private_subnet1        = "subnet-44afc1709a875ad5d"
+  private_subnet2        = "subnet-5aa8d55f44387908d"
 }
 
 terraform {
@@ -34,6 +35,7 @@ provider "consul" {
   datacenter = hcp_consul_cluster.main.datacenter
   token      = hcp_consul_cluster_root_token.token.secret_id
 }
+
 resource "hcp_hvn" "main" {
   hvn_id         = local.hvn_id
   cloud_provider = "aws"
@@ -43,12 +45,14 @@ resource "hcp_hvn" "main" {
 
 module "aws_hcp_consul" {
   source  = "hashicorp/hcp-consul/aws"
-  version = "~> 0.4.2"
+  version = "~> 0.5.0"
 
-  hvn             = hcp_hvn.main
-  vpc_id          = local.vpc_id
-  subnet_ids      = [local.public_subnet1, local.public_subnet2]
-  route_table_ids = [local.route_table_id]
+  hvn    = hcp_hvn.main
+  vpc_id = local.vpc_id
+  route_table_ids = concat(
+    [local.private_route_table_id],
+    [local.public_route_table_id],
+  )
 }
 
 resource "hcp_consul_cluster" "main" {
@@ -80,7 +84,7 @@ resource "hcp_consul_cluster_root_token" "token" {
 
 module "aws_ecs_cluster" {
   source  = "hashicorp/hcp-consul/aws//modules/hcp-ecs-client"
-  version = "~> 0.4.2"
+  version = "~> 0.5.0"
 
   private_subnet_ids       = [local.private_subnet1, local.private_subnet2]
   public_subnet_ids        = [local.public_subnet1, local.public_subnet2]
@@ -97,9 +101,8 @@ module "aws_ecs_cluster" {
   consul_url               = hcp_consul_cluster.main.consul_private_endpoint_url
   consul_version           = substr(hcp_consul_cluster.main.consul_version, 1, -1)
   datacenter               = hcp_consul_cluster.main.datacenter
-
-  depends_on = [module.aws_hcp_consul]
 }
+
 output "consul_root_token" {
   value     = hcp_consul_cluster_root_token.token.secret_id
   sensitive = true
