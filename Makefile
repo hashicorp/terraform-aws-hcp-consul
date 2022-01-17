@@ -3,7 +3,7 @@
 generate_templates: hashicups_version module_version
 	scripts/generate_ui_templates.sh
 
-dummy_data: toggle_dev generate_templates
+dummy_data: generate_templates
 	scripts/dummy_data.sh
 
 hashicups_version:
