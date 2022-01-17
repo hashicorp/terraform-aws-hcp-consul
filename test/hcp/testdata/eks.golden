@@ -66,7 +66,7 @@ module "vpc" {
   cidr                 = "10.0.0.0/16"
   azs                  = data.aws_availability_zones.available.names
   private_subnets      = ["10.0.1.0/24", "10.0.2.0/24", "10.0.3.0/24"]
-  public_subnets       = ["10.0.4.0/24", "10.0.5.0/24", "10.0.6.0/24"]
+  public_subnets       = []
   enable_nat_gateway   = true
   single_nat_gateway   = true
   enable_dns_hostnames = true
@@ -86,7 +86,7 @@ module "eks" {
 
   cluster_name    = "${local.cluster_id}-eks"
   cluster_version = "1.21"
-  subnets         = module.vpc.public_subnets
+  subnets         = module.vpc.private_subnets
   vpc_id          = module.vpc.vpc_id
 
   node_groups = {
@@ -114,7 +114,8 @@ module "aws_hcp_consul" {
 
   hvn                = hcp_hvn.main
   vpc_id             = module.vpc.vpc_id
-  route_table_ids    = module.vpc.public_route_table_ids
+  subnet_ids         = module.vpc.private_subnets
+  route_table_ids    = module.vpc.private_route_table_ids
   security_group_ids = [module.eks.cluster_primary_security_group_id]
 }
 
