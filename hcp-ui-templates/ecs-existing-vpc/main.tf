@@ -49,6 +49,10 @@ module "aws_hcp_consul" {
 
   hvn    = hcp_hvn.main
   vpc_id = local.vpc_id
+  subnet_ids = concat(
+    [local.private_subnet1, local.private_subnet2],
+    [local.public_subnet1, local.public_subnet2],
+  )
   route_table_ids = concat(
     [local.private_route_table_id],
     [local.public_route_table_id],
