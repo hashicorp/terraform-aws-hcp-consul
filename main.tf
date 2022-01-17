@@ -49,11 +49,6 @@ data "aws_vpc" "selected" {
   id = var.vpc_id
 }
 
-data "aws_subnet" "selected" {
-  count = length(var.subnet_ids)
-  id    = var.subnet_ids[count.index]
-}
-
 resource "hcp_aws_network_peering" "default" {
   peering_id      = "${data.aws_vpc.selected.id}-peering"
   hvn_id          = var.hvn.hvn_id
@@ -65,6 +60,12 @@ resource "hcp_aws_network_peering" "default" {
 resource "aws_vpc_peering_connection_accepter" "peer" {
   vpc_peering_connection_id = hcp_aws_network_peering.default.provider_peering_id
   auto_accept               = true
+}
+
+
+data "aws_subnet" "selected" {
+  count = length(var.subnet_ids)
+  id    = var.subnet_ids[count.index]
 }
 
 resource "hcp_hvn_route" "peering_route" {

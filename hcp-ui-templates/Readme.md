@@ -4,7 +4,7 @@
 
 Everything in this directory is generated my running `make generate_templates` from the root directory. 
 
-`make generate_templates` takes each example and converts it into two ui templates, for example `hcp-ec2-demo` used to create `ec2` and `ec2-existing-vpc` templates.
+`make generate_templates` takes each example and converts it into two ui templates, for example `hcp-ec2-demo` is used to create `ec2` and `ec2-existing-vpc` templates.
 
 ## Manual testing
 

@@ -46,7 +46,7 @@ resource "hcp_hvn" "main" {
 
 module "aws_hcp_consul" {
   source  = "hashicorp/hcp-consul/aws"
-  version = "~> 0.4.2"
+  version = "~> 0.5.0"
 
   hvn             = hcp_hvn.main
   vpc_id          = module.vpc.vpc_id
@@ -67,7 +67,7 @@ resource "hcp_consul_cluster_root_token" "token" {
 
 module "aws_ec2_consul_client" {
   source  = "hashicorp/hcp-consul/aws//modules/hcp-ec2-client"
-  version = "~> 0.4.2"
+  version = "~> 0.5.0"
 
   subnet_id                = module.vpc.public_subnets[0]
   security_group_id        = module.aws_hcp_consul.security_group_id
@@ -77,9 +77,8 @@ module "aws_ec2_consul_client" {
   client_ca_file           = hcp_consul_cluster.main.consul_ca_file
   root_token               = hcp_consul_cluster_root_token.token.secret_id
   consul_version           = hcp_consul_cluster.main.consul_version
-
-  depends_on = [module.aws_hcp_consul]
 }
+
 output "consul_root_token" {
   value     = hcp_consul_cluster_root_token.token.secret_id
   sensitive = true

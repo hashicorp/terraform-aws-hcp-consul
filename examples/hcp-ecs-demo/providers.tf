@@ -24,3 +24,4 @@ provider "consul" {
   datacenter = hcp_consul_cluster.main.datacenter
   token      = hcp_consul_cluster_root_token.token.secret_id
 }
+
