@@ -2,9 +2,11 @@
 
 generate_templates: hashicups_version module_version
 	scripts/generate_ui_templates.sh
+	scripts/terraform_fmt.sh
 
 dummy_data: generate_templates
 	scripts/dummy_data.sh
+	scripts/terraform_fmt.sh
 
 hashicups_version:
 	scripts/hashicups_version.sh

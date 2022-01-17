@@ -51,12 +51,10 @@ generate () {
   file=hcp-ui-templates/$1/main.tf
   generate_locals > $file
   generate_base_terraform $1 >> $file
-  terraform fmt -write $file
 
   file=hcp-ui-templates/$1-existing-vpc/main.tf
   generate_existing_vpc_locals $1 > $file
   generate_existing_vpc_terraform $1 >> $file
-  terraform fmt -write $file
 }
 
 for platform in ec2 eks ecs; do
