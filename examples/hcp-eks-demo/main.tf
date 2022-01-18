@@ -28,7 +28,7 @@ module "eks" {
 
   cluster_name    = "${var.cluster_id}-eks"
   cluster_version = "1.21"
-  subnets         = module.vpc.private_subnets
+  subnets         = module.vpc.public_subnets
   vpc_id          = module.vpc.vpc_id
 
   node_groups = {
@@ -56,8 +56,8 @@ module "aws_hcp_consul" {
 
   hvn                = hcp_hvn.main
   vpc_id             = module.vpc.vpc_id
-  subnet_ids         = module.vpc.private_subnets
-  route_table_ids    = module.vpc.private_route_table_ids
+  subnet_ids         = module.vpc.public_subnets
+  route_table_ids    = module.vpc.public_route_table_ids
   security_group_ids = [module.eks.cluster_primary_security_group_id]
 }
 
