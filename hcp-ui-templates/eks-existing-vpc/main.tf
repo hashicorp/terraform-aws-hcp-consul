@@ -1,12 +1,12 @@
 locals {
-  vpc_region             = "{{ .VPCRegion }}"
-  hvn_region             = "{{ .HVNRegion }}"
-  cluster_id             = "{{ .ClusterID }}"
-  hvn_id                 = "{{ .ClusterID }}-hvn"
-  vpc_id                 = "{{ .VPCID }}"
-  private_route_table_id = "{{ .PrivateRouteTableID }}"
-  private_subnet1        = "{{ .PrivateSubnet1 }}"
-  private_subnet2        = "{{ .PrivateSubnet2 }}"
+  vpc_region            = "{{ .VPCRegion }}"
+  hvn_region            = "{{ .HVNRegion }}"
+  cluster_id            = "{{ .ClusterID }}"
+  hvn_id                = "{{ .ClusterID }}-hvn"
+  vpc_id                = "{{ .VPCID }}"
+  public_route_table_id = "{{ .PublicRouteTableID }}"
+  public_subnet1        = "{{ .PublicSubnet1 }}"
+  public_subnet2        = "{{ .PublicSubnet2 }}"
 }
 
 terraform {
@@ -74,7 +74,7 @@ module "eks" {
 
   cluster_name    = "${local.cluster_id}-eks"
   cluster_version = "1.21"
-  subnets         = [local.private_subnet1, local.private_subnet2]
+  subnets         = [local.public_subnet1, local.public_subnet2]
   vpc_id          = local.vpc_id
 
   node_groups = {
@@ -98,12 +98,12 @@ resource "hcp_hvn" "main" {
 
 module "aws_hcp_consul" {
   source  = "hashicorp/hcp-consul/aws"
-  version = "~> 0.5.0"
+  version = "~> 0.5.1"
 
   hvn                = hcp_hvn.main
   vpc_id             = local.vpc_id
-  subnet_ids         = [local.private_subnet1, local.private_subnet2]
-  route_table_ids    = [local.private_route_table_id]
+  subnet_ids         = [local.public_subnet1, local.public_subnet2]
+  route_table_ids    = [local.public_route_table_id]
   security_group_ids = [module.eks.cluster_primary_security_group_id]
 }
 
@@ -120,7 +120,7 @@ resource "hcp_consul_cluster_root_token" "token" {
 
 module "eks_consul_client" {
   source  = "hashicorp/hcp-consul/aws//modules/hcp-eks-client"
-  version = "~> 0.5.0"
+  version = "~> 0.5.1"
 
   cluster_id       = hcp_consul_cluster.main.cluster_id
   consul_hosts     = jsondecode(base64decode(hcp_consul_cluster.main.consul_config_file))["retry_join"]
@@ -140,7 +140,7 @@ module "eks_consul_client" {
 
 module "demo_app" {
   source  = "hashicorp/hcp-consul/aws//modules/k8s-demo-app"
-  version = "~> 0.5.0"
+  version = "~> 0.5.1"
 
   depends_on = [module.eks_consul_client]
 }
