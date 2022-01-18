@@ -66,7 +66,7 @@ module "vpc" {
   cidr                 = "10.0.0.0/16"
   azs                  = data.aws_availability_zones.available.names
   private_subnets      = ["10.0.1.0/24", "10.0.2.0/24", "10.0.3.0/24"]
-  public_subnets       = []
+  public_subnets       = ["10.0.4.0/24", "10.0.4.0/24", "10.0.5.0/24"]
   enable_nat_gateway   = true
   single_nat_gateway   = true
   enable_dns_hostnames = true
@@ -110,7 +110,7 @@ resource "hcp_hvn" "main" {
 
 module "aws_hcp_consul" {
   source  = "hashicorp/hcp-consul/aws"
-  version = "~> 0.5.0"
+  version = "~> 0.5.1"
 
   hvn                = hcp_hvn.main
   vpc_id             = module.vpc.vpc_id
@@ -132,7 +132,7 @@ resource "hcp_consul_cluster_root_token" "token" {
 
 module "eks_consul_client" {
   source  = "hashicorp/hcp-consul/aws//modules/hcp-eks-client"
-  version = "~> 0.5.0"
+  version = "~> 0.5.1"
 
   cluster_id       = hcp_consul_cluster.main.cluster_id
   consul_hosts     = jsondecode(base64decode(hcp_consul_cluster.main.consul_config_file))["retry_join"]
@@ -152,7 +152,7 @@ module "eks_consul_client" {
 
 module "demo_app" {
   source  = "hashicorp/hcp-consul/aws//modules/k8s-demo-app"
-  version = "~> 0.5.0"
+  version = "~> 0.5.1"
 
   depends_on = [module.eks_consul_client]
 }
