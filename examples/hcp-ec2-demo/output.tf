@@ -18,3 +18,7 @@ output "nomad_url" {
 output "hashicups_url" {
   value = "http://${module.aws_ec2_consul_client.host_dns}"
 }
+
+output "next_steps" {
+  value = "Hashicups Application will be ready in ~2 minutes"
+}

@@ -18,3 +18,7 @@ output "kubeconfig_filename" {
 output "hashicups_url" {
   value = module.demo_app.hashicups_url
 }
+
+output "next_steps" {
+  value = "Hashicups Application will be ready in ~2 minutes"
+}
