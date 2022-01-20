@@ -60,3 +60,9 @@ generate () {
 for platform in ec2 eks ecs; do
   generate $platform
 done
+
+source ./scripts/terraform_fmt.sh
+
+cd test/hcp
+go test -update .
+cd -
