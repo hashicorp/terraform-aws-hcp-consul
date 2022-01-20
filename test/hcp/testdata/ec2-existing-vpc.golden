@@ -26,6 +26,12 @@ provider "aws" {
   region = local.vpc_region
 }
 
+provider "consul" {
+  address    = hcp_consul_cluster.main.consul_public_endpoint_url
+  datacenter = hcp_consul_cluster.main.datacenter
+  token      = hcp_consul_cluster_root_token.token.secret_id
+}
+
 
 resource "hcp_hvn" "main" {
   hvn_id         = local.hvn_id
@@ -36,7 +42,7 @@ resource "hcp_hvn" "main" {
 
 module "aws_hcp_consul" {
   source  = "hashicorp/hcp-consul/aws"
-  version = "~> 0.5.1"
+  version = "~> 0.6.0"
 
   hvn             = hcp_hvn.main
   vpc_id          = local.vpc_id
@@ -57,7 +63,7 @@ resource "hcp_consul_cluster_root_token" "token" {
 
 module "aws_ec2_consul_client" {
   source  = "hashicorp/hcp-consul/aws//modules/hcp-ec2-client"
-  version = "~> 0.5.1"
+  version = "~> 0.6.0"
 
   subnet_id                = local.public_subnet1
   security_group_id        = module.aws_hcp_consul.security_group_id
@@ -67,6 +73,74 @@ module "aws_ec2_consul_client" {
   client_ca_file           = hcp_consul_cluster.main.consul_ca_file
   root_token               = hcp_consul_cluster_root_token.token.secret_id
   consul_version           = hcp_consul_cluster.main.consul_version
+
+  provisioner "local-exec" {
+    command = "echo Application startup takes ~2 minutes."
+  }
+}
+
+resource "consul_config_entry" "service_intentions_db" {
+  name = "product-db"
+  kind = "service-intentions"
+
+  config_json = jsonencode({
+    Sources = [
+      {
+        Action     = "allow"
+        Name       = "product-api"
+        Precedence = 9
+        Type       = "consul"
+      },
+    ]
+  })
+}
+
+resource "consul_config_entry" "service_intentions_product" {
+  name = "product-api"
+  kind = "service-intentions"
+
+  config_json = jsonencode({
+    Sources = [
+      {
+        Action     = "allow"
+        Name       = "product-public-api"
+        Precedence = 9
+        Type       = "consul"
+      },
+    ]
+  })
+}
+
+resource "consul_config_entry" "service_intentions_payment" {
+  name = "payment-api"
+  kind = "service-intentions"
+
+  config_json = jsonencode({
+    Sources = [
+      {
+        Action     = "allow"
+        Name       = "product-public-api"
+        Precedence = 9
+        Type       = "consul"
+      },
+    ]
+  })
+}
+
+resource "consul_config_entry" "service_intentions_public_api" {
+  name = "product-public-api"
+  kind = "service-intentions"
+
+  config_json = jsonencode({
+    Sources = [
+      {
+        Action     = "allow"
+        Name       = "frontend"
+        Precedence = 9
+        Type       = "consul"
+      },
+    ]
+  })
 }
 
 output "consul_root_token" {
@@ -83,9 +157,13 @@ output "consul_url" {
 }
 
 output "nomad_url" {
-  value = "http://${module.aws_ec2_consul_client.host_dns}:8081"
+  value = "http://${module.aws_ec2_consul_client.public_ip}:8081"
 }
 
 output "hashicups_url" {
-  value = "http://${module.aws_ec2_consul_client.host_dns}"
+  value = "http://${module.aws_ec2_consul_client.public_ip}"
+}
+
+output "next_steps" {
+  value = "Hashicups Application will be ready in ~2 minutes"
 }
