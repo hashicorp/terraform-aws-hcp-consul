@@ -1,6 +1,6 @@
 module "acl-controller" {
-  source  = "hashicorp/consul-ecs/aws//modules/acl-controller"
-  version = "~> 0.2.0"
+  source           = "hashicorp/consul-ecs/aws//modules/acl-controller"
+  consul_ecs_image = "docker.mirror.hashicorp.services/hashicorpdev/consul-ecs:latest"
 
   log_configuration = {
     logDriver = "awslogs"
@@ -20,11 +20,47 @@ module "acl-controller" {
   name_prefix = local.secret_prefix
 }
 
-module "frontend" {
-  source  = "hashicorp/consul-ecs/aws//modules/mesh-task"
-  version = "~> 0.2.0"
+resource "aws_iam_role" "frontend-task-role" {
+  name = "frontend_${local.scope}_task_role"
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = "sts:AssumeRole"
+        Effect = "Allow"
+        Principal = {
+          Service = "ecs-tasks.amazonaws.com"
+        }
+      }
+    ]
+  })
+}
 
-  family = "frontend_${local.scope}"
+resource "aws_iam_role" "frontend-execution-role" {
+  name = "frontend_${local.scope}_execution_role"
+  path = "/ecs/"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = "sts:AssumeRole"
+        Effect = "Allow"
+        Principal = {
+          Service = "ecs-tasks.amazonaws.com"
+        }
+      }
+    ]
+  })
+}
+
+module "frontend" {
+  source           = "github.com/hashicorp/terraform-aws-consul-ecs//modules/mesh-task"
+  consul_ecs_image = "docker.mirror.hashicorp.services/hashicorpdev/consul-ecs:latest"
+
+  family         = "frontend"
+  task_role      = aws_iam_role.frontend-task-role
+  execution_role = aws_iam_role.frontend-execution-role
   container_definitions = [
     {
       name      = "frontend"
@@ -55,8 +91,8 @@ module "frontend" {
 
   upstreams = [
     {
-      destination_name = "public_api_${local.scope}"
-      local_bind_port  = 8080
+      destinationName = "public_api"
+      localBindPort   = 8080
     },
   ]
 
@@ -105,12 +141,47 @@ resource "aws_ecs_service" "frontend" {
   enable_execute_command = true
 }
 
+resource "aws_iam_role" "public_api-task-role" {
+  name = "public_api_${local.scope}_task_role"
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = "sts:AssumeRole"
+        Effect = "Allow"
+        Principal = {
+          Service = "ecs-tasks.amazonaws.com"
+        }
+      }
+    ]
+  })
+}
+
+resource "aws_iam_role" "public_api-execution-role" {
+  name = "public_api_${local.scope}_execution_role"
+  path = "/ecs/"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = "sts:AssumeRole"
+        Effect = "Allow"
+        Principal = {
+          Service = "ecs-tasks.amazonaws.com"
+        }
+      }
+    ]
+  })
+}
+
 module "public_api" {
-  source  = "hashicorp/consul-ecs/aws//modules/mesh-task"
-  version = "~> 0.2.0"
+  source           = "github.com/hashicorp/terraform-aws-consul-ecs//modules/mesh-task"
+  consul_ecs_image = "docker.mirror.hashicorp.services/hashicorpdev/consul-ecs:latest"
 
-
-  family = "public_api_${local.scope}"
+  family         = "public_api"
+  task_role      = aws_iam_role.public_api-task-role
+  execution_role = aws_iam_role.public_api-execution-role
   container_definitions = [
     {
       name      = "public_api"
@@ -151,12 +222,12 @@ module "public_api" {
 
   upstreams = [
     {
-      destination_name = "product_api_${local.scope}"
-      local_bind_port  = 5000
+      destinationName = "product_api"
+      localBindPort   = 5000
     },
     {
-      destination_name = "payment_api_${local.scope}"
-      local_bind_port  = 5001
+      destinationName = "payment_api"
+      localBindPort   = 5001
     }
   ]
 
@@ -200,11 +271,47 @@ resource "aws_ecs_service" "public_api" {
   enable_execute_command = true
 }
 
-module "payment_api" {
-  source  = "hashicorp/consul-ecs/aws//modules/mesh-task"
-  version = "~> 0.2.0"
+resource "aws_iam_role" "payment_api-task-role" {
+  name = "payment_api_${local.scope}_task_role"
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = "sts:AssumeRole"
+        Effect = "Allow"
+        Principal = {
+          Service = "ecs-tasks.amazonaws.com"
+        }
+      }
+    ]
+  })
+}
 
-  family = "payment_api_${local.scope}"
+resource "aws_iam_role" "payment_api-execution-role" {
+  name = "payment_api_${local.scope}_execution_role"
+  path = "/ecs/"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = "sts:AssumeRole"
+        Effect = "Allow"
+        Principal = {
+          Service = "ecs-tasks.amazonaws.com"
+        }
+      }
+    ]
+  })
+}
+
+module "payment_api" {
+  source           = "github.com/hashicorp/terraform-aws-consul-ecs//modules/mesh-task"
+  consul_ecs_image = "docker.mirror.hashicorp.services/hashicorpdev/consul-ecs:latest"
+
+  family         = "payment_api"
+  task_role      = aws_iam_role.payment_api-task-role
+  execution_role = aws_iam_role.payment_api-execution-role
   container_definitions = [
     {
       name      = "payment_api"
@@ -271,11 +378,47 @@ resource "aws_ecs_service" "payment_api" {
   enable_execute_command = true
 }
 
-module "product_api" {
-  source  = "hashicorp/consul-ecs/aws//modules/mesh-task"
-  version = "~> 0.2.0"
+resource "aws_iam_role" "product_api-task-role" {
+  name = "product_api_${local.scope}_task_role"
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = "sts:AssumeRole"
+        Effect = "Allow"
+        Principal = {
+          Service = "ecs-tasks.amazonaws.com"
+        }
+      }
+    ]
+  })
+}
 
-  family = "product_api_${local.scope}"
+resource "aws_iam_role" "product_api-execution-role" {
+  name = "product_api_${local.scope}_execution_role"
+  path = "/ecs/"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = "sts:AssumeRole"
+        Effect = "Allow"
+        Principal = {
+          Service = "ecs-tasks.amazonaws.com"
+        }
+      }
+    ]
+  })
+}
+
+module "product_api" {
+  source           = "github.com/hashicorp/terraform-aws-consul-ecs//modules/mesh-task"
+  consul_ecs_image = "docker.mirror.hashicorp.services/hashicorpdev/consul-ecs:latest"
+
+  family         = "product_api"
+  task_role      = aws_iam_role.product_api-task-role
+  execution_role = aws_iam_role.product_api-execution-role
   container_definitions = [
     {
       name      = "product_api"
@@ -315,8 +458,8 @@ module "product_api" {
 
   upstreams = [
     {
-      destination_name = "product_db_${local.scope}"
-      local_bind_port  = 5000
+      destinationName = "product_db"
+      localBindPort   = 5000
     }
   ]
 
@@ -359,11 +502,47 @@ resource "aws_ecs_service" "product_api" {
   enable_execute_command = true
 }
 
-module "product_db" {
-  source  = "hashicorp/consul-ecs/aws//modules/mesh-task"
-  version = "~> 0.2.0"
+resource "aws_iam_role" "product_db-task-role" {
+  name = "product_db_${local.scope}_task_role"
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = "sts:AssumeRole"
+        Effect = "Allow"
+        Principal = {
+          Service = "ecs-tasks.amazonaws.com"
+        }
+      }
+    ]
+  })
+}
 
-  family = "product_db_${local.scope}"
+resource "aws_iam_role" "product_db-execution-role" {
+  name = "product_db_${local.scope}_execution_role"
+  path = "/ecs/"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = "sts:AssumeRole"
+        Effect = "Allow"
+        Principal = {
+          Service = "ecs-tasks.amazonaws.com"
+        }
+      }
+    ]
+  })
+}
+
+module "product_db" {
+  source           = "github.com/hashicorp/terraform-aws-consul-ecs//modules/mesh-task"
+  consul_ecs_image = "docker.mirror.hashicorp.services/hashicorpdev/consul-ecs:latest"
+
+  family         = "product_db"
+  task_role      = aws_iam_role.product_db-task-role
+  execution_role = aws_iam_role.product_db-execution-role
   container_definitions = [
     {
       name      = "product_db"
