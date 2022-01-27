@@ -105,11 +105,8 @@ module "aws_ecs_cluster" {
   consul_url               = hcp_consul_cluster.main.consul_private_endpoint_url
   consul_version           = substr(hcp_consul_cluster.main.consul_version, 1, -1)
   datacenter               = hcp_consul_cluster.main.datacenter
-
-  provisioner "local-exec" {
-    command = "echo Application startup takes ~2 minutes."
-  }
 }
+
 resource "consul_config_entry" "service_intentions_db" {
   name = "product-db"
   kind = "service-intentions"

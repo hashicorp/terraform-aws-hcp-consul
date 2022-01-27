@@ -1,6 +1,5 @@
 module "acl-controller" {
-  source           = "hashicorp/consul-ecs/aws//modules/acl-controller"
-  consul_ecs_image = "docker.mirror.hashicorp.services/hashicorpdev/consul-ecs:latest"
+  source = "hashicorp/consul-ecs/aws//modules/acl-controller"
 
   log_configuration = {
     logDriver = "awslogs"
@@ -55,8 +54,8 @@ resource "aws_iam_role" "frontend-execution-role" {
 }
 
 module "frontend" {
-  source           = "github.com/hashicorp/terraform-aws-consul-ecs//modules/mesh-task"
-  consul_ecs_image = "docker.mirror.hashicorp.services/hashicorpdev/consul-ecs:latest"
+  source  = "hashicorp/consul-ecs/aws//modules/mesh-task"
+  version = "~> 0.3.0"
 
   family         = "frontend"
   task_role      = aws_iam_role.frontend-task-role
@@ -176,8 +175,8 @@ resource "aws_iam_role" "public_api-execution-role" {
 }
 
 module "public_api" {
-  source           = "github.com/hashicorp/terraform-aws-consul-ecs//modules/mesh-task"
-  consul_ecs_image = "docker.mirror.hashicorp.services/hashicorpdev/consul-ecs:latest"
+  source  = "hashicorp/consul-ecs/aws//modules/mesh-task"
+  version = "~> 0.3.0"
 
   family         = "public_api"
   task_role      = aws_iam_role.public_api-task-role
@@ -306,8 +305,8 @@ resource "aws_iam_role" "payment_api-execution-role" {
 }
 
 module "payment_api" {
-  source           = "github.com/hashicorp/terraform-aws-consul-ecs//modules/mesh-task"
-  consul_ecs_image = "docker.mirror.hashicorp.services/hashicorpdev/consul-ecs:latest"
+  source  = "hashicorp/consul-ecs/aws//modules/mesh-task"
+  version = "~> 0.3.0"
 
   family         = "payment_api"
   task_role      = aws_iam_role.payment_api-task-role
@@ -413,8 +412,8 @@ resource "aws_iam_role" "product_api-execution-role" {
 }
 
 module "product_api" {
-  source           = "github.com/hashicorp/terraform-aws-consul-ecs//modules/mesh-task"
-  consul_ecs_image = "docker.mirror.hashicorp.services/hashicorpdev/consul-ecs:latest"
+  source  = "hashicorp/consul-ecs/aws//modules/mesh-task"
+  version = "~> 0.3.0"
 
   family         = "product_api"
   task_role      = aws_iam_role.product_api-task-role
@@ -537,8 +536,8 @@ resource "aws_iam_role" "product_db-execution-role" {
 }
 
 module "product_db" {
-  source           = "github.com/hashicorp/terraform-aws-consul-ecs//modules/mesh-task"
-  consul_ecs_image = "docker.mirror.hashicorp.services/hashicorpdev/consul-ecs:latest"
+  source  = "hashicorp/consul-ecs/aws//modules/mesh-task"
+  version = "~> 0.3.0"
 
   family         = "product_db"
   task_role      = aws_iam_role.product_db-task-role

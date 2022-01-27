@@ -83,10 +83,6 @@ module "aws_ec2_consul_client" {
   client_ca_file           = hcp_consul_cluster.main.consul_ca_file
   root_token               = hcp_consul_cluster_root_token.token.secret_id
   consul_version           = hcp_consul_cluster.main.consul_version
-
-  provisioner "local-exec" {
-    command = "echo Application startup takes ~2 minutes."
-  }
 }
 
 resource "consul_config_entry" "service_intentions_db" {
