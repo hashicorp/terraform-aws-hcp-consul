@@ -14,3 +14,7 @@ output "consul_url" {
 output "hashicups_url" {
   value = "http://${module.aws_ecs_cluster.hashicups_url}"
 }
+
+output "next_steps" {
+  value = "Hashicups Application will be ready in ~2 minutes"
+}

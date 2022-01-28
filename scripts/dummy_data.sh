@@ -31,3 +31,4 @@ for template in ec2 ec2-existing-vpc eks eks-existing-vpc ecs ecs-existing-vpc; 
   defaults $template
 done
 
+source ./scripts/terraform_fmt.sh

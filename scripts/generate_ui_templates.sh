@@ -1,7 +1,7 @@
 #!/bin/bash
 
 generate_base_terraform () {
-  cat examples/hcp-$1-demo/providers.tf examples/hcp-$1-demo/main.tf examples/hcp-$1-demo/output.tf \
+  cat examples/hcp-$1-demo/{providers,main,intentions,output}.tf \
     | sed -e '/provider_meta/,+2d' \
     | sed -e 's/var/local/g' \
     | sed -e 's/local\.tier/"development"/g' \
@@ -49,10 +49,12 @@ generate_existing_vpc_locals () {
 
 generate () {
   file=hcp-ui-templates/$1/main.tf
+  mkdir -p $(dirname $file)
   generate_locals > $file
   generate_base_terraform $1 >> $file
 
   file=hcp-ui-templates/$1-existing-vpc/main.tf
+  mkdir -p $(dirname $file)
   generate_existing_vpc_locals $1 > $file
   generate_existing_vpc_terraform $1 >> $file
 }
@@ -60,3 +62,9 @@ generate () {
 for platform in ec2 eks ecs; do
   generate $platform
 done
+
+source ./scripts/terraform_fmt.sh
+
+cd test/hcp
+go test -update .
+cd -

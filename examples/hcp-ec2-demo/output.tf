@@ -12,9 +12,13 @@ output "consul_url" {
 }
 
 output "nomad_url" {
-  value = "http://${module.aws_ec2_consul_client.host_dns}:8081"
+  value = "http://${module.aws_ec2_consul_client.public_ip}:8081"
 }
 
 output "hashicups_url" {
-  value = "http://${module.aws_ec2_consul_client.host_dns}"
+  value = "http://${module.aws_ec2_consul_client.public_ip}"
+}
+
+output "next_steps" {
+  value = "Hashicups Application will be ready in ~2 minutes"
 }
