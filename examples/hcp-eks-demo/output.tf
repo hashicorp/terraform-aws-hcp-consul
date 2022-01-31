@@ -20,5 +20,5 @@ output "hashicups_url" {
 }
 
 output "next_steps" {
-  value = "Hashicups Application will be ready in ~2 minutes"
+  value = "Hashicups Application will be ready in ~2 minutes. Use 'terraform output consul_root_token' to retrieve the root token."
 }
