@@ -70,6 +70,7 @@ resource "aws_instance" "nomad_host" {
       })),
       hashicups  = base64encode(file("${path.module}/templates/hashicups.nomad")),
       nginx_conf = base64encode(file("${path.module}/templates/nginx.conf")),
+      vpc_cidr   = var.vpc_cidr
     })),
   })
 
