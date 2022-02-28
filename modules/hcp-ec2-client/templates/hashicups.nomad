@@ -57,8 +57,7 @@ job "hashicups" {
     service {
       name = "product-public-api"
       port = NOMAD_PORT_http
-      tags = ["urlprefix-/"]
-
+      
       connect {
         sidecar_service {
           proxy {
