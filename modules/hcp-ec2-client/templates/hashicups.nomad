@@ -1,3 +1,10 @@
+variable "public_api_ip" {
+  type        = string
+  description = "Public Host IP Address"
+  default     = "localhost"
+}
+
+
 job "hashicups" {
   datacenters = ["dc1"]
 
@@ -11,7 +18,7 @@ job "hashicups" {
 
     service {
       name = "frontend"
-      port = "80"
+      port = NOMAD_PORT_http
 
       connect {
         sidecar_service {
@@ -19,7 +26,7 @@ job "hashicups" {
             upstreams {
               destination_name = "product-public-api"
               local_bind_port  = 8080
-            }            
+            }
           }
         }
       }
@@ -27,9 +34,13 @@ job "hashicups" {
 
     task "frontend" {
       driver = "docker"
+      env {
+        PORT                       = NOMAD_PORT_http
+        NEXT_PUBLIC_PUBLIC_API_URL = "http://${var.public_api_ip}:8080"
+      }
 
       config {
-        image = "hashicorpdemoapp/frontend:v0.0.7"
+        image = "hashicorpdemoapp/frontend:v1.0.1"
         ports = ["http"]
       }
     }
@@ -38,19 +49,22 @@ job "hashicups" {
   group "product-public-api" {
     network {
       mode = "bridge"
+      port "http" {
+        static = 8080
+      }
     }
 
     service {
       name = "product-public-api"
-      port = "8080"
-
+      port = NOMAD_PORT_http
+      
       connect {
         sidecar_service {
           proxy {
             upstreams {
               destination_name = "product-api"
               local_bind_port  = 5000
-            }            
+            }
             upstreams {
               destination_name = "payment-api"
               local_bind_port  = 5001
@@ -64,7 +78,7 @@ job "hashicups" {
       driver = "docker"
 
       config {
-        image   = "hashicorpdemoapp/public-api:v0.0.5"
+        image = "hashicorpdemoapp/public-api:v0.0.6"
       }
 
       env {
@@ -82,6 +96,7 @@ job "hashicups" {
     service {
       name = "payment-api"
       port = "8080"
+
 
       connect {
         sidecar_service {}
@@ -134,13 +149,13 @@ job "hashicups" {
       driver = "docker"
 
       config {
-        image   = "hashicorpdemoapp/product-api:v0.0.19"
+        image = "hashicorpdemoapp/product-api:v0.0.20"
       }
 
       env {
-        CONFIG_FILE = "/config/config.json"
-				DB_CONNECTION = "host=localhost port=5000 user=postgres password=password dbname=products sslmode=disable"
-				BIND_ADDRESS = "0.0.0.0:9090"
+        CONFIG_FILE   = "/config/config.json"
+        DB_CONNECTION = "host=localhost port=5000 user=postgres password=password dbname=products sslmode=disable"
+        BIND_ADDRESS  = "0.0.0.0:9090"
       }
     }
   }
@@ -163,7 +178,7 @@ job "hashicups" {
       driver = "docker"
 
       config {
-        image = "hashicorpdemoapp/product-api-db:v0.0.19"
+        image = "hashicorpdemoapp/product-api-db:v0.0.20"
       }
 
       env {

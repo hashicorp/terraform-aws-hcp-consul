@@ -42,7 +42,7 @@ setup_consul() {
 	jq '.ca_file = "/etc/consul.d/ca.pem"' client.temp.0 > client.temp.1
 	jq --arg token "${consul_acl_token}" '.acl += {"tokens":{"agent":"\($token)"}}' client.temp.1 > client.temp.2
 	jq '.ports = {"grpc":8502}' client.temp.2 > client.temp.3
-	jq '.bind_addr = "{{ GetPrivateInterfaces | include \"network\" \"10.0.0.0/8\" | attr \"address\" }}"' client.temp.3 > /etc/consul.d/client.json
+	jq '.bind_addr = "{{ GetPrivateInterfaces | include \"network\" \"'${vpc_cidr}'\" | attr \"address\" }}"' client.temp.3 > /etc/consul.d/client.json
 }
 
 setup_nginx() {
@@ -71,6 +71,8 @@ start_service "nomad"
 # nomad and consul service is type simple and might not be up and running just yet.
 sleep 10
 
-nomad run hashicups.nomad
+HOST_PUBLIC_ADDRESS=`/usr/bin/curl -s http://169.254.169.254/latest/meta-data/public-ipv4`
+
+nomad run -var="public_api_ip=$HOST_PUBLIC_ADDRESS" hashicups.nomad
 
 echo "done"

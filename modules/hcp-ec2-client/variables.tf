@@ -38,3 +38,9 @@ variable "consul_version" {
 variable "security_group_id" {
   type = string
 }
+
+variable "vpc_cidr" {
+  type        = string
+  description = "VPC CIDR"
+  default     = "10.0.0.0/8"
+}
