@@ -63,7 +63,7 @@ module "frontend" {
   container_definitions = [
     {
       name      = "frontend"
-      image     = "hashicorpdemoapp/frontend:v0.0.7"
+      image     = "hashicorpdemoapp/frontend:v1.0.1"
       essential = true
       portMappings = [
         {
@@ -184,7 +184,7 @@ module "public_api" {
   container_definitions = [
     {
       name      = "public_api"
-      image     = "hashicorpdemoapp/public-api:v0.0.5"
+      image     = "hashicorpdemoapp/public-api:v0.0.6"
       essential = true
       portMappings = [
         {
@@ -421,7 +421,7 @@ module "product_api" {
   container_definitions = [
     {
       name      = "product_api"
-      image     = "hashicorpdemoapp/product-api:v0.0.19"
+      image     = "hashicorpdemoapp/product-api:v0.0.20"
       essential = true
       portMappings = [
         {
@@ -545,7 +545,7 @@ module "product_db" {
   container_definitions = [
     {
       name      = "product_db"
-      image     = "hashicorpdemoapp/product-api-db:v0.0.19"
+      image     = "hashicorpdemoapp/product-api-db:v0.0.20"
       essential = true
       portMappings = [
         {
