@@ -11,7 +11,12 @@ provider "aws" {
   region = "us-west-2"
 }
 
-data "aws_availability_zones" "available" {}
+data "aws_availability_zones" "available" {
+  filter {
+    name   = "zone-type"
+    values = ["availability-zone"]
+  }
+}
 
 module "vpc" {
   source  = "terraform-aws-modules/vpc/aws"
