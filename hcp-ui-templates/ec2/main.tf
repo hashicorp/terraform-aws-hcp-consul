@@ -29,7 +29,12 @@ provider "consul" {
   token      = hcp_consul_cluster_root_token.token.secret_id
 }
 
-data "aws_availability_zones" "available" {}
+data "aws_availability_zones" "available" {
+  filter {
+    name   = "zone-type"
+    values = ["availability-zone"]
+  }
+}
 
 module "vpc" {
   source  = "terraform-aws-modules/vpc/aws"
