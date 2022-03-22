@@ -4,18 +4,22 @@ terraform {
       source  = "hashicorp/aws"
       version = "~> 3.43"
     }
+
     hcp = {
       source  = "hashicorp/hcp"
       version = ">= 0.18.0"
     }
+
     kubernetes = {
       source  = "hashicorp/kubernetes"
       version = ">= 2.4.1"
     }
+
     helm = {
       source  = "hashicorp/helm"
       version = ">= 2.3.0"
     }
+
     kubectl = {
       source  = "gavinbunney/kubectl"
       version = ">= 1.11.3"
@@ -51,4 +55,3 @@ provider "kubectl" {
   token                  = data.aws_eks_cluster_auth.cluster.token
   load_config_file       = false
 }
-

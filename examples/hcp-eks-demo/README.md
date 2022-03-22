@@ -35,13 +35,16 @@ The EKS cluster can be accessed via the output `kubeconfig_filename`, which
 references a created kubeconfig file that can be used by setting the
 `KUBECONFIG` environment variable
 
+```bash
+export KUBECONFIG=$(terraform output --raw kubeconfig_filename)
+```
+
 #### Demo Application
 
 **Warning**: This application is publicly accessible, make sure to delete the Kubernetes
 resources associated to the application when done.
 
-The demo application can be accessed via the output `dashboard_url`.
+The demo application can be accessed via the output `hashicups_url`.
 
-An Ingress Gateway is setup to forward traffic to the `dashboard` service, with
-the correct Consul intentions. However, the `dashboard` service does not have
-the correct intentions setup to communicate with the `couting` service.
+An Ingress Gateway is setup to forward traffic to the `frontend` service with
+the correct Consul intentions.
