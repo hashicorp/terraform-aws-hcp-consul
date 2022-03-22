@@ -57,7 +57,7 @@ spec:
             - name: POSTGRES_DB
               value: products
             - name: POSTGRES_USER
-              value: product-api-db
+              value: postgres
             - name: POSTGRES_PASSWORD
               value: password
           volumeMounts:
