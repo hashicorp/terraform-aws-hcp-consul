@@ -79,7 +79,7 @@ resource "hcp_consul_cluster_root_token" "token" {
 
 module "eks_consul_client" {
   source = "hashicorp/hcp-consul/aws//modules/hcp-eks-client"
-  # version = "~> 0.6.1"
+  version = "~> 0.6.1"
 
   cluster_id       = hcp_consul_cluster.main.cluster_id
   consul_hosts     = jsondecode(base64decode(hcp_consul_cluster.main.consul_config_file))["retry_join"]
