@@ -28,8 +28,9 @@ data "aws_eks_cluster_auth" "cluster" {
 }
 
 module "eks" {
-  source  = "terraform-aws-modules/eks/aws"
-  version = "17.22.0"
+  source                 = "terraform-aws-modules/eks/aws"
+  version                = "17.24.0"
+  kubeconfig_api_version = "client.authentication.k8s.io/v1beta1"
 
   cluster_name    = "${var.cluster_id}-eks"
   cluster_version = "1.21"

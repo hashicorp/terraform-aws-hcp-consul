@@ -71,6 +71,5 @@ resource "aws_secretsmanager_secret_version" "gossip_key" {
 }
 
 resource "aws_cloudwatch_log_group" "log_group" {
-  name = "something-log"
+  name = "${local.secret_prefix}-ecs-client"
 }
-
