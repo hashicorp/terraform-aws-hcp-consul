@@ -7,7 +7,7 @@
 variable "cluster_id" {
   type        = string
   description = "The name of your HCP Consul cluster"
-  default     = "cluster-ecs-demo-3"
+  default     = "cluster-ecs-demo"
 }
 
 variable "hvn_region" {
