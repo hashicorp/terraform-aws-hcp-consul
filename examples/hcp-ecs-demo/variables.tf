@@ -7,25 +7,25 @@
 variable "cluster_id" {
   type        = string
   description = "The name of your HCP Consul cluster"
-  default     = "cluster-ecs-demo-3"
+  default     = "cluster-ecs-demo"
 }
 
 variable "hvn_region" {
   type        = string
   description = "The HCP region to create resources in"
-  default     = "us-east-1"
+  default     = "us-west-2"
 }
 
 variable "vpc_region" {
   type        = string
   description = "The AWS region to create resources in"
-  default     = "us-east-1"
+  default     = "us-west-2"
 }
 
 variable "hvn_id" {
   type        = string
   description = "The name of your HCP HVN"
-  default     = "cluster-ecs-demo-hvn-2"
+  default     = "cluster-ecs-demo-hvn"
 }
 
 variable "hvn_cidr_block" {
