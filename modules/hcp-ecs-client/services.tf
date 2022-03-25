@@ -15,12 +15,10 @@ module "acl-controller" {
   ecs_cluster_arn                   = aws_ecs_cluster.clients.arn
   region                            = var.region
   subnets                           = var.private_subnet_ids
-
-  name_prefix = local.secret_prefix
 }
 
 resource "aws_iam_role" "frontend-task-role" {
-  name = "${local.secret_prefix}_frontend_${local.scope}_task_role"
+  name = "frontend_${local.scope}_task_role"
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
     Statement = [
@@ -33,12 +31,10 @@ resource "aws_iam_role" "frontend-task-role" {
       }
     ]
   })
-
-  name_prefix = local.secret_prefix
 }
 
 resource "aws_iam_role" "frontend-execution-role" {
-  name = "${local.secret_prefix}_frontend_${local.scope}_execution_role"
+  name = "frontend_${local.scope}_execution_role"
   path = "/ecs/"
 
   assume_role_policy = jsonencode({
@@ -143,7 +139,7 @@ resource "aws_ecs_service" "frontend" {
 }
 
 resource "aws_iam_role" "public_api-task-role" {
-  name = "${local.secret_prefix}_public_api_${local.scope}_task_role"
+  name = "public_api_${local.scope}_task_role"
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
     Statement = [
@@ -159,7 +155,7 @@ resource "aws_iam_role" "public_api-task-role" {
 }
 
 resource "aws_iam_role" "public_api-execution-role" {
-  name = "${local.secret_prefix}_public_api_${local.scope}_execution_role"
+  name = "public_api_${local.scope}_execution_role"
   path = "/ecs/"
 
   assume_role_policy = jsonencode({
@@ -174,8 +170,6 @@ resource "aws_iam_role" "public_api-execution-role" {
       }
     ]
   })
-
-  name_prefix = local.secret_prefix
 }
 
 module "public_api" {
@@ -275,7 +269,7 @@ resource "aws_ecs_service" "public_api" {
 }
 
 resource "aws_iam_role" "payment_api-task-role" {
-  name = "${local.secret_prefix}_payment_api_${local.scope}_task_role"
+  name = "payment_api_${local.scope}_task_role"
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
     Statement = [
@@ -291,7 +285,7 @@ resource "aws_iam_role" "payment_api-task-role" {
 }
 
 resource "aws_iam_role" "payment_api-execution-role" {
-  name = "${local.secret_prefix}_payment_api_${local.scope}_execution_role"
+  name = "payment_api_${local.scope}_execution_role"
   path = "/ecs/"
 
   assume_role_policy = jsonencode({
@@ -382,7 +376,7 @@ resource "aws_ecs_service" "payment_api" {
 }
 
 resource "aws_iam_role" "product_api-task-role" {
-  name = "${local.secret_prefix}_product_api_${local.scope}_task_role"
+  name = "product_api_${local.scope}_task_role"
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
     Statement = [
@@ -398,7 +392,7 @@ resource "aws_iam_role" "product_api-task-role" {
 }
 
 resource "aws_iam_role" "product_api-execution-role" {
-  name = "${local.secret_prefix}_product_api_${local.scope}_execution_role"
+  name = "product_api_${local.scope}_execution_role"
   path = "/ecs/"
 
   assume_role_policy = jsonencode({
@@ -506,7 +500,7 @@ resource "aws_ecs_service" "product_api" {
 }
 
 resource "aws_iam_role" "product_db-task-role" {
-  name = "${local.secret_prefix}_product_db_${local.scope}_task_role"
+  name = "product_db_${local.scope}_task_role"
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
     Statement = [
@@ -522,7 +516,7 @@ resource "aws_iam_role" "product_db-task-role" {
 }
 
 resource "aws_iam_role" "product_db-execution-role" {
-  name = "${local.secret_prefix}_product_db_${local.scope}_execution_role"
+  name = "product_db_${local.scope}_execution_role"
   path = "/ecs/"
 
   assume_role_policy = jsonencode({
