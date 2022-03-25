@@ -4,10 +4,7 @@ locals {
   cluster_id             = "{{ .ClusterID }}"
   hvn_id                 = "{{ .ClusterID }}-hvn"
   vpc_id                 = "{{ .VPCID }}"
-  public_route_table_id  = "{{ .PublicRouteTableID }}"
   private_route_table_id = "{{ .PrivateRouteTableID }}"
-  public_subnet1         = "{{ .PublicSubnet1 }}"
-  public_subnet2         = "{{ .PublicSubnet2 }}"
   private_subnet1        = "{{ .PrivateSubnet1 }}"
   private_subnet2        = "{{ .PrivateSubnet2 }}"
 }

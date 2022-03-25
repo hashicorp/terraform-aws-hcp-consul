@@ -28,7 +28,6 @@ generate_existing_vpc_terraform () {
       generate_base_existing_vpc_terraform $1 \
         | sed -e '/aws_availability_zones/,+30d' \
         | sed -e 's/module\.vpc\.private_subnets/\[local\.private_subnet1, local\.private_subnet2\]/' \
-        | sed -e 's/module\.vpc\.public_subnets/\[local\.public_subnet1, local\.public_subnet2\]/'
       ;;
     *)
       generate_base_existing_vpc_terraform $1 \

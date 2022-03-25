@@ -4,10 +4,7 @@ locals {
   cluster_id             = "consul-quickstart-4634271483588"
   hvn_id                 = "consul-quickstart-4634271483588-hvn"
   vpc_id                 = "vpc-171d21e09127bb012"
-  public_route_table_id  = "rtb-12b0b92efeae83c28"
   private_route_table_id = ""
-  public_subnet1         = "subnet-14afc1709a875ad5d"
-  public_subnet2         = "subnet-1aa8d55f44387908d"
   private_subnet1        = ""
   private_subnet2        = ""
 }
