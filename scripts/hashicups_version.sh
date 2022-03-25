@@ -23,7 +23,7 @@ version () {
 version "modules/hcp-ec2-client/templates/hashicups.nomad"
 
 # eks
-for service in frontend payments public-api product-api postgres; do
+for service in frontend payments public-api product-api product-api-db; do
   version "modules/k8s-demo-app/services/$service.yaml"
 done
 

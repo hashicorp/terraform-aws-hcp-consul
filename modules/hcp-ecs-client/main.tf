@@ -1,7 +1,13 @@
 locals {
   secret_prefix = random_id.id.dec
   scope         = random_id.id.dec
-  frontend_port = 80
+
+  lb_port          = 80
+  frontend_port    = 3000
+  public_api_port  = 7070
+  payment_api_port = 8080
+  product_api_port = 9090
+  product_db_port  = 5432
 }
 
 data "aws_ami" "ubuntu" {
@@ -23,8 +29,8 @@ data "aws_ami" "ubuntu" {
 resource "aws_security_group_rule" "allow_http_inbound" {
   count       = length(var.allowed_http_cidr_blocks) >= 1 ? 1 : 0
   type        = "ingress"
-  from_port   = 80
-  to_port     = 80
+  from_port   = local.lb_port
+  to_port     = local.lb_port
   protocol    = "tcp"
   cidr_blocks = var.allowed_http_cidr_blocks
 

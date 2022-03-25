@@ -40,7 +40,7 @@ job "hashicups" {
       }
 
       config {
-        image = "hashicorpdemoapp/frontend:v1.0.1"
+        image = "hashicorpdemoapp/frontend:v1.0.2"
         ports = ["http"]
       }
     }
