@@ -15,6 +15,8 @@ module "acl-controller" {
   ecs_cluster_arn                   = aws_ecs_cluster.clients.arn
   region                            = var.region
   subnets                           = var.private_subnet_ids
+
+  name_prefix = local.secret_prefix
 }
 
 resource "aws_iam_role" "frontend-task-role" {
