@@ -17,6 +17,16 @@ module "vpc" {
   enable_nat_gateway   = true
   single_nat_gateway   = true
   enable_dns_hostnames = true
+
+  private_subnet_tags = {
+    "kubernetes.io/cluster/${var.cluster_id}-eks" = "shared"
+    "kubernetes.io/role/internal-elb"             = 1
+  }
+
+  public_subnet_tags = {
+    "kubernetes.io/cluster/${var.cluster_id}-eks" = "shared"
+    "kubernetes.io/role/elb"                      = 1
+  }
 }
 
 data "aws_eks_cluster" "cluster" {
@@ -34,7 +44,7 @@ module "eks" {
 
   cluster_name    = "${var.cluster_id}-eks"
   cluster_version = "1.21"
-  subnets         = module.vpc.public_subnets
+  subnets         = module.vpc.private_subnets
   vpc_id          = module.vpc.vpc_id
 
   node_groups = {
@@ -58,12 +68,12 @@ resource "hcp_hvn" "main" {
 
 module "aws_hcp_consul" {
   source  = "hashicorp/hcp-consul/aws"
-  version = "~> 0.6.2"
+  version = "~> 0.6.3"
 
   hvn                = hcp_hvn.main
   vpc_id             = module.vpc.vpc_id
-  subnet_ids         = module.vpc.public_subnets
-  route_table_ids    = module.vpc.public_route_table_ids
+  subnet_ids         = module.vpc.private_subnets
+  route_table_ids    = module.vpc.private_route_table_ids
   security_group_ids = [module.eks.cluster_primary_security_group_id]
 }
 
@@ -80,7 +90,7 @@ resource "hcp_consul_cluster_root_token" "token" {
 
 module "eks_consul_client" {
   source  = "hashicorp/hcp-consul/aws//modules/hcp-eks-client"
-  version = "~> 0.6.2"
+  version = "~> 0.6.3"
 
   cluster_id       = hcp_consul_cluster.main.cluster_id
   consul_hosts     = jsondecode(base64decode(hcp_consul_cluster.main.consul_config_file))["retry_join"]
@@ -100,7 +110,7 @@ module "eks_consul_client" {
 
 module "demo_app" {
   source  = "hashicorp/hcp-consul/aws//modules/k8s-demo-app"
-  version = "~> 0.6.2"
+  version = "~> 0.6.3"
 
   depends_on = [module.eks_consul_client]
 }

@@ -11,6 +11,7 @@ generate_base_terraform () {
 generate_base_existing_vpc_terraform () {
   generate_base_terraform $1 \
     | sed -e 's/module\.vpc\.vpc_id/local\.vpc_id/' \
+    | sed -e 's/module\.vpc\.private_subnets\[0\]/[local\.private_subnet1/' \
     | sed -e 's/module\.vpc\.public_subnets\[0\]/local\.public_subnet1/' \
     | sed -e 's/module\.vpc\.public_route_table_ids/\[local\.public_route_table_id\]/' \
     | sed -e 's/module\.vpc\.private_route_table_ids/\[local\.private_route_table_id\]/'
@@ -22,6 +23,12 @@ generate_existing_vpc_terraform () {
       generate_base_existing_vpc_terraform $1 \
         | sed -e '/aws_availability_zones/,+17d' \
         | sed -e 's/module\.vpc\.public_subnets/\[local\.public_subnet1\]/'
+      ;;
+    eks)
+      generate_base_existing_vpc_terraform $1 \
+        | sed -e '/aws_availability_zones/,+30d' \
+        | sed -e 's/module\.vpc\.private_subnets/\[local\.private_subnet1, local\.private_subnet2\]/' \
+        | sed -e 's/module\.vpc\.public_subnets/\[local\.public_subnet1, local\.public_subnet2\]/'
       ;;
     *)
       generate_base_existing_vpc_terraform $1 \
