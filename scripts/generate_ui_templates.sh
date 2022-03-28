@@ -1,7 +1,7 @@
 #!/bin/bash
 
 generate_base_terraform () {
-  cat examples/hcp-$1-demo/{providers,main,intentions,output}.tf \
+  cat examples/hcp-$1-demo/{providers,main,output}.tf \
     | sed -e '/provider_meta/,+2d' \
     | sed -e 's/var/local/g' \
     | sed -e 's/local\.tier/"development"/g' \
@@ -23,11 +23,16 @@ generate_existing_vpc_terraform () {
         | sed -e '/aws_availability_zones/,+17d' \
         | sed -e 's/module\.vpc\.public_subnets/\[local\.public_subnet1\]/'
       ;;
-    *)
+    ecs)
       generate_base_existing_vpc_terraform $1 \
         | sed -e '/aws_availability_zones/,+20d' \
         | sed -e 's/module\.vpc\.private_subnets/\[local\.private_subnet1, local\.private_subnet2\]/' \
         | sed -e 's/module\.vpc\.public_subnets/\[local\.public_subnet1, local\.public_subnet2\]/'
+      ;;
+    eks)
+      generate_base_existing_vpc_terraform $1 \
+        | sed -e '/aws_availability_zones/,+31d' \
+        | sed -e 's/module\.vpc\.private_subnets/\[local\.private_subnet1, local\.private_subnet2\]/'
       ;;
   esac
 }

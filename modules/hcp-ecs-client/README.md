@@ -1,4 +1,4 @@
-# aws_ec2_consul_client
+# aws_ecs_cluster
 
-A Terraform module used to run a demo Consul client on an EC2 VM.
+A Terraform module used to run Consul clients in ECS tasks.
 
