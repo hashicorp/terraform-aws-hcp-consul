@@ -74,68 +74,6 @@ module "aws_ec2_consul_client" {
   root_token               = hcp_consul_cluster_root_token.token.secret_id
   consul_version           = hcp_consul_cluster.main.consul_version
 }
-
-resource "consul_config_entry" "service_intentions_deny" {
-  name = "*"
-  kind = "service-intentions"
-
-  config_json = jsonencode({
-    Sources = [
-      {
-        Name   = "*"
-        Action = "deny"
-      }
-    ]
-  })
-}
-
-resource "consul_config_entry" "service_intentions_product_api" {
-  name = "product-api"
-  kind = "service-intentions"
-
-  config_json = jsonencode({
-    Sources = [
-      {
-        Name       = "public-api"
-        Action     = "allow"
-        Precedence = 9
-        Type       = "consul"
-      },
-    ]
-  })
-}
-
-resource "consul_config_entry" "service_intentions_product_db" {
-  name = "product-db"
-  kind = "service-intentions"
-
-  config_json = jsonencode({
-    Sources = [
-      {
-        Name       = "product-api"
-        Action     = "allow"
-        Precedence = 9
-        Type       = "consul"
-      },
-    ]
-  })
-}
-
-resource "consul_config_entry" "service_intentions_payment_api" {
-  name = "payment-api"
-  kind = "service-intentions"
-
-  config_json = jsonencode({
-    Sources = [
-      {
-        Name       = "public-api"
-        Action     = "allow"
-        Precedence = 9
-        Type       = "consul"
-      },
-    ]
-  })
-}
 output "consul_root_token" {
   value     = hcp_consul_cluster_root_token.token.secret_id
   sensitive = true

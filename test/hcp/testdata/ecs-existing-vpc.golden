@@ -4,7 +4,6 @@ locals {
   cluster_id             = "consul-quickstart-4634271483588"
   hvn_id                 = "consul-quickstart-4634271483588-hvn"
   vpc_id                 = "vpc-171d21e09127bb012"
-  public_route_table_id  = "rtb-12b0b92efeae83c28"
   private_route_table_id = "rtb-32b0b92efeae83c30"
   public_subnet1         = "subnet-14afc1709a875ad5d"
   public_subnet2         = "subnet-1aa8d55f44387908d"
@@ -83,68 +82,6 @@ module "aws_ecs_cluster" {
   consul_url               = hcp_consul_cluster.main.consul_private_endpoint_url
   consul_version           = substr(hcp_consul_cluster.main.consul_version, 1, -1)
   datacenter               = hcp_consul_cluster.main.datacenter
-}
-
-resource "consul_config_entry" "service_intentions_deny" {
-  name = "*"
-  kind = "service-intentions"
-
-  config_json = jsonencode({
-    Sources = [
-      {
-        Name   = "*"
-        Action = "deny"
-      }
-    ]
-  })
-}
-
-resource "consul_config_entry" "service_intentions_product_api" {
-  name = "product-api"
-  kind = "service-intentions"
-
-  config_json = jsonencode({
-    Sources = [
-      {
-        Name       = "public-api"
-        Action     = "allow"
-        Precedence = 9
-        Type       = "consul"
-      },
-    ]
-  })
-}
-
-resource "consul_config_entry" "service_intentions_product_db" {
-  name = "product-db"
-  kind = "service-intentions"
-
-  config_json = jsonencode({
-    Sources = [
-      {
-        Name       = "product-api"
-        Action     = "allow"
-        Precedence = 9
-        Type       = "consul"
-      },
-    ]
-  })
-}
-
-resource "consul_config_entry" "service_intentions_payment_api" {
-  name = "payment-api"
-  kind = "service-intentions"
-
-  config_json = jsonencode({
-    Sources = [
-      {
-        Name       = "public-api"
-        Action     = "allow"
-        Precedence = 9
-        Type       = "consul"
-      },
-    ]
-  })
 }
 output "consul_root_token" {
   value     = hcp_consul_cluster_root_token.token.secret_id

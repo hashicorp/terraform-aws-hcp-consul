@@ -43,8 +43,8 @@ module "vpc" {
   name                 = "${local.cluster_id}-vpc"
   cidr                 = "10.0.0.0/16"
   azs                  = data.aws_availability_zones.available.names
-  private_subnets      = ["10.0.1.0/24", "10.0.2.0/24", "10.0.3.0/24"]
-  public_subnets       = ["10.0.4.0/24", "10.0.5.0/24", "10.0.6.0/24"]
+  public_subnets       = ["10.0.1.0/24", "10.0.2.0/24", "10.0.3.0/24"]
+  private_subnets      = ["10.0.4.0/24", "10.0.5.0/24", "10.0.6.0/24"]
   enable_dns_hostnames = true
   enable_nat_gateway   = true
   single_nat_gateway   = true
@@ -97,68 +97,6 @@ module "aws_ecs_cluster" {
   consul_url               = hcp_consul_cluster.main.consul_private_endpoint_url
   consul_version           = substr(hcp_consul_cluster.main.consul_version, 1, -1)
   datacenter               = hcp_consul_cluster.main.datacenter
-}
-
-resource "consul_config_entry" "service_intentions_deny" {
-  name = "*"
-  kind = "service-intentions"
-
-  config_json = jsonencode({
-    Sources = [
-      {
-        Name   = "*"
-        Action = "deny"
-      }
-    ]
-  })
-}
-
-resource "consul_config_entry" "service_intentions_product_api" {
-  name = "product-api"
-  kind = "service-intentions"
-
-  config_json = jsonencode({
-    Sources = [
-      {
-        Name       = "public-api"
-        Action     = "allow"
-        Precedence = 9
-        Type       = "consul"
-      },
-    ]
-  })
-}
-
-resource "consul_config_entry" "service_intentions_product_db" {
-  name = "product-db"
-  kind = "service-intentions"
-
-  config_json = jsonencode({
-    Sources = [
-      {
-        Name       = "product-api"
-        Action     = "allow"
-        Precedence = 9
-        Type       = "consul"
-      },
-    ]
-  })
-}
-
-resource "consul_config_entry" "service_intentions_payment_api" {
-  name = "payment-api"
-  kind = "service-intentions"
-
-  config_json = jsonencode({
-    Sources = [
-      {
-        Name       = "public-api"
-        Action     = "allow"
-        Precedence = 9
-        Type       = "consul"
-      },
-    ]
-  })
 }
 output "consul_root_token" {
   value     = hcp_consul_cluster_root_token.token.secret_id
