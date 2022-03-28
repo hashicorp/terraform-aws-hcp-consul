@@ -13,13 +13,13 @@ variable "cluster_id" {
 variable "vpc_region" {
   type        = string
   description = "The AWS region to create resources in"
-  default     = "us-east-1"
+  default     = "us-west-2"
 }
 
 variable "hvn_region" {
   type        = string
   description = "The HCP region to create resources in"
-  default     = "us-east-1"
+  default     = "us-west-2"
 }
 
 variable "hvn_id" {
