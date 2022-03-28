@@ -13,13 +13,13 @@ resource "consul_config_entry" "service_intentions_deny" {
 }
 
 resource "consul_config_entry" "service_intentions_product_api" {
-  name = "product_api"
+  name = "product-api"
   kind = "service-intentions"
 
   config_json = jsonencode({
     Sources = [
       {
-        Name       = "public_api"
+        Name       = "public-api"
         Action     = "allow"
         Precedence = 9
         Type       = "consul"
@@ -29,13 +29,13 @@ resource "consul_config_entry" "service_intentions_product_api" {
 }
 
 resource "consul_config_entry" "service_intentions_product_db" {
-  name = "product_db"
+  name = "product-db"
   kind = "service-intentions"
 
   config_json = jsonencode({
     Sources = [
       {
-        Name       = "product_api"
+        Name       = "product-api"
         Action     = "allow"
         Precedence = 9
         Type       = "consul"
@@ -45,13 +45,13 @@ resource "consul_config_entry" "service_intentions_product_db" {
 }
 
 resource "consul_config_entry" "service_intentions_payment_api" {
-  name = "payment_api"
+  name = "payment-api"
   kind = "service-intentions"
 
   config_json = jsonencode({
     Sources = [
       {
-        Name       = "public_api"
+        Name       = "public-api"
         Action     = "allow"
         Precedence = 9
         Type       = "consul"

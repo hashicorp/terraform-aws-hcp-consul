@@ -15,7 +15,7 @@ resource "aws_lb_target_group" "frontend" {
   deregistration_delay = 10
 }
 
-resource "aws_lb_target_group" "public_api" {
+resource "aws_lb_target_group" "public-api" {
   name                 = "${local.secret_prefix}-api"
   port                 = local.public_api_port
   protocol             = "HTTP"
@@ -35,13 +35,13 @@ resource "aws_lb_listener" "frontend" {
   }
 }
 
-resource "aws_lb_listener_rule" "public_api" {
+resource "aws_lb_listener_rule" "public-api" {
   listener_arn = aws_lb_listener.frontend.arn
   priority     = 100
 
   action {
     type             = "forward"
-    target_group_arn = aws_lb_target_group.public_api.arn
+    target_group_arn = aws_lb_target_group.public-api.arn
   }
 
   condition {

@@ -4,7 +4,7 @@ Requires=network-online.target
 After=network-online.target
 
 [Service]
-Environment="PORT=8080"
+Environment="PORT=80"
 Type=simple
 ExecStart=${service_cmd}
 ExecReload=/bin/kill --signal HUP $MAINPID
