@@ -45,18 +45,12 @@ resource "hcp_hvn" "main" {
 
 module "aws_hcp_consul" {
   source  = "hashicorp/hcp-consul/aws"
-  version = "~> 0.6.3"
+  version = "~> 0.6.1"
 
-  hvn    = hcp_hvn.main
-  vpc_id = local.vpc_id
-  subnet_ids = concat(
-    [local.private_subnet1, local.private_subnet2],
-    [local.public_subnet1, local.public_subnet2],
-  )
-  route_table_ids = concat(
-    [local.private_route_table_id],
-    [local.public_route_table_id],
-  )
+  hvn             = hcp_hvn.main
+  vpc_id          = local.vpc_id
+  subnet_ids      = [local.private_subnet1, local.private_subnet2]
+  route_table_ids = [local.private_route_table_id]
 }
 
 resource "hcp_consul_cluster" "main" {
@@ -66,29 +60,13 @@ resource "hcp_consul_cluster" "main" {
   tier            = "development"
 }
 
-resource "consul_config_entry" "service_intentions" {
-  name = "*"
-  kind = "service-intentions"
-
-  config_json = jsonencode({
-    Sources = [
-      {
-        Action     = "allow"
-        Name       = "*"
-        Precedence = 9
-        Type       = "consul"
-      },
-    ]
-  })
-}
-
 resource "hcp_consul_cluster_root_token" "token" {
   cluster_id = hcp_consul_cluster.main.id
 }
 
 module "aws_ecs_cluster" {
   source  = "hashicorp/hcp-consul/aws//modules/hcp-ecs-client"
-  version = "~> 0.6.3"
+  version = "~> 0.6.1"
 
   private_subnet_ids       = [local.private_subnet1, local.private_subnet2]
   public_subnet_ids        = [local.public_subnet1, local.public_subnet2]
@@ -122,13 +100,13 @@ resource "consul_config_entry" "service_intentions_deny" {
 }
 
 resource "consul_config_entry" "service_intentions_product_api" {
-  name = "product_api"
+  name = "product-api"
   kind = "service-intentions"
 
   config_json = jsonencode({
     Sources = [
       {
-        Name       = "public_api"
+        Name       = "public-api"
         Action     = "allow"
         Precedence = 9
         Type       = "consul"
@@ -138,13 +116,13 @@ resource "consul_config_entry" "service_intentions_product_api" {
 }
 
 resource "consul_config_entry" "service_intentions_product_db" {
-  name = "product_db"
+  name = "product-db"
   kind = "service-intentions"
 
   config_json = jsonencode({
     Sources = [
       {
-        Name       = "product_api"
+        Name       = "product-api"
         Action     = "allow"
         Precedence = 9
         Type       = "consul"
@@ -154,13 +132,13 @@ resource "consul_config_entry" "service_intentions_product_db" {
 }
 
 resource "consul_config_entry" "service_intentions_payment_api" {
-  name = "payment_api"
+  name = "payment-api"
   kind = "service-intentions"
 
   config_json = jsonencode({
     Sources = [
       {
-        Name       = "public_api"
+        Name       = "public-api"
         Action     = "allow"
         Precedence = 9
         Type       = "consul"

@@ -36,17 +36,6 @@ resource "aws_security_group_rule" "allow_nomad_inbound" {
   security_group_id = var.security_group_id
 }
 
-resource "aws_security_group_rule" "allow_public_api_inbound" {
-  count       = length(var.allowed_http_cidr_blocks) >= 1 ? 1 : 0
-  type        = "ingress"
-  from_port   = 8080
-  to_port     = 8080
-  protocol    = "tcp"
-  cidr_blocks = var.allowed_http_cidr_blocks
-
-  security_group_id = var.security_group_id
-}
-
 resource "aws_security_group_rule" "allow_http_inbound" {
   count       = length(var.allowed_http_cidr_blocks) >= 1 ? 1 : 0
   type        = "ingress"
