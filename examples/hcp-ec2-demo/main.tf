@@ -12,8 +12,8 @@ module "vpc" {
   name                 = "${var.cluster_id}-vpc"
   cidr                 = "10.0.0.0/16"
   azs                  = data.aws_availability_zones.available.names
-  private_subnets      = []
   public_subnets       = ["10.0.1.0/24", "10.0.2.0/24", "10.0.3.0/24"]
+  private_subnets      = []
   enable_dns_hostnames = true
 }
 
@@ -58,4 +58,3 @@ module "aws_ec2_consul_client" {
   root_token               = hcp_consul_cluster_root_token.token.secret_id
   consul_version           = hcp_consul_cluster.main.consul_version
 }
-

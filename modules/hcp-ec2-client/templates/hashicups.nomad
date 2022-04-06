@@ -1,9 +1,27 @@
-variable "public_api_ip" {
-  type        = string
-  description = "Public Host IP Address"
-  default     = "localhost"
+variable "frontend_port" {
+  type        = number
+  default     = 3000
 }
 
+variable "public_api_port" {
+  type        = number
+  default     = 7070
+}
+
+variable "payment_api_port" {
+  type        = number
+  default     = 8080
+}
+
+variable "product_api_port" {
+  type        = number
+  default     = 9090
+}
+
+variable "product_db_port" {
+  type        = number
+  default     = 5432
+}
 
 job "hashicups" {
   datacenters = ["dc1"]
@@ -11,79 +29,72 @@ job "hashicups" {
   group "frontend" {
     network {
       mode = "bridge"
+
       port "http" {
-        static = 80
+        static = var.frontend_port
       }
     }
 
     service {
       name = "frontend"
-      port = NOMAD_PORT_http
-
-      connect {
-        sidecar_service {
-          proxy {
-            upstreams {
-              destination_name = "product-public-api"
-              local_bind_port  = 8080
-            }
-          }
-        }
-      }
+      port = "http"
     }
 
     task "frontend" {
       driver = "docker"
-      env {
-        PORT                       = NOMAD_PORT_http
-        NEXT_PUBLIC_PUBLIC_API_URL = "http://${var.public_api_ip}:8080"
-      }
 
       config {
-        image = "hashicorpdemoapp/frontend:v1.0.1"
+        image = "hashicorpdemoapp/frontend:v1.0.2"
         ports = ["http"]
+      }
+
+      env {
+        NEXT_PUBLIC_PUBLIC_API_URL = "/"
       }
     }
   }
 
-  group "product-public-api" {
+  group "public-api" {
     network {
       mode = "bridge"
+
       port "http" {
-        static = 8080
+        static = var.public_api_port
       }
     }
 
     service {
-      name = "product-public-api"
-      port = NOMAD_PORT_http
-      
+      name = "public-api"
+      port = "http"
+
       connect {
         sidecar_service {
           proxy {
             upstreams {
               destination_name = "product-api"
-              local_bind_port  = 5000
+              local_bind_port  = var.product_api_port
             }
             upstreams {
               destination_name = "payment-api"
-              local_bind_port  = 5001
+              local_bind_port  = var.payment_api_port
             }
           }
         }
       }
     }
 
-    task "product-public-api" {
+    task "public-api" {
       driver = "docker"
 
       config {
         image = "hashicorpdemoapp/public-api:v0.0.6"
+        ports = ["http"]
       }
 
       env {
-        PRODUCT_API_URI = "http://localhost:5000"
-        PAYMENT_API_URI = "http://localhost:5001"
+        BIND_ADDRESS = ":${var.public_api_port}"
+        PRODUCT_API_URI = "http://localhost:${var.product_api_port}"
+        PAYMENT_API_URI = "http://localhost:${var.payment_api_port}"
       }
     }
   }
@@ -91,12 +102,15 @@ job "hashicups" {
   group "payment-api" {
     network {
       mode = "bridge"
+
+      port "http" {
+        static = var.payment_api_port
+      }
     }
 
     service {
       name = "payment-api"
-      port = "8080"
-
+      port = "http"
 
       connect {
         sidecar_service {}
@@ -108,6 +122,7 @@ job "hashicups" {
 
       config {
         image = "hashicorpdemoapp/payments:v0.0.16"
+        ports = ["http"]
       }
     }
   }
@@ -115,6 +130,11 @@ job "hashicups" {
   group "product-api" {
     network {
       mode = "bridge"
+
+      port "http" {
+        static = var.product_api_port
+      }
+
       port "healthcheck" {
         to = -1
       }
@@ -122,7 +142,7 @@ job "hashicups" {
 
     service {
       name = "product-api"
-      port = "9090"
+      port = "http"
 
       check {
         type     = "http"
@@ -138,7 +158,7 @@ job "hashicups" {
           proxy {
             upstreams {
               destination_name = "product-db"
-              local_bind_port  = 5000
+              local_bind_port  = var.product_db_port
             }
           }
         }
@@ -153,9 +173,8 @@ job "hashicups" {
       }
 
       env {
-        CONFIG_FILE   = "/config/config.json"
-        DB_CONNECTION = "host=localhost port=5000 user=postgres password=password dbname=products sslmode=disable"
-        BIND_ADDRESS  = "0.0.0.0:9090"
+        DB_CONNECTION = "host=localhost port=${var.product_db_port} user=postgres password=password dbname=products sslmode=disable"
+        BIND_ADDRESS  = "localhost:${var.product_api_port}"
       }
     }
   }
@@ -163,11 +182,15 @@ job "hashicups" {
   group "product-db" {
     network {
       mode = "bridge"
+
+      port "http" {
+        static = var.product_db_port
+      }
     }
 
     service {
       name = "product-db"
-      port = "5432"
+      port = "http"
 
       connect {
         sidecar_service {}
@@ -179,6 +202,7 @@ job "hashicups" {
 
       config {
         image = "hashicorpdemoapp/product-api-db:v0.0.20"
+        ports = ["http"]
       }
 
       env {

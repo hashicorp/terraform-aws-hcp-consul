@@ -1,12 +1,12 @@
 locals {
-  vpc_region            = "{{ .VPCRegion }}"
-  hvn_region            = "{{ .HVNRegion }}"
-  cluster_id            = "{{ .ClusterID }}"
-  hvn_id                = "{{ .ClusterID }}-hvn"
-  vpc_id                = "{{ .VPCID }}"
-  public_route_table_id = "{{ .PublicRouteTableID }}"
-  public_subnet1        = "{{ .PublicSubnet1 }}"
-  public_subnet2        = "{{ .PublicSubnet2 }}"
+  vpc_region             = "{{ .VPCRegion }}"
+  hvn_region             = "{{ .HVNRegion }}"
+  cluster_id             = "{{ .ClusterID }}"
+  hvn_id                 = "{{ .ClusterID }}-hvn"
+  vpc_id                 = "{{ .VPCID }}"
+  private_route_table_id = "{{ .PrivateRouteTableID }}"
+  private_subnet1        = "{{ .PrivateSubnet1 }}"
+  private_subnet2        = "{{ .PrivateSubnet2 }}"
 }
 
 terraform {
@@ -15,18 +15,22 @@ terraform {
       source  = "hashicorp/aws"
       version = "~> 3.43"
     }
+
     hcp = {
       source  = "hashicorp/hcp"
       version = ">= 0.18.0"
     }
+
     kubernetes = {
       source  = "hashicorp/kubernetes"
       version = ">= 2.4.1"
     }
+
     helm = {
       source  = "hashicorp/helm"
       version = ">= 2.3.0"
     }
+
     kubectl = {
       source  = "gavinbunney/kubectl"
       version = ">= 1.11.3"
@@ -59,7 +63,6 @@ provider "kubectl" {
   token                  = data.aws_eks_cluster_auth.cluster.token
   load_config_file       = false
 }
-
 data "aws_eks_cluster" "cluster" {
   name = module.eks.cluster_id
 }
@@ -75,7 +78,7 @@ module "eks" {
 
   cluster_name    = "${local.cluster_id}-eks"
   cluster_version = "1.21"
-  subnets         = [local.public_subnet1, local.public_subnet2]
+  subnets         = [local.private_subnet1, local.private_subnet2]
   vpc_id          = local.vpc_id
 
   node_groups = {
@@ -103,8 +106,8 @@ module "aws_hcp_consul" {
 
   hvn                = hcp_hvn.main
   vpc_id             = local.vpc_id
-  subnet_ids         = [local.public_subnet1, local.public_subnet2]
-  route_table_ids    = [local.public_route_table_id]
+  subnet_ids         = [local.private_subnet1, local.private_subnet2]
+  route_table_ids    = [local.private_route_table_id]
   security_group_ids = [module.eks.cluster_primary_security_group_id]
 }
 

@@ -1,7 +1,7 @@
 #!/bin/bash
 
 generate_base_terraform () {
-  cat examples/hcp-$1-demo/{providers,main,intentions,output}.tf \
+  cat examples/hcp-$1-demo/{providers,main,output}.tf \
     | sed -e '/provider_meta/,+2d' \
     | sed -e 's/var/local/g' \
     | sed -e 's/local\.tier/"development"/g' \

@@ -67,12 +67,9 @@ setup_consul
 start_service "consul"
 start_service "nomad"
 
-
 # nomad and consul service is type simple and might not be up and running just yet.
 sleep 10
 
-HOST_PUBLIC_ADDRESS=`/usr/bin/curl -s http://169.254.169.254/latest/meta-data/public-ipv4`
-
-nomad run -var="public_api_ip=$HOST_PUBLIC_ADDRESS" hashicups.nomad
+nomad run hashicups.nomad
 
 echo "done"

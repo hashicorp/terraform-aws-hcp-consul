@@ -63,13 +63,20 @@ module "frontend" {
   container_definitions = [
     {
       name      = "frontend"
-      image     = "hashicorpdemoapp/frontend:v0.0.7"
+      image     = "hashicorpdemoapp/frontend:v1.0.2"
       essential = true
       portMappings = [
         {
           containerPort = local.frontend_port
           hostPort      = local.frontend_port
           protocol      = "tcp"
+        }
+      ]
+
+      environment = [
+        {
+          name  = "NEXT_PUBLIC_PUBLIC_API_URL"
+          value = "/"
         }
       ]
 
@@ -87,14 +94,6 @@ module "frontend" {
       }
     }
   ]
-
-  upstreams = [
-    {
-      destinationName = "public_api"
-      localBindPort   = 8080
-    },
-  ]
-
 
   log_configuration = {
     logDriver = "awslogs"
@@ -125,22 +124,24 @@ resource "aws_ecs_service" "frontend" {
   cluster         = aws_ecs_cluster.clients.arn
   task_definition = module.frontend.task_definition_arn
   desired_count   = 1
+
   network_configuration {
-    subnets          = var.private_subnet_ids
-    assign_public_ip = true
-    security_groups  = [var.security_group_id]
+    subnets         = var.private_subnet_ids
+    security_groups = [var.security_group_id]
   }
+
   load_balancer {
     target_group_arn = aws_lb_target_group.frontend.arn
     container_name   = "frontend"
     container_port   = local.frontend_port
   }
+
   launch_type            = "FARGATE"
   propagate_tags         = "TASK_DEFINITION"
   enable_execute_command = true
 }
 
-resource "aws_iam_role" "public_api-task-role" {
+resource "aws_iam_role" "public-api-task-role" {
   name = "public_api_${local.scope}_task_role"
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
@@ -156,7 +157,7 @@ resource "aws_iam_role" "public_api-task-role" {
   })
 }
 
-resource "aws_iam_role" "public_api-execution-role" {
+resource "aws_iam_role" "public-api-execution-role" {
   name = "public_api_${local.scope}_execution_role"
   path = "/ecs/"
 
@@ -174,33 +175,37 @@ resource "aws_iam_role" "public_api-execution-role" {
   })
 }
 
-module "public_api" {
+module "public-api" {
   source  = "hashicorp/consul-ecs/aws//modules/mesh-task"
   version = "~> 0.3.0"
 
-  family         = "public_api"
-  task_role      = aws_iam_role.public_api-task-role
-  execution_role = aws_iam_role.public_api-execution-role
+  family         = "public-api"
+  task_role      = aws_iam_role.public-api-task-role
+  execution_role = aws_iam_role.public-api-execution-role
   container_definitions = [
     {
-      name      = "public_api"
-      image     = "hashicorpdemoapp/public-api:v0.0.5"
+      name      = "public-api"
+      image     = "hashicorpdemoapp/public-api:v0.0.6"
       essential = true
       portMappings = [
         {
-          containerPort = 8080
+          containerPort = local.public_api_port
           protocol      = "tcp"
         }
       ]
 
       environment = [
         {
+          name  = "BIND_ADDRESS",
+          value = ":${local.public_api_port}"
+        },
+        {
           name  = "PRODUCT_API_URI"
-          value = "http://localhost:5000"
+          value = "http://localhost:${local.product_api_port}"
         },
         {
           name  = "PAYMENT_API_URI"
-          value = "http://localhost:5001"
+          value = "http://localhost:${local.payment_api_port}"
         }
       ]
 
@@ -213,7 +218,7 @@ module "public_api" {
         options = {
           awslogs-group         = aws_cloudwatch_log_group.log_group.name
           awslogs-region        = var.region
-          awslogs-stream-prefix = "public_api"
+          awslogs-stream-prefix = "public-api"
         }
       }
     }
@@ -221,12 +226,12 @@ module "public_api" {
 
   upstreams = [
     {
-      destinationName = "product_api"
-      localBindPort   = 5000
+      destinationName = "product-api"
+      localBindPort   = local.product_api_port
     },
     {
-      destinationName = "payment_api"
-      localBindPort   = 5001
+      destinationName = "payment-api"
+      localBindPort   = local.payment_api_port
     }
   ]
 
@@ -236,11 +241,11 @@ module "public_api" {
     options = {
       awslogs-group         = aws_cloudwatch_log_group.log_group.name
       awslogs-region        = var.region
-      awslogs-stream-prefix = "public_api"
+      awslogs-stream-prefix = "public-api"
     }
   }
 
-  port = "8080"
+  port = local.public_api_port
 
   retry_join        = var.client_retry_join
   consul_datacenter = var.datacenter
@@ -255,22 +260,29 @@ module "public_api" {
   acl_secret_name_prefix         = local.secret_prefix
 }
 
-resource "aws_ecs_service" "public_api" {
-  name            = "public_api"
+resource "aws_ecs_service" "public-api" {
+  name            = "public-api"
   cluster         = aws_ecs_cluster.clients.arn
-  task_definition = module.public_api.task_definition_arn
+  task_definition = module.public-api.task_definition_arn
   desired_count   = 1
+
   network_configuration {
-    subnets          = var.private_subnet_ids
-    assign_public_ip = true
-    security_groups  = [var.security_group_id]
+    subnets         = var.private_subnet_ids
+    security_groups = [var.security_group_id]
   }
+
+  load_balancer {
+    target_group_arn = aws_lb_target_group.public-api.arn
+    container_name   = "public-api"
+    container_port   = local.public_api_port
+  }
+
   launch_type            = "FARGATE"
   propagate_tags         = "TASK_DEFINITION"
   enable_execute_command = true
 }
 
-resource "aws_iam_role" "payment_api-task-role" {
+resource "aws_iam_role" "payment-api-task-role" {
   name = "payment_api_${local.scope}_task_role"
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
@@ -286,7 +298,7 @@ resource "aws_iam_role" "payment_api-task-role" {
   })
 }
 
-resource "aws_iam_role" "payment_api-execution-role" {
+resource "aws_iam_role" "payment-api-execution-role" {
   name = "payment_api_${local.scope}_execution_role"
   path = "/ecs/"
 
@@ -304,21 +316,21 @@ resource "aws_iam_role" "payment_api-execution-role" {
   })
 }
 
-module "payment_api" {
+module "payment-api" {
   source  = "hashicorp/consul-ecs/aws//modules/mesh-task"
   version = "~> 0.3.0"
 
-  family         = "payment_api"
-  task_role      = aws_iam_role.payment_api-task-role
-  execution_role = aws_iam_role.payment_api-execution-role
+  family         = "payment-api"
+  task_role      = aws_iam_role.payment-api-task-role
+  execution_role = aws_iam_role.payment-api-execution-role
   container_definitions = [
     {
-      name      = "payment_api"
+      name      = "payment-api"
       image     = "hashicorpdemoapp/payments:v0.0.16"
       essential = true
       portMappings = [
         {
-          containerPort = 8080
+          containerPort = local.payment_api_port
           protocol      = "tcp"
         }
       ]
@@ -332,7 +344,7 @@ module "payment_api" {
         options = {
           awslogs-group         = aws_cloudwatch_log_group.log_group.name
           awslogs-region        = var.region
-          awslogs-stream-prefix = "payment_api"
+          awslogs-stream-prefix = "payment-api"
         }
       }
     }
@@ -343,11 +355,11 @@ module "payment_api" {
     options = {
       awslogs-group         = aws_cloudwatch_log_group.log_group.name
       awslogs-region        = var.region
-      awslogs-stream-prefix = "payment_api"
+      awslogs-stream-prefix = "payment-api"
     }
   }
 
-  port = "8080"
+  port = local.payment_api_port
 
   retry_join        = var.client_retry_join
   consul_datacenter = var.datacenter
@@ -362,22 +374,23 @@ module "payment_api" {
   acl_secret_name_prefix         = local.secret_prefix
 }
 
-resource "aws_ecs_service" "payment_api" {
-  name            = "payment_api"
+resource "aws_ecs_service" "payment-api" {
+  name            = "payment-api"
   cluster         = aws_ecs_cluster.clients.arn
-  task_definition = module.payment_api.task_definition_arn
+  task_definition = module.payment-api.task_definition_arn
   desired_count   = 1
+
   network_configuration {
-    subnets          = var.private_subnet_ids
-    assign_public_ip = true
-    security_groups  = [var.security_group_id]
+    subnets         = var.private_subnet_ids
+    security_groups = [var.security_group_id]
   }
+
   launch_type            = "FARGATE"
   propagate_tags         = "TASK_DEFINITION"
   enable_execute_command = true
 }
 
-resource "aws_iam_role" "product_api-task-role" {
+resource "aws_iam_role" "product-api-task-role" {
   name = "product_api_${local.scope}_task_role"
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
@@ -393,7 +406,7 @@ resource "aws_iam_role" "product_api-task-role" {
   })
 }
 
-resource "aws_iam_role" "product_api-execution-role" {
+resource "aws_iam_role" "product-api-execution-role" {
   name = "product_api_${local.scope}_execution_role"
   path = "/ecs/"
 
@@ -411,21 +424,21 @@ resource "aws_iam_role" "product_api-execution-role" {
   })
 }
 
-module "product_api" {
+module "product-api" {
   source  = "hashicorp/consul-ecs/aws//modules/mesh-task"
   version = "~> 0.3.0"
 
-  family         = "product_api"
-  task_role      = aws_iam_role.product_api-task-role
-  execution_role = aws_iam_role.product_api-execution-role
+  family         = "product-api"
+  task_role      = aws_iam_role.product-api-task-role
+  execution_role = aws_iam_role.product-api-execution-role
   container_definitions = [
     {
-      name      = "product_api"
-      image     = "hashicorpdemoapp/product-api:v0.0.19"
+      name      = "product-api"
+      image     = "hashicorpdemoapp/product-api:v0.0.20"
       essential = true
       portMappings = [
         {
-          containerPort = 8080
+          containerPort = local.product_api_port
           protocol      = "tcp"
         }
       ]
@@ -433,11 +446,11 @@ module "product_api" {
       environment = [
         {
           name  = "DB_CONNECTION"
-          value = "host=localhost port=5000 user=postgres password=password dbname=products sslmode=disable"
+          value = "host=localhost port=${local.product_db_port} user=postgres password=password dbname=products sslmode=disable"
         },
         {
           name  = "BIND_ADDRESS"
-          value = "localhost:8080"
+          value = "localhost:${local.product_api_port}"
         },
       ]
       cpu         = 0
@@ -449,7 +462,7 @@ module "product_api" {
         options = {
           awslogs-group         = aws_cloudwatch_log_group.log_group.name
           awslogs-region        = var.region
-          awslogs-stream-prefix = "product_api"
+          awslogs-stream-prefix = "product-api"
         }
       }
     }
@@ -457,8 +470,8 @@ module "product_api" {
 
   upstreams = [
     {
-      destinationName = "product_db"
-      localBindPort   = 5000
+      destinationName = "product-db"
+      localBindPort   = local.product_db_port
     }
   ]
 
@@ -467,11 +480,11 @@ module "product_api" {
     options = {
       awslogs-group         = aws_cloudwatch_log_group.log_group.name
       awslogs-region        = var.region
-      awslogs-stream-prefix = "product_api"
+      awslogs-stream-prefix = "product-api"
     }
   }
 
-  port = "8080"
+  port = local.product_api_port
 
   retry_join        = var.client_retry_join
   consul_datacenter = var.datacenter
@@ -486,22 +499,23 @@ module "product_api" {
   acl_secret_name_prefix         = local.secret_prefix
 }
 
-resource "aws_ecs_service" "product_api" {
-  name            = "product_api"
+resource "aws_ecs_service" "product-api" {
+  name            = "product-api"
   cluster         = aws_ecs_cluster.clients.arn
-  task_definition = module.product_api.task_definition_arn
+  task_definition = module.product-api.task_definition_arn
   desired_count   = 1
+
   network_configuration {
-    subnets          = var.private_subnet_ids
-    assign_public_ip = true
-    security_groups  = [var.security_group_id]
+    subnets         = var.private_subnet_ids
+    security_groups = [var.security_group_id]
   }
+
   launch_type            = "FARGATE"
   propagate_tags         = "TASK_DEFINITION"
   enable_execute_command = true
 }
 
-resource "aws_iam_role" "product_db-task-role" {
+resource "aws_iam_role" "product-db-task-role" {
   name = "product_db_${local.scope}_task_role"
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
@@ -517,7 +531,7 @@ resource "aws_iam_role" "product_db-task-role" {
   })
 }
 
-resource "aws_iam_role" "product_db-execution-role" {
+resource "aws_iam_role" "product-db-execution-role" {
   name = "product_db_${local.scope}_execution_role"
   path = "/ecs/"
 
@@ -535,21 +549,21 @@ resource "aws_iam_role" "product_db-execution-role" {
   })
 }
 
-module "product_db" {
+module "product-db" {
   source  = "hashicorp/consul-ecs/aws//modules/mesh-task"
   version = "~> 0.3.0"
 
-  family         = "product_db"
-  task_role      = aws_iam_role.product_db-task-role
-  execution_role = aws_iam_role.product_db-execution-role
+  family         = "product-db"
+  task_role      = aws_iam_role.product-db-task-role
+  execution_role = aws_iam_role.product-db-execution-role
   container_definitions = [
     {
-      name      = "product_db"
-      image     = "hashicorpdemoapp/product-api-db:v0.0.19"
+      name      = "product-db"
+      image     = "hashicorpdemoapp/product-api-db:v0.0.20"
       essential = true
       portMappings = [
         {
-          containerPort = 5432
+          containerPort = local.product_db_port
           protocol      = "tcp"
         }
       ]
@@ -577,7 +591,7 @@ module "product_db" {
         options = {
           awslogs-group         = aws_cloudwatch_log_group.log_group.name
           awslogs-region        = var.region
-          awslogs-stream-prefix = "product_db"
+          awslogs-stream-prefix = "product-db"
         }
       }
     }
@@ -588,11 +602,11 @@ module "product_db" {
     options = {
       awslogs-group         = aws_cloudwatch_log_group.log_group.name
       awslogs-region        = var.region
-      awslogs-stream-prefix = "product_db"
+      awslogs-stream-prefix = "product-db"
     }
   }
 
-  port = "5432"
+  port = local.product_db_port
 
   retry_join        = var.client_retry_join
   consul_datacenter = var.datacenter
@@ -607,16 +621,17 @@ module "product_db" {
   acl_secret_name_prefix         = local.secret_prefix
 }
 
-resource "aws_ecs_service" "product_db" {
-  name            = "product_db"
+resource "aws_ecs_service" "product-db" {
+  name            = "product-db"
   cluster         = aws_ecs_cluster.clients.arn
-  task_definition = module.product_db.task_definition_arn
+  task_definition = module.product-db.task_definition_arn
   desired_count   = 1
+
   network_configuration {
-    subnets          = var.private_subnet_ids
-    assign_public_ip = true
-    security_groups  = [var.security_group_id]
+    subnets         = var.private_subnet_ids
+    security_groups = [var.security_group_id]
   }
+
   launch_type            = "FARGATE"
   propagate_tags         = "TASK_DEFINITION"
   enable_execute_command = true

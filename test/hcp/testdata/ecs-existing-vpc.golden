@@ -4,7 +4,6 @@ locals {
   cluster_id             = "consul-quickstart-4634271483588"
   hvn_id                 = "consul-quickstart-4634271483588-hvn"
   vpc_id                 = "vpc-171d21e09127bb012"
-  public_route_table_id  = "rtb-12b0b92efeae83c28"
   private_route_table_id = "rtb-32b0b92efeae83c30"
   public_subnet1         = "subnet-14afc1709a875ad5d"
   public_subnet2         = "subnet-1aa8d55f44387908d"
@@ -47,16 +46,10 @@ module "aws_hcp_consul" {
   source  = "hashicorp/hcp-consul/aws"
   version = "~> 0.6.1"
 
-  hvn    = hcp_hvn.main
-  vpc_id = local.vpc_id
-  subnet_ids = concat(
-    [local.private_subnet1, local.private_subnet2],
-    [local.public_subnet1, local.public_subnet2],
-  )
-  route_table_ids = concat(
-    [local.private_route_table_id],
-    [local.public_route_table_id],
-  )
+  hvn             = hcp_hvn.main
+  vpc_id          = local.vpc_id
+  subnet_ids      = [local.private_subnet1, local.private_subnet2]
+  route_table_ids = [local.private_route_table_id]
 }
 
 resource "hcp_consul_cluster" "main" {
@@ -64,22 +57,6 @@ resource "hcp_consul_cluster" "main" {
   hvn_id          = hcp_hvn.main.hvn_id
   public_endpoint = true
   tier            = "development"
-}
-
-resource "consul_config_entry" "service_intentions" {
-  name = "*"
-  kind = "service-intentions"
-
-  config_json = jsonencode({
-    Sources = [
-      {
-        Action     = "allow"
-        Name       = "*"
-        Precedence = 9
-        Type       = "consul"
-      },
-    ]
-  })
 }
 
 resource "hcp_consul_cluster_root_token" "token" {
@@ -106,71 +83,6 @@ module "aws_ecs_cluster" {
   consul_version           = substr(hcp_consul_cluster.main.consul_version, 1, -1)
   datacenter               = hcp_consul_cluster.main.datacenter
 }
-
-resource "consul_config_entry" "service_intentions_db" {
-  name = "product-db"
-  kind = "service-intentions"
-
-  config_json = jsonencode({
-    Sources = [
-      {
-        Action     = "allow"
-        Name       = "product-api"
-        Precedence = 9
-        Type       = "consul"
-      },
-    ]
-  })
-}
-
-resource "consul_config_entry" "service_intentions_product" {
-  name = "product-api"
-  kind = "service-intentions"
-
-  config_json = jsonencode({
-    Sources = [
-      {
-        Action     = "allow"
-        Name       = "product-public-api"
-        Precedence = 9
-        Type       = "consul"
-      },
-    ]
-  })
-}
-
-resource "consul_config_entry" "service_intentions_payment" {
-  name = "payment-api"
-  kind = "service-intentions"
-
-  config_json = jsonencode({
-    Sources = [
-      {
-        Action     = "allow"
-        Name       = "product-public-api"
-        Precedence = 9
-        Type       = "consul"
-      },
-    ]
-  })
-}
-
-resource "consul_config_entry" "service_intentions_public_api" {
-  name = "product-public-api"
-  kind = "service-intentions"
-
-  config_json = jsonencode({
-    Sources = [
-      {
-        Action     = "allow"
-        Name       = "frontend"
-        Precedence = 9
-        Type       = "consul"
-      },
-    ]
-  })
-}
-
 output "consul_root_token" {
   value     = hcp_consul_cluster_root_token.token.secret_id
   sensitive = true

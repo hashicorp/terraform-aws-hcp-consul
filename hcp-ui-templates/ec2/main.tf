@@ -43,8 +43,8 @@ module "vpc" {
   name                 = "${local.cluster_id}-vpc"
   cidr                 = "10.0.0.0/16"
   azs                  = data.aws_availability_zones.available.names
-  private_subnets      = []
   public_subnets       = ["10.0.1.0/24", "10.0.2.0/24", "10.0.3.0/24"]
+  private_subnets      = []
   enable_dns_hostnames = true
 }
 
@@ -89,71 +89,6 @@ module "aws_ec2_consul_client" {
   root_token               = hcp_consul_cluster_root_token.token.secret_id
   consul_version           = hcp_consul_cluster.main.consul_version
 }
-
-resource "consul_config_entry" "service_intentions_db" {
-  name = "product-db"
-  kind = "service-intentions"
-
-  config_json = jsonencode({
-    Sources = [
-      {
-        Action     = "allow"
-        Name       = "product-api"
-        Precedence = 9
-        Type       = "consul"
-      },
-    ]
-  })
-}
-
-resource "consul_config_entry" "service_intentions_product" {
-  name = "product-api"
-  kind = "service-intentions"
-
-  config_json = jsonencode({
-    Sources = [
-      {
-        Action     = "allow"
-        Name       = "product-public-api"
-        Precedence = 9
-        Type       = "consul"
-      },
-    ]
-  })
-}
-
-resource "consul_config_entry" "service_intentions_payment" {
-  name = "payment-api"
-  kind = "service-intentions"
-
-  config_json = jsonencode({
-    Sources = [
-      {
-        Action     = "allow"
-        Name       = "product-public-api"
-        Precedence = 9
-        Type       = "consul"
-      },
-    ]
-  })
-}
-
-resource "consul_config_entry" "service_intentions_public_api" {
-  name = "product-public-api"
-  kind = "service-intentions"
-
-  config_json = jsonencode({
-    Sources = [
-      {
-        Action     = "allow"
-        Name       = "frontend"
-        Precedence = 9
-        Type       = "consul"
-      },
-    ]
-  })
-}
-
 output "consul_root_token" {
   value     = hcp_consul_cluster_root_token.token.secret_id
   sensitive = true
