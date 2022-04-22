@@ -15,7 +15,7 @@ setup_deps () {
   echo "deb [arch=amd64 signed-by=/usr/share/keyrings/getenvoy-keyring.gpg] https://deb.dl.getenvoy.io/public/deb/ubuntu $(lsb_release -cs) main" | tee /etc/apt/sources.list.d/getenvoy.list
   apt update -qy
 	version="${consul_version}"
-	consul_package="consul-enterprise="$${version:1}"+ent"
+	consul_package="consul-enterprise="$${version:1}"*"
 	apt install -qy apt-transport-https gnupg2 curl lsb-release nomad $${consul_package} getenvoy-envoy unzip jq apache2-utils nginx
 
 	curl -fsSL https://get.docker.com -o get-docker.sh
