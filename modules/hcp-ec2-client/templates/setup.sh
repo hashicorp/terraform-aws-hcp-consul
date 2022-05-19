@@ -18,8 +18,8 @@ setup_deps () {
 	consul_package="consul-enterprise="$${version:1}"*"
 	apt install -qy apt-transport-https gnupg2 curl lsb-release nomad $${consul_package} getenvoy-envoy unzip jq apache2-utils nginx
 
-	curl -fsSL https://get.docker.com -o get-docker.sh
-	sh ./get-docker.sh
+	sudo apt install docker -y
+	sudo apt install docker.io -y
 }
 
 setup_networking() {
