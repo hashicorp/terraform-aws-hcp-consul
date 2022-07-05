@@ -59,3 +59,33 @@ resource "consul_config_entry" "service_intentions_payment_api" {
     ]
   })
 }
+resource "consul_config_entry" "service_intentions_public_api" {
+  name = "public-api"
+  kind = "service-intentions"
+
+  config_json = jsonencode({
+    Sources = [
+      {
+        Name       = "nginx"
+        Action     = "allow"
+        Precedence = 9
+        Type       = "consul"
+      },
+    ]
+  })
+}
+resource "consul_config_entry" "service_intentions_frontend" {
+  name = "frontend"
+  kind = "service-intentions"
+
+  config_json = jsonencode({
+    Sources = [
+      {
+        Name       = "nginx"
+        Action     = "allow"
+        Precedence = 9
+        Type       = "consul"
+      },
+    ]
+  })
+}
