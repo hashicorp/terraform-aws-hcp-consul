@@ -2,7 +2,10 @@ variable "frontend_port" {
   type        = number
   default     = 3000
 }
-
+variable "nginx_port" {
+  type        = number
+  default     = 80
+}
 variable "public_api_port" {
   type        = number
   default     = 7070
@@ -25,7 +28,95 @@ variable "product_db_port" {
 
 job "hashicups" {
   datacenters = ["dc1"]
+  group "nginx" {
+    network {
+      mode = "bridge"
 
+      port "nginx" {
+        static = var.nginx_port
+      }
+    }
+
+    service {
+      name = "nginx"
+      port = "nginx"
+      connect {
+        sidecar_service {
+          proxy {
+            upstreams {
+              destination_name = "frontend"
+              local_bind_port  = var.frontend_port
+            }
+            upstreams {
+              destination_name = "public-api"
+              local_bind_port  = var.public_api_port
+            }
+          }
+        }
+      }
+    }
+    task "nginx" {
+        driver = "docker"
+        meta {
+          service = "nginx-reverse-proxy"
+        }
+        config {
+          image = "nginx:alpine"
+          ports = ["nginx"]
+          mount {
+            type   = "bind"
+            source = "local/default.conf"
+            target = "/etc/nginx/conf.d/default.conf"
+          }
+        }
+        template {
+          data =  <<EOF
+            proxy_cache_path /var/cache/nginx levels=1:2 keys_zone=STATIC:10m inactive=7d use_temp_path=off;
+            upstream frontend_upstream {
+              server {{ env "NOMAD_UPSTREAM_ADDR_frontend" }};
+            }
+            upstream public_api_upstream {
+              server {{ env "NOMAD_UPSTREAM_ADDR_public_api" }};
+            }
+            server {
+              listen {{ env "NOMAD_PORT_nginx" }};
+              server_name {{ env "NOMAD_IP_nginx" }};
+              server_tokens off;
+              gzip on;
+              gzip_proxied any;
+              gzip_comp_level 4;
+              gzip_types text/css application/javascript image/svg+xml;
+              proxy_http_version 1.1;
+              proxy_set_header Upgrade $http_upgrade;
+              proxy_set_header Connection 'upgrade';
+              proxy_set_header Host $host;
+              proxy_cache_bypass $http_upgrade;
+              location /_next/static {
+                proxy_cache STATIC;
+                proxy_pass http://frontend_upstream;
+                # For testing cache - remove before deploying to production
+                add_header X-Cache-Status $upstream_cache_status;
+              }
+              location /static {
+                proxy_cache STATIC;
+                proxy_ignore_headers Cache-Control;
+                proxy_cache_valid 60m;
+                proxy_pass http://frontend_upstream;
+                # For testing cache - remove before deploying to production
+                add_header X-Cache-Status $upstream_cache_status;
+              }
+              location / {
+                proxy_pass http://frontend_upstream;
+              }
+            location /api {
+              proxy_pass http://public_api_upstream;
+            }
+          }
+          EOF
+          destination = "local/default.conf"
+      }
+    }
+  }
   group "frontend" {
     network {
       mode = "bridge"
@@ -38,8 +129,12 @@ job "hashicups" {
     service {
       name = "frontend"
       port = "http"
+      connect {
+        sidecar_service {
+        }
+      }
     }
-
+    
     task "frontend" {
       driver = "docker"
 
