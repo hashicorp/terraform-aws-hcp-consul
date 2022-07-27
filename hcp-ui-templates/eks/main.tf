@@ -3,8 +3,6 @@ locals {
   hvn_region = "{{ .HVNRegion }}"
   cluster_id = "{{ .ClusterID }}"
   hvn_id     = "{{ .ClusterID }}-hvn"
-  install_demo_app = true
-  install_eks_cluster=true #use my own EKS cluster
 }
 
 terraform {
@@ -43,22 +41,22 @@ provider "aws" {
 
 provider "helm" {
   kubernetes {
-    host                   = local.install_eks_cluster?data.aws_eks_cluster.cluster.endpoint:""
-    cluster_ca_certificate = local.install_eks_cluster?base64decode(data.aws_eks_cluster.cluster.certificate_authority.0.data):""
-    token                  = local.install_eks_cluster?data.aws_eks_cluster_auth.cluster.token:""
+    host                   = data.aws_eks_cluster.cluster.endpoint
+    cluster_ca_certificate = base64decode(data.aws_eks_cluster.cluster.certificate_authority.0.data)
+    token                  = data.aws_eks_cluster_auth.cluster.token
   }
 }
 
 provider "kubernetes" {
-  host                   = local.install_eks_cluster?data.aws_eks_cluster.cluster.endpoint:""
-    cluster_ca_certificate = local.install_eks_cluster?base64decode(data.aws_eks_cluster.cluster.certificate_authority.0.data):""
-    token                  = local.install_eks_cluster?data.aws_eks_cluster_auth.cluster.token:""
+  host                   = data.aws_eks_cluster.cluster.endpoint
+  cluster_ca_certificate = base64decode(data.aws_eks_cluster.cluster.certificate_authority.0.data)
+  token                  = data.aws_eks_cluster_auth.cluster.token
 }
 
 provider "kubectl" {
-  host                   = local.install_eks_cluster?data.aws_eks_cluster.cluster.endpoint:""
-    cluster_ca_certificate = local.install_eks_cluster?base64decode(data.aws_eks_cluster.cluster.certificate_authority.0.data):""
-    token                  = local.install_eks_cluster?data.aws_eks_cluster_auth.cluster.token:""
+  host                   = data.aws_eks_cluster.cluster.endpoint
+  cluster_ca_certificate = base64decode(data.aws_eks_cluster.cluster.certificate_authority.0.data)
+  token                  = data.aws_eks_cluster_auth.cluster.token
   load_config_file       = false
 }
 data "aws_availability_zones" "available" {
@@ -91,7 +89,6 @@ data "aws_eks_cluster_auth" "cluster" {
 }
 
 module "eks" {
-  count = local.install_eks_cluster? 1: 0
   source                 = "terraform-aws-modules/eks/aws"
   version                = "17.24.0"
   kubeconfig_api_version = "client.authentication.k8s.io/v1beta1"
@@ -162,9 +159,7 @@ module "eks_consul_client" {
   depends_on = [module.eks]
 }
 
-
 module "demo_app" {
-  count= local.install_demo_app ? 1:0
   source  = "hashicorp/hcp-consul/aws//modules/k8s-demo-app"
   version = "~> 0.7.2"
 
@@ -187,11 +182,9 @@ output "consul_url" {
 output "kubeconfig_filename" {
   value = abspath(module.eks.kubeconfig_filename)
 }
-output "helm_values_filename" {
-  value =  abspath(module.eks_consul_client.helm_values_file)
-}
+
 output "hashicups_url" {
-  value = one(module.demo_app[*].hashicups_url)
+  value = module.demo_app.hashicups_url
 }
 
 output "next_steps" {

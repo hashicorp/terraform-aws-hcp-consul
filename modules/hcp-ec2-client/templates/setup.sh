@@ -52,38 +52,24 @@ setup_nginx() {
 	systemctl restart nginx
 }
 
-setup_dns_forwarding () {
-mkdir /etc/systemd/resolved.conf.d/
-
-cat << EOF | tee -a /etc/systemd/resolved.conf.d/dns_servers.conf
-[Resolve]
-DNS=127.0.0.1:8600
-DNSSEC=false
-Domains=~consul
-EOF
-
-systemctl restart systemd-resolved
-}
-
 cd /home/ubuntu/
 
+echo "${consul_service}" | base64 -d > consul.service
 echo "${nomad_service}" | base64 -d > nomad.service
+echo "${hashicups}" | base64 -d > hashicups.nomad
 
 setup_networking
 setup_deps
 
-#Give the option for installing the demo app.
-if ${install_demo_app}
-then
-	setup_nginx
-	echo "${consul_service}" | base64 -d > consul.service
-	start_service "nomad"
-	sleep 10
-fi
-
+setup_nginx
 setup_consul
+
 start_service "consul"
-setup_dns_forwarding
+start_service "nomad"
 
 # nomad and consul service is type simple and might not be up and running just yet.
+sleep 10
+
+nomad run hashicups.nomad
+
 echo "done"

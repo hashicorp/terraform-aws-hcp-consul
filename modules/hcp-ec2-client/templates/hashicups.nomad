@@ -1,8 +1,7 @@
 variable "frontend_port" {
-  type = number
-  default = 1234
+  type        = number
+  default     = 3000
 }
-
 variable "nginx_port" {
   type        = number
   default     = 80
@@ -45,7 +44,7 @@ job "hashicups" {
         sidecar_service {
           proxy {
             upstreams {
-              destination_name = "vfrontend"
+              destination_name = "frontend"
               local_bind_port  = var.frontend_port
             }
             upstreams {
@@ -70,15 +69,11 @@ job "hashicups" {
             target = "/etc/nginx/conf.d/default.conf"
           }
         }
-        resources {
-        cpu = 300 # MHz
-        memory = 128 # MB
-       }
         template {
           data =  <<EOF
             proxy_cache_path /var/cache/nginx levels=1:2 keys_zone=STATIC:10m inactive=7d use_temp_path=off;
             upstream frontend_upstream {
-              server {{ env "NOMAD_UPSTREAM_ADDR_vfrontend" }};
+              server {{ env "NOMAD_UPSTREAM_ADDR_frontend" }};
             }
             upstream public_api_upstream {
               server {{ env "NOMAD_UPSTREAM_ADDR_public_api" }};
@@ -95,32 +90,65 @@ job "hashicups" {
               proxy_set_header Upgrade $http_upgrade;
               proxy_set_header Connection 'upgrade';
               proxy_set_header Host $host;
-             
-              
+              proxy_cache_bypass $http_upgrade;
+              location /_next/static {
+                proxy_cache STATIC;
+                proxy_pass http://frontend_upstream;
+                # For testing cache - remove before deploying to production
+                add_header X-Cache-Status $upstream_cache_status;
+              }
+              location /static {
+                proxy_cache STATIC;
+                proxy_ignore_headers Cache-Control;
+                proxy_cache_valid 60m;
+                proxy_pass http://frontend_upstream;
+                # For testing cache - remove before deploying to production
+                add_header X-Cache-Status $upstream_cache_status;
+              }
               location / {
-                proxy_pass http://frontend_upstream/;
-                 add_header x-debug 2;
-              } 
-
-              location /v1 {
-                proxy_pass http://frontend_upstream/;
-                add_header x-debug 1;
-              } 
-              location /v2 {
-                proxy_pass http://frontend_upstream/v1;
-                add_header x-debug 2;
-              } 
-           
+                proxy_pass http://frontend_upstream;
+              }
             location /api {
               proxy_pass http://public_api_upstream;
             }
-            
           }
           EOF
           destination = "local/default.conf"
       }
     }
   }
+  group "frontend" {
+    network {
+      mode = "bridge"
+
+      port "http" {
+        static = var.frontend_port
+      }
+    }
+
+    service {
+      name = "frontend"
+      port = "http"
+      connect {
+        sidecar_service {
+        }
+      }
+    }
+    
+    task "frontend" {
+      driver = "docker"
+
+      config {
+        image = "hashicorpdemoapp/frontend:v1.0.2"
+        ports = ["http"]
+      }
+
+      env {
+        NEXT_PUBLIC_PUBLIC_API_URL = "/"
+      }
+    }
+  }
+
   group "public-api" {
     network {
       mode = "bridge"
@@ -129,9 +157,11 @@ job "hashicups" {
         static = var.public_api_port
       }
     }
+
     service {
       name = "public-api"
       port = "http"
+
       connect {
         sidecar_service {
           proxy {
@@ -147,16 +177,15 @@ job "hashicups" {
         }
       }
     }
+
     task "public-api" {
       driver = "docker"
-      resources {
-        cpu = 300 # MHz
-        memory = 128 # MB
-       }
+
       config {
         image = "hashicorpdemoapp/public-api:v0.0.6"
         ports = ["http"]
       }
+
       env {
         BIND_ADDRESS = ":${var.public_api_port}"
         PRODUCT_API_URI = "http://localhost:${var.product_api_port}"
@@ -168,10 +197,12 @@ job "hashicups" {
   group "payment-api" {
     network {
       mode = "bridge"
+
       port "http" {
         static = var.payment_api_port
       }
     }
+
     service {
       name = "payment-api"
       port = "http"
@@ -183,10 +214,7 @@ job "hashicups" {
 
     task "payment-api" {
       driver = "docker"
-      resources {
-        cpu = 300 # MHz
-        memory = 128 # MB
-       }
+
       config {
         image = "hashicorpdemoapp/payments:v0.0.16"
         ports = ["http"]
@@ -234,10 +262,7 @@ job "hashicups" {
 
     task "product-api" {
       driver = "docker"
-      resources {
-        cpu = 300 # MHz
-        memory = 128 # MB
-       }
+
       config {
         image = "hashicorpdemoapp/product-api:v0.0.20"
       }
@@ -257,23 +282,24 @@ job "hashicups" {
         static = var.product_db_port
       }
     }
+
     service {
       name = "product-db"
       port = "http"
+
       connect {
         sidecar_service {}
       }
     }
+
     task "db" {
       driver = "docker"
-      resources {
-        cpu = 300 # MHz
-        memory = 128 # MB
-       }
+
       config {
         image = "hashicorpdemoapp/product-api-db:v0.0.20"
         ports = ["http"]
       }
+
       env {
         POSTGRES_DB       = "products"
         POSTGRES_USER     = "postgres"
