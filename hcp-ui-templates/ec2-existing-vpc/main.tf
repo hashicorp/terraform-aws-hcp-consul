@@ -6,6 +6,8 @@ locals {
   vpc_id                = "{{ .VPCID }}"
   public_route_table_id = "{{ .PublicRouteTableID }}"
   public_subnet1        = "{{ .PublicSubnet1 }}"
+  install_demo_app      = true
+  ssh                   = true
 }
 
 terraform {
@@ -60,12 +62,29 @@ resource "hcp_consul_cluster" "main" {
 resource "hcp_consul_cluster_root_token" "token" {
   cluster_id = hcp_consul_cluster.main.id
 }
+resource "tls_private_key" "ssh" {
+  algorithm = "RSA"
+  rsa_bits  = 4096
+}
+rresource "aws_key_pair" "hcp_ec2_key_pair" {
+  count      = local.ssh ? 1 : 0
+  key_name   = "hcp-ec2-key"
+  public_key = tls_private_key.ssh.public_key_openssh
+}
+
+resource "local_file" "ssh_key" {
+  count           = local.ssh ? 1 : 0
+  filename        = "${aws_key_pair.key_pair.key_name}.pem"
+  content         = tls_private_key.ssh.private_key_pem
+  file_permission = "400"
+}
 
 module "aws_ec2_consul_client" {
   source  = "hashicorp/hcp-consul/aws//modules/hcp-ec2-client"
   version = "~> 0.7.2"
 
   subnet_id                = local.public_subnet1
+  ssh_keyname              = local.ssh ? aws_key_pair.key_pair.key_name : ""
   security_group_id        = module.aws_hcp_consul.security_group_id
   allowed_ssh_cidr_blocks  = ["0.0.0.0/0"]
   allowed_http_cidr_blocks = ["0.0.0.0/0"]
@@ -73,6 +92,8 @@ module "aws_ec2_consul_client" {
   client_ca_file           = hcp_consul_cluster.main.consul_ca_file
   root_token               = hcp_consul_cluster_root_token.token.secret_id
   consul_version           = hcp_consul_cluster.main.consul_version
+  install_demo_app         = local.install_demo_app
+  vpc_id                   = module.vpc.vpc_id
 }
 output "consul_root_token" {
   value     = hcp_consul_cluster_root_token.token.secret_id
@@ -94,7 +115,34 @@ output "nomad_url" {
 output "hashicups_url" {
   value = "http://${module.aws_ec2_consul_client.public_ip}"
 }
-
+output "consul_export" {
+  value     = <<EOF
+  export CONSUL_HTTP_ADDR="${hcp_consul_cluster.main.consul_public_endpoint_url}"
+  export CONSUL_HTTP_TOKEN="${hcp_consul_cluster_root_token.token.secret_id}"
+  EOF
+  sensitive = true
+}
+output "nomad_export" {
+  value = <<EOF
+  export NOMAD_HTTP_AUTH="nomad:${hcp_consul_cluster_root_token.token.secret_id}"
+  export NOMAD_ADDR="http://${module.aws_ec2_consul_client.public_ip}:8081"  
+  sensitive = true
+  EOF
+}
 output "next_steps" {
-  value = "Hashicups Application will be ready in ~2 minutes. Use 'terraform output consul_root_token' to retrieve the root token."
+  value = local.install_demo_app ? "Hashicups Application will be ready in ~2 minutes. Use 'terraform output consul_root_token' to retrieve the root token." : null
+}
+output "ssh_to_client" {
+  value = local.ssh ? "ssh -i ${local_file.ssh_key.filename} ubuntu@${module.aws_ec2_consul_client.public_ip}" : null
+}
+output "connect_with_ssm" {
+  value = "aws ssm start-session --target ${module.aws_ec2_consul_client.host_id} --region ${local.vpc_region}"
+}
+output "howto_connect_to_nomad" {
+  value = <<EOF
+  "In order to get access to both nomad and consul from the command line run the following commands:
+  ${local.install_demo_app ? "eval $(terraform output nomad_export)" : ""}
+  eval $(terraform output consul_export)
+  This will set the environment variables so you have access to the deployment
+  EOF
 }
