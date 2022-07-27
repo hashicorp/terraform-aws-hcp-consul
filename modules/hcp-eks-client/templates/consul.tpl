@@ -2,6 +2,7 @@ global:
   enabled: false
   name: consul
   datacenter: ${datacenter}
+  enableConsulNamespaces: true
   image: "hashicorp/consul-enterprise:${consul_version}-ent"
   acls:
     manageSystemACLs: true

@@ -7,6 +7,7 @@ locals {
   private_route_table_id = "{{ .PrivateRouteTableID }}"
   private_subnet1        = "{{ .PrivateSubnet1 }}"
   private_subnet2        = "{{ .PrivateSubnet2 }}"
+  install_demo_app = true
 }
 
 terraform {
@@ -143,6 +144,7 @@ module "eks_consul_client" {
 }
 
 module "demo_app" {
+  count= local.install_demo_app ? 1:0
   source  = "hashicorp/hcp-consul/aws//modules/k8s-demo-app"
   version = "~> 0.7.2"
 
@@ -167,7 +169,7 @@ output "kubeconfig_filename" {
 }
 
 output "hashicups_url" {
-  value = module.demo_app.hashicups_url
+  value = one(module.demo_app[*].hashicups_url)
 }
 
 output "next_steps" {
