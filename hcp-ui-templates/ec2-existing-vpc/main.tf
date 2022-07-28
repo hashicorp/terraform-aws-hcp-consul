@@ -123,6 +123,7 @@ output "consul_export" {
   EOF
   sensitive = true
 }
+
 output "nomad_export" {
   value = <<EOF
   export NOMAD_HTTP_AUTH="nomad:${hcp_consul_cluster_root_token.token.secret_id}"
