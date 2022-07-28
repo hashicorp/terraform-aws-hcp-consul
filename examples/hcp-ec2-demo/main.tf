@@ -58,7 +58,7 @@ resource "aws_key_pair" "hcp_ec2" {
 
 resource "local_file" "ssh_key" {
   count           = local.ssh ? 1 : 0
-  filename        = "${aws_key_pair.key_pair.key_name}.pem"
+  filename        = "${aws_key_pair.hcp_ec2[0].key_name}.pem"
   content         = tls_private_key.ssh.private_key_pem
   file_permission = "400"
 }
@@ -67,7 +67,7 @@ module "aws_ec2_consul_client" {
   source  = "hashicorp/hcp-consul/aws//modules/hcp-ec2-client"
   version = "~> 0.7.2"
 
-  ssh_keyname              = local.ssh ? aws_key_pair.key_pair.key_name : ""
+  ssh_keyname              = local.ssh ? aws_key_pair.hcp_ec2[0].key_name : ""
   subnet_id                = module.vpc.public_subnets[0]
   security_group_id        = module.aws_hcp_consul.security_group_id
   allowed_ssh_cidr_blocks  = ["0.0.0.0/0"]

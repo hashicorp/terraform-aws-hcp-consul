@@ -48,11 +48,6 @@ variable "vpc_cidr" {
   default     = "10.0.0.0/8"
 }
 
-variable "nomad_token" {
-  type = string
-
-  description = "Token for nomad"
-}
 variable "install_demo_app" {
   type        = bool
   default     = true

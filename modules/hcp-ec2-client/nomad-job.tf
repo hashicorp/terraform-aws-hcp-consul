@@ -1,11 +1,14 @@
 provider "nomad" {
   address   = "http://${aws_instance.nomad_host[0].public_ip}:8081"
-  http_auth = "nomad:${var.nomad_token}"
+  http_auth = "nomad:${var.root_token}"
 }
 
 #wait for nomad server to be ready before deploying nomad jobs
-resource "time_sleep" "wait_30_seconds" {
-  create_duration = "30s"
+resource "time_sleep" "wait_for_client" {
+  create_duration = "90s"
+  depends_on = [
+    aws_instance.nomad_host
+  ]
 }
 
 resource "nomad_job" "hashicups" {
@@ -16,7 +19,7 @@ resource "nomad_job" "hashicups" {
     enabled = true
   }
   depends_on = [
-    time_sleep.wait_30_seconds
+    time_sleep.wait_for_client
   ]
 }
 

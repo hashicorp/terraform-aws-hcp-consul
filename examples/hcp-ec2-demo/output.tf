@@ -28,12 +28,12 @@ output "howto_connect" {
   "In order to get access to both nomad and consul from the command line run the following commands:
   ${local.install_demo_app ? "The demo app, HashiCups, is installed on a Nomad server we have deployed for your." : ""}
   ${local.install_demo_app ? "To access Nomad using your local client run the following command" : ""}
-  ${local.install_demo_app ? "export NOMAD_HTTP_AUTH=nomad:${hcp_consul_cluster_root_token.token.secret_id}" : ""}
+  ${local.install_demo_app ? "export NOMAD_HTTP_AUTH=nomad:$(terraform output consul_root_token)" : ""}
   ${local.install_demo_app ? "export NOMAD_ADDR=http://${module.aws_ec2_consul_client.public_ip}:8081" : ""}
 
   To access Consul from your local client run:
   export CONSUL_HTTP_ADDR="${hcp_consul_cluster.main.consul_public_endpoint_url}"
-  export CONSUL_HTTP_TOKEN="${hcp_consul_cluster_root_token.token.secret_id}"
+  export CONSUL_HTTP_TOKEN=$(terraform output consul_root_token)
   
   To connect to the ec2 instance deployed, you have 2 options: 
   ${local.ssh ? "- To access via SSH run: ssh -i ${local_file.ssh_key[0].filename} ubuntu@${module.aws_ec2_consul_client.public_ip}" : ""}
