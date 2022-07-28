@@ -52,7 +52,7 @@ resource "aws_security_group_rule" "allow_http_inbound" {
 }
 
 #The bellow is to setup the instance profile and iam role to enable SSM
-resource "aws_iam_instance_profile" "hcp-ec2-iam-profile" {
+resource "aws_iam_instance_profile" "hcp_ec2" {
   role        = aws_iam_role.hcp-ec2-iam-role.name
   name_prefix = "hcp_ec2_profile"
 }
