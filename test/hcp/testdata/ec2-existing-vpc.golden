@@ -138,7 +138,7 @@ output "ssh_to_client" {
 output "connect_with_ssm" {
   value = "aws ssm start-session --target ${module.aws_ec2_consul_client.host_id} --region ${local.vpc_region}"
 }
-output "howto_connect_to_nomad" {
+output "howto_connect" {
   value = <<EOF
   "In order to get access to both nomad and consul from the command line run the following commands:
   ${local.install_demo_app ? "eval $(terraform output nomad_export)" : ""}
