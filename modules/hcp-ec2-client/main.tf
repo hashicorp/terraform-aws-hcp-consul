@@ -58,7 +58,6 @@ resource "aws_iam_instance_profile" "hcp-ec2-iam-profile" {
 }
 
 resource "aws_iam_role" "hcp-ec2-iam-role" {
-  #name        = "hcp-ec2-ssm-role"
   description        = "The role for the developer resources EC2"
   assume_role_policy = <<EOF
 {
