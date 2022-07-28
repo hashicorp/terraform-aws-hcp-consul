@@ -7,6 +7,6 @@ resource "consul_config_entry" "service_default_frontend" {
   kind = "service-defaults"
 
   config_json = jsonencode({
-    Protocol    = "http"
+    Protocol = "http"
   })
 }
