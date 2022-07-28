@@ -82,6 +82,7 @@ resource "tls_private_key" "ssh" {
   algorithm = "RSA"
   rsa_bits  = 4096
 }
+
 resource "aws_key_pair" "hcp_ec2_key_pair" {
   count      = local.ssh ? 1 : 0
   key_name   = "hcp-ec2-key"
@@ -111,6 +112,7 @@ module "aws_ec2_consul_client" {
   install_demo_app         = local.install_demo_app
   vpc_id                   = module.vpc.vpc_id
 }
+
 output "consul_root_token" {
   value     = hcp_consul_cluster_root_token.token.secret_id
   sensitive = true
@@ -131,6 +133,7 @@ output "nomad_url" {
 output "hashicups_url" {
   value = "http://${module.aws_ec2_consul_client.public_ip}"
 }
+
 output "consul_export" {
   value     = <<EOF
   export CONSUL_HTTP_ADDR="${hcp_consul_cluster.main.consul_public_endpoint_url}"
@@ -138,6 +141,7 @@ output "consul_export" {
   EOF
   sensitive = true
 }
+
 output "nomad_export" {
   value     = <<EOF
   export NOMAD_HTTP_AUTH="nomad:${hcp_consul_cluster_root_token.token.secret_id}"
@@ -145,15 +149,19 @@ output "nomad_export" {
   EOF
   sensitive = true
 }
+
 output "next_steps" {
   value = local.install_demo_app ? "Hashicups Application will be ready in ~2 minutes. Use 'terraform output consul_root_token' to retrieve the root token." : null
 }
+
 output "ssh_to_client" {
   value = local.ssh ? "ssh -i ${local_file.ssh_key[0].filename} ubuntu@${module.aws_ec2_consul_client.public_ip}" : null
 }
+
 output "connect_with_ssm" {
   value = "aws ssm start-session --target ${module.aws_ec2_consul_client.host_id} --region ${local.vpc_region}"
 }
+
 output "howto_connect" {
   value = <<EOF
   "In order to get access to both nomad and consul from the command line run the following commands:

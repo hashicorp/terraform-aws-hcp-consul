@@ -13,11 +13,13 @@ data "aws_ami" "ubuntu" {
 
   owners = ["099720109477"] # Canonical
 }
+
 resource "aws_security_group" "hcp_consul_ec2" {
   name_prefix = "hcp_consul_ec2"
   description = "HCP Consul security group"
   vpc_id      = var.vpc_id
 }
+
 resource "aws_security_group_rule" "allow_ssh_inbound" {
   count       = length(var.allowed_ssh_cidr_blocks) >= 1 ? 1 : 0
   type        = "ingress"
@@ -76,7 +78,6 @@ resource "aws_iam_role_policy_attachment" "dev-resources-ssm-policy" {
   role       = aws_iam_role.hcp-ec2-iam-role.name
   policy_arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
 }
-
 
 resource "aws_instance" "nomad_host" {
   count                       = 1

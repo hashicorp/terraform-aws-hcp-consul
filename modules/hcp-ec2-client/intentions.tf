@@ -59,6 +59,7 @@ resource "consul_config_entry" "service_intentions_payment_api" {
     ]
   })
 }
+
 resource "consul_config_entry" "service_intentions_public_api" {
   name = "public-api"
   kind = "service-intentions"
@@ -74,6 +75,7 @@ resource "consul_config_entry" "service_intentions_public_api" {
     ]
   })
 }
+
 resource "consul_config_entry" "service_intentions_frontend" {
   name = "frontend"
   kind = "service-intentions"
