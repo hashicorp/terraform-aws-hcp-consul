@@ -66,7 +66,8 @@ resource "tls_private_key" "ssh" {
   algorithm = "RSA"
   rsa_bits  = 4096
 }
-rresource "aws_key_pair" "hcp_ec2_key_pair" {
+
+resource "aws_key_pair" "hcp_ec2" {
   count      = local.ssh ? 1 : 0
   key_name   = "hcp-ec2-key"
   public_key = tls_private_key.ssh.public_key_openssh
