@@ -39,7 +39,7 @@ resource "time_sleep" "wait_15_seconds" {
   create_duration = "15s"
 }
 
-resource "nomad_job" "hashicups-frontend-v2" {
+resource "nomad_job" "hashicups_frontend_v2" {
   count   = var.install_demo_app ? 1 : 0
   jobspec = file("${path.module}/templates/hashicups-frontend-v2.nomad")
   hcl2 {
