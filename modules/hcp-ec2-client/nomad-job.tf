@@ -34,7 +34,7 @@ resource "nomad_job" "hashicups_frontend" {
 
 resource "time_sleep" "wait_15_seconds" {
 
-  depends_on = [nomad_job.hashicups-frontend]
+  depends_on = [nomad_job.hashicups_frontend]
 
   create_duration = "15s"
 }
