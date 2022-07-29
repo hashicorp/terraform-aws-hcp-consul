@@ -39,3 +39,16 @@ variable "tier" {
   description = "The HCP Consul tier to use when creating a Consul cluster"
   default     = "development"
 }
+
+variable "ssh" {
+  type        = string
+  description = "Enable or disable SSH access via locally created certificate"
+  default     = true
+}
+
+variable "install_demo_app" {
+  type        = string
+  description = "Choose to install HashiCups"
+  default     = true
+}
+
