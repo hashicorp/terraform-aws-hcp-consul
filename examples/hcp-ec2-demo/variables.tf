@@ -41,7 +41,7 @@ variable "tier" {
 }
 
 variable "ssh" {
-  type        = string
+  type        = bool
   description = "Enable or disable SSH access via locally created certificate"
   default     = true
 }
