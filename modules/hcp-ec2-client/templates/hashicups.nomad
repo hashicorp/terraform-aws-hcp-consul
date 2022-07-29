@@ -7,6 +7,7 @@ variable "nginx_port" {
   type        = number
   default     = 80
 }
+
 variable "public_api_port" {
   type        = number
   default     = 7070
