@@ -114,6 +114,7 @@ job "hashicups" {
       }
     }
   }
+  
   group "public-api" {
     network {
       mode = "bridge"
@@ -122,6 +123,7 @@ job "hashicups" {
         static = var.public_api_port
       }
     }
+
     service {
       name = "public-api"
       port = "http"
@@ -140,6 +142,7 @@ job "hashicups" {
         }
       }
     }
+
     task "public-api" {
       driver = "docker"
       resources {
@@ -165,6 +168,7 @@ job "hashicups" {
         static = var.payment_api_port
       }
     }
+
     service {
       name = "payment-api"
       port = "http"
@@ -250,6 +254,7 @@ job "hashicups" {
         static = var.product_db_port
       }
     }
+    
     service {
       name = "product-db"
       port = "http"
@@ -257,6 +262,7 @@ job "hashicups" {
         sidecar_service {}
       }
     }
+
     task "db" {
       driver = "docker"
       resources {
