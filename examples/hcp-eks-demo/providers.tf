@@ -37,21 +37,21 @@ provider "aws" {
 
 provider "helm" {
   kubernetes {
-    host                   = var.install_eks_cluster ? data.aws_eks_cluster.cluster.endpoint : ""
-    cluster_ca_certificate = var.install_eks_cluster ? base64decode(data.aws_eks_cluster.cluster.certificate_authority.0.data) : ""
-    token                  = var.install_eks_cluster ? data.aws_eks_cluster_auth.cluster.token : ""
+    host                   = var.install_eks_cluster ? data.aws_eks_cluster.cluster[0].endpoint : ""
+    cluster_ca_certificate = var.install_eks_cluster ? base64decode(data.aws_eks_cluster.cluster[0].certificate_authority.0.data) : ""
+    token                  = var.install_eks_cluster ? data.aws_eks_cluster_auth.cluster[0].token : ""
   }
 }
 
 provider "kubernetes" {
-  host                   = var.install_eks_cluster ? data.aws_eks_cluster.cluster.endpoint : ""
-  cluster_ca_certificate = var.install_eks_cluster ? base64decode(data.aws_eks_cluster.cluster.certificate_authority.0.data) : ""
-  token                  = var.install_eks_cluster ? data.aws_eks_cluster_auth.cluster.token : ""
+  host                   = var.install_eks_cluster ? data.aws_eks_cluster.cluster[0].endpoint : ""
+  cluster_ca_certificate = var.install_eks_cluster ? base64decode(data.aws_eks_cluster.cluster[0].certificate_authority.0.data) : ""
+  token                  = var.install_eks_cluster ? data.aws_eks_cluster_auth.cluster[0].token : ""
 }
 
 provider "kubectl" {
-  host                   = var.install_eks_cluster ? data.aws_eks_cluster.cluster.endpoint : ""
-  cluster_ca_certificate = var.install_eks_cluster ? base64decode(data.aws_eks_cluster.cluster.certificate_authority.0.data) : ""
-  token                  = var.install_eks_cluster ? data.aws_eks_cluster_auth.cluster.token : ""
+  host                   = var.install_eks_cluster ? data.aws_eks_cluster.cluster[0].endpoint : ""
+  cluster_ca_certificate = var.install_eks_cluster ? base64decode(data.aws_eks_cluster.cluster[0].certificate_authority.0.data) : ""
+  token                  = var.install_eks_cluster ? data.aws_eks_cluster_auth.cluster[0].token : ""
   load_config_file       = false
 }

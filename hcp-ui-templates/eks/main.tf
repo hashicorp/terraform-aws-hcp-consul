@@ -43,22 +43,22 @@ provider "aws" {
 
 provider "helm" {
   kubernetes {
-    host                   = local.install_eks_cluster ? data.aws_eks_cluster.cluster.endpoint : ""
-    cluster_ca_certificate = local.install_eks_cluster ? base64decode(data.aws_eks_cluster.cluster.certificate_authority.0.data) : ""
-    token                  = local.install_eks_cluster ? data.aws_eks_cluster_auth.cluster.token : ""
+    host                   = local.install_eks_cluster ? data.aws_eks_cluster.cluster[0].endpoint : ""
+    cluster_ca_certificate = local.install_eks_cluster ? base64decode(data.aws_eks_cluster.cluster[0].certificate_authority.0.data) : ""
+    token                  = local.install_eks_cluster ? data.aws_eks_cluster_auth.cluster[0].token : ""
   }
 }
 
 provider "kubernetes" {
-  host                   = local.install_eks_cluster ? data.aws_eks_cluster.cluster.endpoint : ""
-  cluster_ca_certificate = local.install_eks_cluster ? base64decode(data.aws_eks_cluster.cluster.certificate_authority.0.data) : ""
-  token                  = local.install_eks_cluster ? data.aws_eks_cluster_auth.cluster.token : ""
+  host                   = local.install_eks_cluster ? data.aws_eks_cluster.cluster[0].endpoint : ""
+  cluster_ca_certificate = local.install_eks_cluster ? base64decode(data.aws_eks_cluster.cluster[0].certificate_authority.0.data) : ""
+  token                  = local.install_eks_cluster ? data.aws_eks_cluster_auth.cluster[0].token : ""
 }
 
 provider "kubectl" {
-  host                   = local.install_eks_cluster ? data.aws_eks_cluster.cluster.endpoint : ""
-  cluster_ca_certificate = local.install_eks_cluster ? base64decode(data.aws_eks_cluster.cluster.certificate_authority.0.data) : ""
-  token                  = local.install_eks_cluster ? data.aws_eks_cluster_auth.cluster.token : ""
+  host                   = local.install_eks_cluster ? data.aws_eks_cluster.cluster[0].endpoint : ""
+  cluster_ca_certificate = local.install_eks_cluster ? base64decode(data.aws_eks_cluster.cluster[0].certificate_authority.0.data) : ""
+  token                  = local.install_eks_cluster ? data.aws_eks_cluster_auth.cluster[0].token : ""
   load_config_file       = false
 }
 data "aws_availability_zones" "available" {
@@ -83,11 +83,13 @@ module "vpc" {
 }
 
 data "aws_eks_cluster" "cluster" {
-  name = module.eks.cluster_id
+  count = local.install_eks_cluster ? 1 : 0
+  name  = module.eks[0].cluster_id
 }
 
 data "aws_eks_cluster_auth" "cluster" {
-  name = module.eks.cluster_id
+  count = local.install_eks_cluster ? 1 : 0
+  name  = module.eks[0].cluster_id
 }
 
 module "eks" {
@@ -128,7 +130,7 @@ module "aws_hcp_consul" {
   vpc_id             = module.vpc.vpc_id
   subnet_ids         = module.vpc.private_subnets
   route_table_ids    = module.vpc.private_route_table_ids
-  security_group_ids = [module.eks.cluster_primary_security_group_id]
+  security_group_ids = local.install_eks_cluster ? [module.eks[0].cluster_primary_security_group_id] : [""]
 }
 
 resource "hcp_consul_cluster" "main" {
@@ -148,7 +150,7 @@ module "eks_consul_client" {
 
   cluster_id       = hcp_consul_cluster.main.cluster_id
   consul_hosts     = jsondecode(base64decode(hcp_consul_cluster.main.consul_config_file))["retry_join"]
-  k8s_api_endpoint = module.eks.cluster_endpoint
+  k8s_api_endpoint = local.install_eks_cluster ? module.eks[0].cluster_endpoint : ""
   consul_version   = hcp_consul_cluster.main.consul_version
 
   boostrap_acl_token    = hcp_consul_cluster_root_token.token.secret_id
@@ -169,7 +171,6 @@ module "demo_app" {
 
   depends_on = [module.eks_consul_client]
 }
-
 output "consul_root_token" {
   value     = hcp_consul_cluster_root_token.token.secret_id
   sensitive = true
