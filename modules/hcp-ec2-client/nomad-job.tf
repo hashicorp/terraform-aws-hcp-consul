@@ -23,7 +23,7 @@ resource "nomad_job" "hashicups" {
   ]
 }
 
-resource "nomad_job" "hashicups-frontend" {
+resource "nomad_job" "hashicups_frontend" {
   count   = var.install_demo_app ? 1 : 0
   jobspec = file("${path.module}/templates/hashicups-frontend.nomad")
   hcl2 {
