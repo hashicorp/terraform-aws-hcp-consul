@@ -39,3 +39,15 @@ variable "tier" {
   description = "The HCP Consul tier to use when creating a Consul cluster"
   default     = "development"
 }
+
+variable "install_demo_app" {
+  type        = string
+  description = "Choose to install HashiCups"
+  default     = true
+}
+
+variable "install_eks_cluster" {
+  type        = string
+  description = "Choose if you want an eks cluster to be provisioned"
+  default     = true
+}

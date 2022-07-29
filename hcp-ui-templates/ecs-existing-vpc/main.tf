@@ -3,12 +3,14 @@ locals {
   hvn_region             = "{{ .HVNRegion }}"
   cluster_id             = "{{ .ClusterID }}"
   hvn_id                 = "{{ .ClusterID }}-hvn"
+  install_demo_app       = true
   vpc_id                 = "{{ .VPCID }}"
   private_route_table_id = "{{ .PrivateRouteTableID }}"
   public_subnet1         = "{{ .PublicSubnet1 }}"
   public_subnet2         = "{{ .PublicSubnet2 }}"
   private_subnet1        = "{{ .PrivateSubnet1 }}"
   private_subnet2        = "{{ .PrivateSubnet2 }}"
+
 }
 
 terraform {

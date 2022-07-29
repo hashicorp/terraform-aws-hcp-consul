@@ -3,12 +3,14 @@ locals {
   hvn_region             = "eu-west-2"
   cluster_id             = "consul-quickstart-4634271483588"
   hvn_id                 = "consul-quickstart-4634271483588-hvn"
+  install_demo_app       = true
   vpc_id                 = "vpc-171d21e09127bb012"
   private_route_table_id = "rtb-32b0b92efeae83c30"
   public_subnet1         = "subnet-14afc1709a875ad5d"
   public_subnet2         = "subnet-1aa8d55f44387908d"
   private_subnet1        = "subnet-44afc1709a875ad5d"
   private_subnet2        = "subnet-5aa8d55f44387908d"
+
 }
 
 terraform {
