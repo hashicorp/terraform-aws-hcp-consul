@@ -35,7 +35,10 @@ generate_existing_vpc_terraform () {
 generate_locals () {
   echo "locals {"
   cat scripts/locals.snip
-  cat scripts/$1.snip
+  if [ $1 = "ec2" ]
+  then
+    cat scripts/ec2.snip
+  fi
   echo "}"
   echo ""
 }
@@ -44,7 +47,6 @@ generate_existing_vpc_locals () {
   echo "locals {"
   cat scripts/locals.snip 
   cat scripts/$1_existing_vpc_locals.snip
-  cat scripts/$1.snip
   echo "}"
   echo ""
 }
