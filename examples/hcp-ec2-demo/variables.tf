@@ -47,7 +47,7 @@ variable "ssh" {
 }
 
 variable "install_demo_app" {
-  type        = string
+  type        = bool
   description = "Choose to install HashiCups"
   default     = true
 }
