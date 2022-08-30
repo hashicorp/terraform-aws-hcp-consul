@@ -86,7 +86,7 @@ resource "aws_instance" "nomad_host" {
   associate_public_ip_address = true
   subnet_id                   = var.subnet_id
   iam_instance_profile        = aws_iam_instance_profile.hcp_ec2.name
-  vpc_security_group_ids      = [var.security_group_id]
+  vpc_security_group_ids      = [aws_security_group.hcp_consul_ec2.id, var.security_group_id]
   key_name                    = var.ssh_keyname
   user_data = templatefile("${path.module}/templates/user_data.sh", {
     setup = base64gzip(templatefile("${path.module}/templates/setup.sh", {
