@@ -11,7 +11,7 @@ Routes = [
     Destination {
       Service = "frontend"
       ServiceSubset = "v1"
-      prefixRewrite = "/"
+      
     }
   },
   {
@@ -24,7 +24,7 @@ Routes = [
     Destination {
       Service = "frontend"
       ServiceSubset = "v2"
-      prefixRewrite = "/"
+      
     }
   },
   # NOTE: a default catch-all will send unmatched traffic to "web"
