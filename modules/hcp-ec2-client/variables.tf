@@ -47,6 +47,6 @@ variable "vpc_cidr" {
 
 variable "node_id" {
   description = "A value to uniquely identify a node. This value will be added under the node_meta field for the consul agent as node_id"
-  type        = list(string)
+  type        = string
   default     = "identifier"
 }
