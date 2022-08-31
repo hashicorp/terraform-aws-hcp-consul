@@ -56,7 +56,7 @@ resource "aws_instance" "nomad_host" {
   vpc_security_group_ids      = [var.security_group_id]
   user_data = templatefile("${path.module}/templates/user_data.sh", {
     setup = base64gzip(templatefile("${path.module}/templates/setup.sh", {
-      subnet_id        = var.subnet_id,
+      node_id        = var.node_id,
       consul_config    = var.client_config_file,
       consul_ca        = var.client_ca_file,
       consul_acl_token = var.root_token,
