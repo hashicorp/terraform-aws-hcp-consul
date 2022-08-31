@@ -4,7 +4,7 @@
 
 1. Update versions in ./scripts/module_version.sh file for the old version and new version you want to release.
 
-For example to release version `v0.2.0`, the file might look like:
+For example to release version `v0.2.0`, the file should look like:
 
 ```
 #!/bin/bash
@@ -17,7 +17,6 @@ new=0.2.0
 
 2. Run `make generate_templates` from root level of repository. This should
    update all examples and templates with the newest version.
-
 
 3. Submit a PR and get it reviewed and merged.
 
