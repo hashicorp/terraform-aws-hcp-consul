@@ -62,3 +62,9 @@ variable "vpc_id" {
   type        = string
   description = "VPC ID"
 }
+
+variable "node_id" {
+  description = "A value to uniquely identify a node. This value will be added under the node_meta field for the consul agent as node_id"
+  type        = string
+  default     = ""
+}

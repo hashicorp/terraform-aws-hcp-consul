@@ -92,6 +92,7 @@ resource "aws_instance" "nomad_host" {
   user_data = templatefile("${path.module}/templates/user_data.sh", {
     setup = base64gzip(templatefile("${path.module}/templates/setup.sh", {
       install_demo_app = var.install_demo_app,
+      node_id          = var.node_id,
       consul_config    = var.client_config_file,
       consul_ca        = var.client_ca_file,
       consul_acl_token = var.root_token,
