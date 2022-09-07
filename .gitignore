@@ -35,3 +35,5 @@ override.tf.json
 #
 examples/existing-vpc/output.json
 *kubeconfig*
+modules/hcp-ec2-client/tutorial/service-splitter.hcl
+modules/hcp-ec2-client/tutorial/service-router.hcl
