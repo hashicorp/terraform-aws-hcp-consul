@@ -23,7 +23,7 @@ resource "nomad_job" "hashicups" {
   ]
 }
 
-resource "nomad_job" "hashicups_frontend" {
+resource "nomad_job" "hashicups-frontend" {
   count   = var.install_demo_app ? 1 : 0
   jobspec = file("${path.module}/templates/hashicups-frontend.nomad")
   hcl2 {
@@ -34,12 +34,12 @@ resource "nomad_job" "hashicups_frontend" {
 
 resource "time_sleep" "wait_15_seconds" {
 
-  depends_on = [nomad_job.hashicups_frontend]
+  depends_on = [nomad_job.hashicups-frontend]
 
   create_duration = "15s"
 }
 
-resource "nomad_job" "hashicups_frontend_v2" {
+resource "nomad_job" "hashicups-frontend-v2" {
   count   = var.install_demo_app ? 1 : 0
   jobspec = file("${path.module}/templates/hashicups-frontend-v2.nomad")
   hcl2 {
@@ -47,5 +47,17 @@ resource "nomad_job" "hashicups_frontend_v2" {
   }
   depends_on = [
     time_sleep.wait_15_seconds
+  ]
+}
+
+
+resource "nomad_job" "hashicups-ingress" {
+  count   = var.install_demo_app ? 1 : 0
+  jobspec = file("${path.module}/templates/ingress.nomad")
+  hcl2 {
+    enabled = true
+  }
+  depends_on = [
+    nomad_job.hashicups-frontend-v2
   ]
 }

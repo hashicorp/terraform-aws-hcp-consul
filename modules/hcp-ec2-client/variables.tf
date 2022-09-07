@@ -10,7 +10,6 @@ variable "allowed_ssh_cidr_blocks" {
 }
 
 variable "ssh_keyname" {
-  type        = string
   description = "key pair name for ssh connection"
   default     = ""
 }
