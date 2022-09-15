@@ -86,6 +86,8 @@ module "eks" {
   subnets         = [local.private_subnet1, local.private_subnet2]
   vpc_id          = local.vpc_id
 
+  manage_aws_auth = false
+
   node_groups = {
     application = {
       name_prefix      = "hashicups"
