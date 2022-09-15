@@ -10,6 +10,9 @@ resource "consul_config_entry" "service_intentions_deny" {
       }
     ]
   })
+  depends_on = [
+    aws_instance.nomad_host
+  ]
 }
 
 resource "consul_config_entry" "service_intentions_product_api" {
@@ -26,6 +29,9 @@ resource "consul_config_entry" "service_intentions_product_api" {
       },
     ]
   })
+  depends_on = [
+    aws_instance.nomad_host
+  ]
 }
 resource "consul_config_entry" "service_intentions_frontend_publicapi" {
   name = "public-api"
@@ -41,6 +47,9 @@ resource "consul_config_entry" "service_intentions_frontend_publicapi" {
       },
     ]
   })
+  depends_on = [
+    aws_instance.nomad_host
+  ]
 }
 
 resource "consul_config_entry" "service_intentions_ingress_frontend" {
@@ -57,6 +66,9 @@ resource "consul_config_entry" "service_intentions_ingress_frontend" {
       },
     ]
   })
+  depends_on = [
+    aws_instance.nomad_host
+  ]
 }
 
 resource "consul_config_entry" "service_intentions_product_db" {
@@ -73,6 +85,9 @@ resource "consul_config_entry" "service_intentions_product_db" {
       },
     ]
   })
+  depends_on = [
+    aws_instance.nomad_host
+  ]
 }
 
 resource "consul_config_entry" "service_intentions_payment_api" {
@@ -89,36 +104,7 @@ resource "consul_config_entry" "service_intentions_payment_api" {
       },
     ]
   })
-}
-
-resource "consul_config_entry" "service_intentions_public_api" {
-  name = "public-api"
-  kind = "service-intentions"
-
-  config_json = jsonencode({
-    Sources = [
-      {
-        Name       = "nginx"
-        Action     = "allow"
-        Precedence = 9
-        Type       = "consul"
-      },
-    ]
-  })
-}
-
-resource "consul_config_entry" "service_intentions_frontend" {
-  name = "frontend"
-  kind = "service-intentions"
-
-  config_json = jsonencode({
-    Sources = [
-      {
-        Name       = "nginx"
-        Action     = "allow"
-        Precedence = 9
-        Type       = "consul"
-      },
-    ]
-  })
+  depends_on = [
+    aws_instance.nomad_host
+  ]
 }

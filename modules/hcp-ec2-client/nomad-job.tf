@@ -19,7 +19,7 @@ resource "nomad_job" "hashicups" {
     enabled = true
   }
   depends_on = [
-    time_sleep.wait_for_client
+    time_sleep.wait_for_client, aws_instance.nomad_host
   ]
 }
 
@@ -30,7 +30,7 @@ resource "nomad_job" "hashicups-frontend" {
   hcl2 {
     enabled = true
   }
-  depends_on = [nomad_job.hashicups]
+  depends_on = [nomad_job.hashicups, consul_config_entry.service_default_frontend, aws_instance.nomad_host]
 }
 
 resource "time_sleep" "wait_15_seconds" {
@@ -48,7 +48,7 @@ resource "nomad_job" "hashicups-frontend-v2" {
     enabled = true
   }
   depends_on = [
-    time_sleep.wait_15_seconds
+    time_sleep.wait_15_seconds, consul_config_entry.service_default_frontend, aws_instance.nomad_host
   ]
 }
 
@@ -61,6 +61,6 @@ resource "nomad_job" "hashicups-ingress" {
     enabled = true
   }
   depends_on = [
-    nomad_job.hashicups-frontend-v2
+    nomad_job.hashicups-frontend-v2, nomad_job.hashicups-frontend, aws_instance.nomad_host
   ]
 }
