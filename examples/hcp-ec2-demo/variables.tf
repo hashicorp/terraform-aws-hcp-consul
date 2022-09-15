@@ -35,13 +35,13 @@ variable "tier" {
 }
 
 variable "ssh" {
-  type        = string
+  type        = bool
   description = "Enable or disable SSH access via locally created certificate"
   default     = true
 }
 
 variable "install_demo_app" {
-  type        = string
+  type        = bool
   description = "Choose to install HashiCups"
   default     = true
 }

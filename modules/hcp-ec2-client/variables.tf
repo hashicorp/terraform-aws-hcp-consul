@@ -8,10 +8,12 @@ variable "allowed_ssh_cidr_blocks" {
   type        = list(string)
   default     = []
 }
+
 variable "ssh_keyname" {
   description = "key pair name for ssh connection"
   default     = ""
 }
+
 variable "allowed_http_cidr_blocks" {
   description = "A list of CIDR-formatted IP address ranges from which the EC2 Instances will allow connections over 8080"
   type        = list(string)

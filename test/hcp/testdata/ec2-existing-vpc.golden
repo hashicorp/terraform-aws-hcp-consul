@@ -124,7 +124,6 @@ output "next_steps" {
 
 output "howto_connect" {
   value = <<EOF
-  "In order to get access to both nomad and consul from the command line run the following commands:
   ${local.install_demo_app ? "The demo app, HashiCups, is installed on a Nomad server we have deployed for your." : ""}
   ${local.install_demo_app ? "To access Nomad using your local client run the following command" : ""}
   ${local.install_demo_app ? "export NOMAD_HTTP_AUTH=nomad:$(terraform output consul_root_token)" : ""}

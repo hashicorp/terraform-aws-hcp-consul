@@ -3,6 +3,11 @@ variable "frontend_port" {
   default = 3001
 }
 
+variable "public_api_port" {
+  type    = number
+  default = 7070
+}
+
 job "hashicups-frontend" {
   datacenters = ["dc1"]
 
@@ -30,12 +35,14 @@ job "hashicups-frontend" {
         version = "v2"
       }
 
-      canary_meta {
-        version = "v2"
-      }
-
       connect {
         sidecar_service {
+          proxy {
+            upstreams {
+              destination_name = "public-api"
+              local_bind_port  = var.public_api_port
+            }
+          }
         }
       }
     }
@@ -49,14 +56,53 @@ job "hashicups-frontend" {
       }
 
       config {
-        image = "hashicorpdemoapp/frontend:v1.0.4"
+        image = "hashicorpdemoapp/frontend-nginx:v1.0.9"
         ports = ["http"]
+
+        mount {
+          type   = "bind"
+          source = "local/default.conf"
+          target = "/etc/nginx/conf.d/default.conf"
+        }
       }
 
       env {
         NEXT_PUBLIC_PUBLIC_API_URL = "/"
         NEXT_PUBLIC_FOOTER_FLAG    = "HashiCups-v2"
         PORT                       = var.frontend_port
+      }
+      template {
+        data        = <<EOF
+            upstream public_api_upstream {
+              server {{ env "NOMAD_UPSTREAM_ADDR_public_api" }};
+            }
+            server {
+              listen ${var.frontend_port};
+              server_name localhost;
+
+              server_tokens off;
+
+              gzip on;
+              gzip_proxied any;
+              gzip_comp_level 4;
+              gzip_types text/css application/javascript image/svg+xml;
+
+              proxy_http_version 1.1;
+              proxy_set_header Upgrade $http_upgrade;
+              proxy_set_header Connection 'upgrade';
+              proxy_set_header Host $host;
+
+              location / {
+                root   /usr/share/nginx/html;
+                index  index.html index.htm;
+              }
+
+              location /api {
+                proxy_pass http://public_api_upstream;
+              }
+            }
+          EOF
+        destination = "local/default.conf"
       }
     }
   }

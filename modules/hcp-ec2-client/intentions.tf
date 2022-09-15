@@ -27,7 +27,6 @@ resource "consul_config_entry" "service_intentions_product_api" {
     ]
   })
 }
-
 resource "consul_config_entry" "service_intentions_frontend_publicapi" {
   name = "public-api"
   kind = "service-intentions"
