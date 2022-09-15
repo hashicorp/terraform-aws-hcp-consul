@@ -58,7 +58,7 @@ spec:
             - name: NEXT_PUBLIC_PUBLIC_API_URL
               value: "/"
             - name: NEXT_PUBLIC_FOOTER_FLAG
-              value: "Hashicups-v1"
+              value: "HashiCups-v1"
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -92,4 +92,4 @@ spec:
             - name: NEXT_PUBLIC_PUBLIC_API_URL
               value: "/"
             - name: NEXT_PUBLIC_FOOTER_FLAG
-              value: "Hashicups-v2"
+              value: "HashiCups-v2"

@@ -1,34 +1,36 @@
 variable "frontend_port" {
-  type        = number
-  default     = 3000
+  type    = number
+  default = 3000
 }
 
 variable "nginx_port" {
-  type        = number
-  default     = 80
+  type    = number
+  default = 80
 }
+
 variable "public_api_port" {
-  type        = number
-  default     = 7070
+  type    = number
+  default = 7070
 }
 
 variable "payment_api_port" {
-  type        = number
-  default     = 8080
+  type    = number
+  default = 8080
 }
 
 variable "product_api_port" {
-  type        = number
-  default     = 9090
+  type    = number
+  default = 9090
 }
 
 variable "product_db_port" {
-  type        = number
-  default     = 5432
+  type    = number
+  default = 5432
 }
 
 job "hashicups" {
   datacenters = ["dc1"]
+
   group "nginx" {
     network {
       mode = "bridge"
@@ -41,6 +43,7 @@ job "hashicups" {
     service {
       name = "nginx"
       port = "nginx"
+
       connect {
         sidecar_service {
           proxy {
@@ -48,6 +51,7 @@ job "hashicups" {
               destination_name = "frontend"
               local_bind_port  = var.frontend_port
             }
+
             upstreams {
               destination_name = "public-api"
               local_bind_port  = var.public_api_port
@@ -57,27 +61,32 @@ job "hashicups" {
       }
     }
 
-    #remove caching from nginx. It makes it easier to show things like blue green deployments/canary. Otherwise nginx caches too much. 
+    # remove caching from nginx. It makes it easier to show things like blue green deployments/canary. Otherwise nginx caches too much. 
     task "nginx" {
-        driver = "docker"
-        meta {
-          service = "nginx-reverse-proxy"
+      driver = "docker"
+
+      meta {
+        service = "nginx-reverse-proxy"
+      }
+
+      config {
+        image = "nginx:alpine"
+        ports = ["nginx"]
+
+        mount {
+          type   = "bind"
+          source = "local/default.conf"
+          target = "/etc/nginx/conf.d/default.conf"
         }
-        config {
-          image = "nginx:alpine"
-          ports = ["nginx"]
-          mount {
-            type   = "bind"
-            source = "local/default.conf"
-            target = "/etc/nginx/conf.d/default.conf"
-          }
-        }
-        resources {
-        cpu = 300 # MHz
+      }
+
+      resources {
+        cpu    = 300 # MHz
         memory = 128 # MB
-       }
-        template {
-          data =  <<EOF
+      }
+
+      template {
+        data        = <<EOF
             proxy_cache_path /var/cache/nginx levels=1:2 keys_zone=STATIC:10m inactive=7d use_temp_path=off;
             upstream frontend_upstream {
               server {{ env "NOMAD_UPSTREAM_ADDR_frontend" }};
@@ -109,10 +118,11 @@ job "hashicups" {
             
           }
           EOF
-          destination = "local/default.conf"
+        destination = "local/default.conf"
       }
     }
   }
+
   group "public-api" {
     network {
       mode = "bridge"
@@ -121,9 +131,11 @@ job "hashicups" {
         static = var.public_api_port
       }
     }
+
     service {
       name = "public-api"
       port = "http"
+
       connect {
         sidecar_service {
           proxy {
@@ -131,6 +143,7 @@ job "hashicups" {
               destination_name = "product-api"
               local_bind_port  = var.product_api_port
             }
+
             upstreams {
               destination_name = "payment-api"
               local_bind_port  = var.payment_api_port
@@ -141,16 +154,19 @@ job "hashicups" {
     }
     task "public-api" {
       driver = "docker"
+
       resources {
-        cpu = 300 # MHz
+        cpu    = 300 # MHz
         memory = 128 # MB
-       }
+      }
+
       config {
         image = "hashicorpdemoapp/public-api:v0.0.6"
         ports = ["http"]
       }
+
       env {
-        BIND_ADDRESS = ":${var.public_api_port}"
+        BIND_ADDRESS    = ":${var.public_api_port}"
         PRODUCT_API_URI = "http://localhost:${var.product_api_port}"
         PAYMENT_API_URI = "http://localhost:${var.payment_api_port}"
       }
@@ -160,10 +176,12 @@ job "hashicups" {
   group "payment-api" {
     network {
       mode = "bridge"
+
       port "http" {
         static = var.payment_api_port
       }
     }
+
     service {
       name = "payment-api"
       port = "http"
@@ -175,10 +193,12 @@ job "hashicups" {
 
     task "payment-api" {
       driver = "docker"
+
       resources {
-        cpu = 300 # MHz
+        cpu    = 300 # MHz
         memory = 128 # MB
-       }
+      }
+
       config {
         image = "hashicorpdemoapp/payments:v0.0.16"
         ports = ["http"]
@@ -226,10 +246,12 @@ job "hashicups" {
 
     task "product-api" {
       driver = "docker"
+
       resources {
-        cpu = 300 # MHz
+        cpu    = 300 # MHz
         memory = 128 # MB
-       }
+      }
+
       config {
         image = "hashicorpdemoapp/product-api:v0.0.20"
       }
@@ -249,23 +271,29 @@ job "hashicups" {
         static = var.product_db_port
       }
     }
+
     service {
       name = "product-db"
       port = "http"
+
       connect {
         sidecar_service {}
       }
     }
+
     task "db" {
       driver = "docker"
+
       resources {
-        cpu = 300 # MHz
+        cpu    = 300 # MHz
         memory = 128 # MB
-       }
+      }
+
       config {
         image = "hashicorpdemoapp/product-api-db:v0.0.20"
         ports = ["http"]
       }
+
       env {
         POSTGRES_DB       = "products"
         POSTGRES_USER     = "postgres"

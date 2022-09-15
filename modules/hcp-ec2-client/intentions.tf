@@ -28,6 +28,38 @@ resource "consul_config_entry" "service_intentions_product_api" {
   })
 }
 
+resource "consul_config_entry" "service_intentions_frontend_publicapi" {
+  name = "public-api"
+  kind = "service-intentions"
+
+  config_json = jsonencode({
+    Sources = [
+      {
+        Name       = "frontend"
+        Action     = "allow"
+        Precedence = 9
+        Type       = "consul"
+      },
+    ]
+  })
+}
+
+resource "consul_config_entry" "service_intentions_ingress_frontend" {
+  name = "frontend"
+  kind = "service-intentions"
+
+  config_json = jsonencode({
+    Sources = [
+      {
+        Name       = "hashicups-ingress"
+        Action     = "allow"
+        Precedence = 9
+        Type       = "consul"
+      },
+    ]
+  })
+}
+
 resource "consul_config_entry" "service_intentions_product_db" {
   name = "product-db"
   kind = "service-intentions"

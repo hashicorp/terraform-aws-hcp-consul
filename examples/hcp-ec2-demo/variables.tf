@@ -1,9 +1,3 @@
-/*
-  *
-  * Optional Variables
-  *
-  */
-
 variable "cluster_id" {
   type        = string
   description = "The name of your HCP Consul cluster"
@@ -51,4 +45,3 @@ variable "install_demo_app" {
   description = "Choose to install HashiCups"
   default     = true
 }
-

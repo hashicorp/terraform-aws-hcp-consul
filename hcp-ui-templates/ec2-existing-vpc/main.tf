@@ -119,7 +119,7 @@ output "hashicups_url" {
 }
 
 output "next_steps" {
-  value = local.install_demo_app ? "Hashicups Application will be ready in ~2 minutes. Use 'terraform output consul_root_token' to retrieve the root token." : null
+  value = local.install_demo_app ? "HashiCups Application will be ready in ~2 minutes. Use 'terraform output consul_root_token' to retrieve the root token." : null
 }
 
 output "howto_connect" {

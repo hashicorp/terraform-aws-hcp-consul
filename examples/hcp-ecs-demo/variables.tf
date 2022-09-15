@@ -1,9 +1,3 @@
-/*
-  *
-  * Optional Variables
-  *
-  */
-
 variable "cluster_id" {
   type        = string
   description = "The name of your HCP Consul cluster"

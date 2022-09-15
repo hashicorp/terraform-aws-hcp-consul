@@ -108,6 +108,7 @@ resource "aws_instance" "nomad_host" {
       vpc_cidr   = var.vpc_cidr
     })),
   })
+
   tags = {
     Name = "${random_id.id.dec}-hcp-client"
   }

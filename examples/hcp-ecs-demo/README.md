@@ -31,6 +31,6 @@ terraform init && terraform apply
 The HCP Consul cluster can be accessed via the outputs `consul_url` and
 `consul_root_token`.
 
-#### Hashicups
+#### HashiCups
 
 The ECS application be accessed via the `hashicups_url` output, providing URL to the demo app.
