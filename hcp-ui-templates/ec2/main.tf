@@ -59,7 +59,7 @@ resource "hcp_hvn" "main" {
 
 module "aws_hcp_consul" {
   source  = "hashicorp/hcp-consul/aws"
-  version = "~> 0.7.3"
+  version = "~> 0.8.0"
 
   hvn             = hcp_hvn.main
   vpc_id          = module.vpc.vpc_id
@@ -98,7 +98,7 @@ resource "local_file" "ssh_key" {
 
 module "aws_ec2_consul_client" {
   source  = "hashicorp/hcp-consul/aws//modules/hcp-ec2-client"
-  version = "~> 0.7.3"
+  version = "~> 0.8.0"
 
   ssh_keyname              = local.ssh ? aws_key_pair.hcp_ec2[0].key_name : ""
   subnet_id                = module.vpc.public_subnets[0]
