@@ -14,8 +14,8 @@ data "aws_ami" "ubuntu" {
   owners = ["099720109477"] # Canonical
 }
 
-resource "aws_security_group" "hcp_consul_ec2" {
-  name_prefix = "hcp_consul_ec2"
+resource "aws_security_group" "host" {
+  name_prefix = "host"
   description = "HCP Consul security group"
   vpc_id      = var.vpc_id
 }
@@ -29,7 +29,7 @@ resource "aws_security_group_rule" "allow_ssh_inbound" {
   protocol    = "tcp"
   cidr_blocks = var.allowed_ssh_cidr_blocks
 
-  security_group_id = aws_security_group.hcp_consul_ec2.id
+  security_group_id = aws_security_group.host.id
 }
 
 resource "aws_security_group_rule" "allow_nomad_inbound" {
@@ -41,7 +41,7 @@ resource "aws_security_group_rule" "allow_nomad_inbound" {
   protocol    = "tcp"
   cidr_blocks = var.allowed_http_cidr_blocks
 
-  security_group_id = aws_security_group.hcp_consul_ec2.id
+  security_group_id = aws_security_group.host.id
 }
 
 resource "aws_security_group_rule" "allow_http_inbound" {
@@ -53,7 +53,7 @@ resource "aws_security_group_rule" "allow_http_inbound" {
   protocol    = "tcp"
   cidr_blocks = var.allowed_http_cidr_blocks
 
-  security_group_id = aws_security_group.hcp_consul_ec2.id
+  security_group_id = aws_security_group.host.id
 }
 
 # Set up the instance profile and iam role to enable SSM
@@ -94,16 +94,14 @@ resource "aws_instance" "host" {
 
   ami                         = data.aws_ami.ubuntu.id
   associate_public_ip_address = true
-  iam_instance_profile        = length(aws_iam_instance_profile.hcp_ec2) >= 1 ? aws_iam_instance_profile.hcp_ec2[0].name : ""
+  iam_instance_profile        = length(aws_iam_instance_profile.hcp_ec2) >= 1 ? aws_iam_instance_profile.hcp_ec2[0].name : null
   instance_type               = "t3.medium"
   key_name                    = var.ssh_keyname
   subnet_id                   = var.subnet_id
-  vpc_security_group_ids      = [aws_security_group.hcp_consul_ec2.id, var.security_group_id]
+  vpc_security_group_ids      = [aws_security_group.host.id, var.security_group_id]
 
   user_data = templatefile("${path.module}/templates/user_data.sh", {
     setup = base64gzip(templatefile("${path.module}/templates/setup.sh", {
-      install_demo_app = var.install_demo_app,
-
       # Consul config
       consul_config    = var.client_config_file,
       consul_ca        = var.client_ca_file,
@@ -116,6 +114,7 @@ resource "aws_instance" "host" {
       node_id = var.node_id,
 
       # Nomad config
+      install_demo_app = var.install_demo_app,
       nomad_service = base64encode(templatefile("${path.module}/templates/service", {
         service_name = "nomad",
         service_cmd  = "/usr/bin/nomad agent -dev-connect -consul-token=${var.root_token}",
