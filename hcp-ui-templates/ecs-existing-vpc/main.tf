@@ -10,7 +10,6 @@ locals {
   public_subnet2         = "{{ .PublicSubnet2 }}"
   private_subnet1        = "{{ .PrivateSubnet1 }}"
   private_subnet2        = "{{ .PrivateSubnet2 }}"
-
 }
 
 terraform {

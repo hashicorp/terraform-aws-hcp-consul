@@ -4,7 +4,6 @@ locals {
   cluster_id       = "{{ .ClusterID }}"
   hvn_id           = "{{ .ClusterID }}-hvn"
   install_demo_app = true
-
 }
 
 terraform {

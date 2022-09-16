@@ -4,7 +4,6 @@ locals {
   cluster_id       = "consul-quickstart-3634271483588"
   hvn_id           = "consul-quickstart-3634271483588-hvn"
   install_demo_app = true
-
 }
 
 terraform {
