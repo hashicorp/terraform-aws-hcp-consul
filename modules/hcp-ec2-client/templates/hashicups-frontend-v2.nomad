@@ -71,7 +71,9 @@ job "hashicups-frontend" {
         NEXT_PUBLIC_FOOTER_FLAG    = "HashiCups-v2"
         PORT                       = var.frontend_port
       }
+
       template {
+        destination = "local/default.conf"
         data        = <<EOF
             upstream public_api_upstream {
               server {{ env "NOMAD_UPSTREAM_ADDR_public_api" }};
@@ -102,7 +104,13 @@ job "hashicups-frontend" {
               }
             }
           EOF
-        destination = "local/default.conf"
+      }
+
+      restart {
+        interval = "30m"
+        attempts = 10
+        delay    = "15s"
+        mode     = "fail"
       }
     }
   }
