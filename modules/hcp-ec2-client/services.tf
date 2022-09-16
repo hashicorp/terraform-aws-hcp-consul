@@ -9,6 +9,6 @@ resource "consul_config_entry" "service_default_frontend" {
     Protocol = "http"
   })
   depends_on = [
-    aws_instance.nomad_host
+    aws_instance.host
   ]
 }

@@ -1,5 +1,5 @@
 provider "nomad" {
-  address   = "http://${aws_instance.nomad_host[0].public_ip}:8081"
+  address   = "http://${aws_instance.host[0].public_ip}:8081"
   http_auth = "nomad:${var.root_token}"
 }
 
@@ -7,7 +7,7 @@ provider "nomad" {
 resource "time_sleep" "wait_for_client" {
   create_duration = "90s"
 
-  depends_on = [aws_instance.nomad_host]
+  depends_on = [aws_instance.host]
 }
 
 resource "nomad_job" "hashicups" {
@@ -22,7 +22,7 @@ resource "nomad_job" "hashicups" {
 
   depends_on = [
     time_sleep.wait_for_client,
-    aws_instance.nomad_host
+    aws_instance.host
   ]
 }
 
@@ -38,7 +38,7 @@ resource "nomad_job" "hashicups-frontend" {
   depends_on = [
     nomad_job.hashicups,
     consul_config_entry.service_default_frontend,
-    aws_instance.nomad_host
+    aws_instance.host
   ]
 }
 
@@ -60,7 +60,7 @@ resource "nomad_job" "hashicups-frontend-v2" {
   depends_on = [
     time_sleep.wait_15_seconds,
     consul_config_entry.service_default_frontend,
-    aws_instance.nomad_host
+    aws_instance.host
   ]
 }
 
@@ -77,6 +77,6 @@ resource "nomad_job" "hashicups-ingress" {
   depends_on = [
     nomad_job.hashicups-frontend-v2,
     nomad_job.hashicups-frontend,
-    aws_instance.nomad_host
+    aws_instance.host
   ]
 }

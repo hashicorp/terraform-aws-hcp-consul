@@ -21,7 +21,8 @@ resource "aws_security_group" "hcp_consul_ec2" {
 }
 
 resource "aws_security_group_rule" "allow_ssh_inbound" {
-  count       = length(var.allowed_ssh_cidr_blocks) >= 1 ? 1 : 0
+  count = length(var.allowed_ssh_cidr_blocks) >= 1 ? 1 : 0
+
   type        = "ingress"
   from_port   = 22
   to_port     = 22
@@ -32,7 +33,8 @@ resource "aws_security_group_rule" "allow_ssh_inbound" {
 }
 
 resource "aws_security_group_rule" "allow_nomad_inbound" {
-  count       = length(var.allowed_http_cidr_blocks) >= 1 ? 1 : 0
+  count = length(var.allowed_http_cidr_blocks) >= 1 ? 1 : 0
+
   type        = "ingress"
   from_port   = 8081
   to_port     = 8081
@@ -43,7 +45,8 @@ resource "aws_security_group_rule" "allow_nomad_inbound" {
 }
 
 resource "aws_security_group_rule" "allow_http_inbound" {
-  count       = length(var.allowed_http_cidr_blocks) >= 1 ? 1 : 0
+  count = length(var.allowed_http_cidr_blocks) >= 1 ? 1 : 0
+
   type        = "ingress"
   from_port   = 80
   to_port     = 80
@@ -53,46 +56,55 @@ resource "aws_security_group_rule" "allow_http_inbound" {
   security_group_id = aws_security_group.hcp_consul_ec2.id
 }
 
-
-#The bellow is to setup the instance profile and iam role to enable SSM
-resource "aws_iam_instance_profile" "hcp_ec2" {
-  role        = aws_iam_role.hcp_ec2_iam_role.name
-  name_prefix = "hcp_ec2_profile"
-}
-
+# Set up the instance profile and iam role to enable SSM
 resource "aws_iam_role" "hcp_ec2_iam_role" {
+  count = var.ssm ? 1 : 0
+
+  name_prefix        = "hcp_ec2_role"
   description        = "The role for the developer resources EC2"
   assume_role_policy = <<EOF
 {
 "Version": "2012-10-17",
 "Statement": {
-"Effect": "Allow",
-"Principal": {"Service": "ec2.amazonaws.com"},
-"Action": "sts:AssumeRole"
-}
+    "Effect": "Allow",
+    "Principal": {"Service": "ec2.amazonaws.com"},
+    "Action": "sts:AssumeRole"
+  }
 }
   EOF
-  name_prefix        = "hcp_ec2_role"
 }
 
-resource "aws_iam_role_policy_attachment" "dev-resources-ssm-policy" {
-  role       = aws_iam_role.hcp_ec2_iam_role.name
+resource "aws_iam_role_policy_attachment" "ssm_policy" {
+  count = var.ssm ? 1 : 0
+
+  role       = aws_iam_role.hcp_ec2_iam_role[0].name
   policy_arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
 }
 
-resource "aws_instance" "nomad_host" {
-  count                       = 1
+resource "aws_iam_instance_profile" "hcp_ec2" {
+  count = var.ssm ? 1 : 0
+
+  role        = aws_iam_role.hcp_ec2_iam_role[0].name
+  name_prefix = "hcp_ec2_profile"
+}
+
+# Create the Consul and Nomad client
+resource "aws_instance" "host" {
+  count = 1
+
   ami                         = data.aws_ami.ubuntu.id
-  instance_type               = "t3.medium"
   associate_public_ip_address = true
-  subnet_id                   = var.subnet_id
-  iam_instance_profile        = aws_iam_instance_profile.hcp_ec2.name
-  vpc_security_group_ids      = [aws_security_group.hcp_consul_ec2.id, var.security_group_id]
+  iam_instance_profile        = length(aws_iam_instance_profile.hcp_ec2) >= 1 ? aws_iam_instance_profile.hcp_ec2[0].name : ""
+  instance_type               = "t3.medium"
   key_name                    = var.ssh_keyname
+  subnet_id                   = var.subnet_id
+  vpc_security_group_ids      = [aws_security_group.hcp_consul_ec2.id, var.security_group_id]
+
   user_data = templatefile("${path.module}/templates/user_data.sh", {
     setup = base64gzip(templatefile("${path.module}/templates/setup.sh", {
       install_demo_app = var.install_demo_app,
-      node_id          = var.node_id,
+
+      # Consul config
       consul_config    = var.client_config_file,
       consul_ca        = var.client_ca_file,
       consul_acl_token = var.root_token,
@@ -101,14 +113,20 @@ resource "aws_instance" "nomad_host" {
         service_name = "consul",
         service_cmd  = "/usr/bin/consul agent -data-dir /var/consul -config-dir=/etc/consul.d/",
       })),
+      node_id = var.node_id,
+
+      # Nomad config
       nomad_service = base64encode(templatefile("${path.module}/templates/service", {
         service_name = "nomad",
         service_cmd  = "/usr/bin/nomad agent -dev-connect -consul-token=${var.root_token}",
       })),
+
+      # Nginx config
       nginx_conf = base64encode(file("${path.module}/templates/nginx.conf")),
       vpc_cidr   = var.vpc_cidr
     })),
   })
+
   tags = {
     Name = "${random_id.id.dec}-hcp-client"
   }

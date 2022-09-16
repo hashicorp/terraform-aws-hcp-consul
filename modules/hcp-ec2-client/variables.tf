@@ -56,7 +56,7 @@ variable "install_demo_app" {
   description = "Choose to install the demo app"
 }
 
-#needed to setup the unique security groups per ec2 instance
+# needed to setup the unique security groups per ec2 instance
 variable "vpc_id" {
   type        = string
   description = "VPC ID"
@@ -66,4 +66,10 @@ variable "node_id" {
   description = "A value to uniquely identify a node. This value will be added under the node_meta field for the consul agent as node_id"
   type        = string
   default     = ""
+}
+
+variable "ssm" {
+  type        = bool
+  description = "Whether to enable SSM on the EC2 host"
+  default     = true
 }
