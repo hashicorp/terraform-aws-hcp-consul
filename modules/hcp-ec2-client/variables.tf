@@ -70,6 +70,6 @@ variable "node_id" {
 
 variable "ssm" {
   type        = bool
-  description = "Whether to enable SSM to the EC2 host"
+  description = "Whether to enable SSM on the EC2 host"
   default     = true
 }
