@@ -20,7 +20,10 @@ resource "nomad_job" "hashicups" {
     enabled = true
   }
 
-  depends_on = [time_sleep.wait_for_client]
+  depends_on = [
+    time_sleep.wait_for_client,
+    aws_instance.nomad_host
+  ]
 }
 
 resource "nomad_job" "hashicups-frontend" {
@@ -32,7 +35,11 @@ resource "nomad_job" "hashicups-frontend" {
     enabled = true
   }
 
-  depends_on = [nomad_job.hashicups]
+  depends_on = [
+    nomad_job.hashicups,
+    consul_config_entry.service_default_frontend,
+    aws_instance.nomad_host
+  ]
 }
 
 resource "time_sleep" "wait_15_seconds" {
@@ -50,7 +57,11 @@ resource "nomad_job" "hashicups-frontend-v2" {
     enabled = true
   }
 
-  depends_on = [time_sleep.wait_15_seconds]
+  depends_on = [
+    time_sleep.wait_15_seconds,
+    consul_config_entry.service_default_frontend,
+    aws_instance.nomad_host
+  ]
 }
 
 
@@ -58,10 +69,14 @@ resource "nomad_job" "hashicups-ingress" {
   count    = var.install_demo_app ? 1 : 0
   provider = nomad
   jobspec  = file("${path.module}/templates/ingress.nomad")
+
   hcl2 {
     enabled = true
   }
+
   depends_on = [
-    nomad_job.hashicups-frontend-v2
+    nomad_job.hashicups-frontend-v2,
+    nomad_job.hashicups-frontend,
+    aws_instance.nomad_host
   ]
 }

@@ -8,7 +8,7 @@ job "ingress-demo" {
       mode = "bridge"
 
       port "inbound" {
-        static = 80 
+        static = 80
         to     = 80
       }
     }
@@ -25,7 +25,7 @@ job "ingress-demo" {
               port     = 80
               protocol = "http"
               service {
-                name = "frontend"
+                name  = "frontend"
                 hosts = ["*"]
               }
             }

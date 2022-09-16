@@ -8,4 +8,7 @@ resource "consul_config_entry" "service_default_frontend" {
   config_json = jsonencode({
     Protocol = "http"
   })
+  depends_on = [
+    aws_instance.nomad_host
+  ]
 }
