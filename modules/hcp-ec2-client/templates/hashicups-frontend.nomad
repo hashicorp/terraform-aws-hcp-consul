@@ -1,67 +1,78 @@
 variable "frontend_port" {
-  type = number
+  type    = number
   default = 3000
 }
+
 variable "public_api_port" {
-  type        = number
-  default     = 7070
+  type    = number
+  default = 7070
 }
+
 job "hashicups-frontend" {
   datacenters = ["dc1"]
-  
+
   group "frontend" {
     count = 1
 
     update {
       max_parallel = 1
-      
-      canary = 1
+      canary       = 1
     }
+
     network {
       mode = "bridge"
+
       port "http" {
         static = var.frontend_port
       }
     }
+
     service {
       name = "frontend"
       port = "http"
+
       meta {
-          version = "v1"
-        }
+        version = "v1"
+      }
+
       connect {
         sidecar_service {
           proxy {
-          upstreams {
+            upstreams {
               destination_name = "public-api"
               local_bind_port  = var.public_api_port
             }
-            }
+          }
         }
       }
     }
+
     task "frontend" {
       driver = "docker"
+
       resources {
-        cpu = 300 # MHz
+        cpu    = 300 # MHz
         memory = 128 # MB
-       }
+      }
+
       config {
         image = "hashicorpdemoapp/frontend-nginx:v1.0.9"
         ports = ["http"]
+
         mount {
-            type   = "bind"
-            source = "local/default.conf"
-            target = "/etc/nginx/conf.d/default.conf"
+          type   = "bind"
+          source = "local/default.conf"
+          target = "/etc/nginx/conf.d/default.conf"
         }
       }
+
       env {
         NEXT_PUBLIC_PUBLIC_API_URL = "/"
-        NEXT_PUBLIC_FOOTER_FLAG="Hashicups-v1"
-        PORT="${var.frontend_port}"
+        NEXT_PUBLIC_FOOTER_FLAG    = "HashiCups-v1"
+        PORT                       = var.frontend_port
       }
       template {
-          data =  <<EOF
+        data        = <<EOF
             upstream public_api_upstream {
               server {{ env "NOMAD_UPSTREAM_ADDR_public_api" }};
             }
@@ -92,8 +103,8 @@ job "hashicups-frontend" {
               }
             }
           EOF
-          destination = "local/default.conf"
-        }
+        destination = "local/default.conf"
+      }
     }
   }
 }

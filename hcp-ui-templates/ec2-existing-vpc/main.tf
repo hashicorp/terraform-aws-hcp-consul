@@ -76,7 +76,7 @@ resource "aws_key_pair" "hcp_ec2" {
 
 resource "local_file" "ssh_key" {
   count           = local.ssh ? 1 : 0
-  filename        = "${aws_key_pair.hcp_ec2[0].key_name}.pem"
+  filename        = "${path.module}/${aws_key_pair.hcp_ec2[0].key_name}.pem"
   content         = tls_private_key.ssh.private_key_pem
   file_permission = "400"
 }
@@ -119,14 +119,13 @@ output "hashicups_url" {
 }
 
 output "next_steps" {
-  value = local.install_demo_app ? "Hashicups Application will be ready in ~2 minutes. Use 'terraform output consul_root_token' to retrieve the root token." : null
+  value = local.install_demo_app ? "HashiCups Application will be ready in ~2 minutes. Use 'terraform output consul_root_token' to retrieve the root token." : null
 }
 
 output "howto_connect" {
   value = <<EOF
-  "In order to get access to both nomad and consul from the command line run the following commands:
-  ${local.install_demo_app ? "The demo app, HashiCups, is installed on a Nomad server we have deployed for your." : ""}
-  ${local.install_demo_app ? "To access Nomad using your local client run the following command" : ""}
+  ${local.install_demo_app ? "The demo app, HashiCups, is installed on a Nomad server we have deployed for you." : ""}
+  ${local.install_demo_app ? "To access Nomad using your local client run the following command:" : ""}
   ${local.install_demo_app ? "export NOMAD_HTTP_AUTH=nomad:$(terraform output consul_root_token)" : ""}
   ${local.install_demo_app ? "export NOMAD_ADDR=http://${module.aws_ec2_consul_client.public_ip}:8081" : ""}
 
@@ -134,8 +133,8 @@ output "howto_connect" {
   export CONSUL_HTTP_ADDR="${hcp_consul_cluster.main.consul_public_endpoint_url}"
   export CONSUL_HTTP_TOKEN=$(terraform output consul_root_token)
   
-  To connect to the ec2 instance deployed, you have 2 options: 
-  ${local.ssh ? "- To access via SSH run: ssh -i ${local_file.ssh_key[0].filename} ubuntu@${module.aws_ec2_consul_client.public_ip}" : ""}
+  To connect to the ec2 instance deployed: 
+  ${local.ssh ? "- To access via SSH run: ssh -i ${abspath(local_file.ssh_key[0].filename)} ubuntu@${module.aws_ec2_consul_client.public_ip}" : ""}
   - To access via SSM run: aws ssm start-session --target ${module.aws_ec2_consul_client.host_id} --region ${local.vpc_region}
   EOF
 }

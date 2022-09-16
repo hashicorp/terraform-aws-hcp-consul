@@ -45,6 +45,7 @@ spec:
         prometheus.io/scrape: "true"
         prometheus.io/port: "9102"
         consul.hashicorp.com/connect-inject: "true"
+        consul.hashicorp.com/service-meta-version: "v1"
     spec:
       serviceAccountName: frontend
       containers:
@@ -56,3 +57,39 @@ spec:
           env:
             - name: NEXT_PUBLIC_PUBLIC_API_URL
               value: "/"
+            - name: NEXT_PUBLIC_FOOTER_FLAG
+              value: "HashiCups-v1"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend-v2
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      service: frontend
+      app: frontend
+  template:
+    metadata:
+      labels:
+        service: frontend
+        app: frontend
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "9102"
+        consul.hashicorp.com/connect-inject: "true"
+        consul.hashicorp.com/service-meta-version: "v2"
+    spec:
+      serviceAccountName: frontend
+      containers:
+        - name: frontend
+          image: hashicorpdemoapp/frontend:v1.0.2
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 3000
+          env:
+            - name: NEXT_PUBLIC_PUBLIC_API_URL
+              value: "/"
+            - name: NEXT_PUBLIC_FOOTER_FLAG
+              value: "HashiCups-v2"

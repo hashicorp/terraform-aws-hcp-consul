@@ -55,3 +55,15 @@ variable "chart_version" {
   description = "The Consul Helm chart version to use"
   default     = "0.41.1"
 }
+
+variable "helm_values_path" {
+  description = "Where to save the Helm Values file. Assumed to be a directory if the value ends with a forward slash `/`."
+  type        = string
+  default     = "./"
+}
+
+variable "helm_values_file_permission" {
+  description = "File permission of the helmvalues file"
+  type        = string
+  default     = "0600"
+}

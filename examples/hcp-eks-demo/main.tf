@@ -20,14 +20,17 @@ module "vpc" {
 }
 
 data "aws_eks_cluster" "cluster" {
-  name = module.eks.cluster_id
+  count = var.install_eks_cluster ? 1 : 0
+  name  = module.eks[0].cluster_id
 }
 
 data "aws_eks_cluster_auth" "cluster" {
-  name = module.eks.cluster_id
+  count = var.install_eks_cluster ? 1 : 0
+  name  = module.eks[0].cluster_id
 }
 
 module "eks" {
+  count                  = var.install_eks_cluster ? 1 : 0
   source                 = "terraform-aws-modules/eks/aws"
   version                = "17.24.0"
   kubeconfig_api_version = "client.authentication.k8s.io/v1beta1"
@@ -36,6 +39,8 @@ module "eks" {
   cluster_version = "1.21"
   subnets         = module.vpc.private_subnets
   vpc_id          = module.vpc.vpc_id
+
+  manage_aws_auth = false
 
   node_groups = {
     application = {
@@ -64,7 +69,7 @@ module "aws_hcp_consul" {
   vpc_id             = module.vpc.vpc_id
   subnet_ids         = module.vpc.private_subnets
   route_table_ids    = module.vpc.private_route_table_ids
-  security_group_ids = [module.eks.cluster_primary_security_group_id]
+  security_group_ids = var.install_eks_cluster ? [module.eks[0].cluster_primary_security_group_id] : [""]
 }
 
 resource "hcp_consul_cluster" "main" {
@@ -84,7 +89,7 @@ module "eks_consul_client" {
 
   cluster_id       = hcp_consul_cluster.main.cluster_id
   consul_hosts     = jsondecode(base64decode(hcp_consul_cluster.main.consul_config_file))["retry_join"]
-  k8s_api_endpoint = module.eks.cluster_endpoint
+  k8s_api_endpoint = var.install_eks_cluster ? module.eks[0].cluster_endpoint : ""
   consul_version   = hcp_consul_cluster.main.consul_version
 
   boostrap_acl_token    = hcp_consul_cluster_root_token.token.secret_id
@@ -99,9 +104,9 @@ module "eks_consul_client" {
 }
 
 module "demo_app" {
+  count   = var.install_demo_app ? 1 : 0
   source  = "hashicorp/hcp-consul/aws//modules/k8s-demo-app"
   version = "~> 0.7.3"
 
   depends_on = [module.eks_consul_client]
 }
-

@@ -58,7 +58,7 @@ resource "aws_key_pair" "hcp_ec2" {
 
 resource "local_file" "ssh_key" {
   count           = var.ssh ? 1 : 0
-  filename        = "${aws_key_pair.hcp_ec2[0].key_name}.pem"
+  filename        = "${path.module}/${aws_key_pair.hcp_ec2[0].key_name}.pem"
   content         = tls_private_key.ssh.private_key_pem
   file_permission = "400"
 }

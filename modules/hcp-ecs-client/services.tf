@@ -1,5 +1,6 @@
 module "acl-controller" {
-  source = "hashicorp/consul-ecs/aws//modules/acl-controller"
+  source  = "hashicorp/consul-ecs/aws//modules/acl-controller"
+  version = "0.4.2"
 
   log_configuration = {
     logDriver = "awslogs"
