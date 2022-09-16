@@ -16,14 +16,16 @@ job "ingress-demo" {
     service {
       name = "hashicups-ingress"
       port = "80"
+
       connect {
         gateway {
-          proxy {
-          }
+          proxy {}
+
           ingress {
             listener {
               port     = 80
               protocol = "http"
+
               service {
                 name  = "frontend"
                 hosts = ["*"]
