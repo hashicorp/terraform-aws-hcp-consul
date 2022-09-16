@@ -14,6 +14,12 @@ data "aws_ami" "ubuntu" {
   owners = ["099720109477"] # Canonical
 }
 
+resource "aws_security_group" "hcp_consul_ec2" {
+  name_prefix = "hcp_consul_ec2"
+  description = "HCP Consul security group"
+  vpc_id      = var.vpc_id
+}
+
 resource "aws_security_group_rule" "allow_ssh_inbound" {
   count       = length(var.allowed_ssh_cidr_blocks) >= 1 ? 1 : 0
   type        = "ingress"
@@ -22,7 +28,7 @@ resource "aws_security_group_rule" "allow_ssh_inbound" {
   protocol    = "tcp"
   cidr_blocks = var.allowed_ssh_cidr_blocks
 
-  security_group_id = var.security_group_id
+  security_group_id = aws_security_group.hcp_consul_ec2.id
 }
 
 resource "aws_security_group_rule" "allow_nomad_inbound" {
@@ -33,7 +39,7 @@ resource "aws_security_group_rule" "allow_nomad_inbound" {
   protocol    = "tcp"
   cidr_blocks = var.allowed_http_cidr_blocks
 
-  security_group_id = var.security_group_id
+  security_group_id = aws_security_group.hcp_consul_ec2.id
 }
 
 resource "aws_security_group_rule" "allow_http_inbound" {
@@ -44,7 +50,34 @@ resource "aws_security_group_rule" "allow_http_inbound" {
   protocol    = "tcp"
   cidr_blocks = var.allowed_http_cidr_blocks
 
-  security_group_id = var.security_group_id
+  security_group_id = aws_security_group.hcp_consul_ec2.id
+}
+
+
+#The bellow is to setup the instance profile and iam role to enable SSM
+resource "aws_iam_instance_profile" "hcp_ec2" {
+  role        = aws_iam_role.hcp_ec2_iam_role.name
+  name_prefix = "hcp_ec2_profile"
+}
+
+resource "aws_iam_role" "hcp_ec2_iam_role" {
+  description        = "The role for the developer resources EC2"
+  assume_role_policy = <<EOF
+{
+"Version": "2012-10-17",
+"Statement": {
+"Effect": "Allow",
+"Principal": {"Service": "ec2.amazonaws.com"},
+"Action": "sts:AssumeRole"
+}
+}
+  EOF
+  name_prefix        = "hcp_ec2_role"
+}
+
+resource "aws_iam_role_policy_attachment" "dev-resources-ssm-policy" {
+  role       = aws_iam_role.hcp_ec2_iam_role.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
 }
 
 resource "aws_instance" "nomad_host" {
@@ -53,9 +86,12 @@ resource "aws_instance" "nomad_host" {
   instance_type               = "t3.medium"
   associate_public_ip_address = true
   subnet_id                   = var.subnet_id
-  vpc_security_group_ids      = [var.security_group_id]
+  iam_instance_profile        = aws_iam_instance_profile.hcp_ec2.name
+  vpc_security_group_ids      = [aws_security_group.hcp_consul_ec2.id, var.security_group_id]
+  key_name                    = var.ssh_keyname
   user_data = templatefile("${path.module}/templates/user_data.sh", {
     setup = base64gzip(templatefile("${path.module}/templates/setup.sh", {
+      install_demo_app = var.install_demo_app,
       node_id          = var.node_id,
       consul_config    = var.client_config_file,
       consul_ca        = var.client_ca_file,
@@ -69,20 +105,19 @@ resource "aws_instance" "nomad_host" {
         service_name = "nomad",
         service_cmd  = "/usr/bin/nomad agent -dev-connect -consul-token=${var.root_token}",
       })),
-      hashicups  = base64encode(file("${path.module}/templates/hashicups.nomad")),
       nginx_conf = base64encode(file("${path.module}/templates/nginx.conf")),
       vpc_cidr   = var.vpc_cidr
     })),
   })
-
   tags = {
-    Name = "${random_id.id.dec}-hcp-nomad-host"
+    Name = "${random_id.id.dec}-hcp-client"
   }
 
   lifecycle {
     create_before_destroy = false
     prevent_destroy       = false
   }
+
 }
 
 resource "random_id" "id" {

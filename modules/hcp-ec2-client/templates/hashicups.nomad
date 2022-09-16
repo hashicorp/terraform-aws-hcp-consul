@@ -3,6 +3,10 @@ variable "frontend_port" {
   default     = 3000
 }
 
+variable "nginx_port" {
+  type        = number
+  default     = 80
+}
 variable "public_api_port" {
   type        = number
   default     = 7070
@@ -25,35 +29,6 @@ variable "product_db_port" {
 
 job "hashicups" {
   datacenters = ["dc1"]
-
-  group "frontend" {
-    network {
-      mode = "bridge"
-
-      port "http" {
-        static = var.frontend_port
-      }
-    }
-
-    service {
-      name = "frontend"
-      port = "http"
-    }
-
-    task "frontend" {
-      driver = "docker"
-
-      config {
-        image = "hashicorpdemoapp/frontend:v1.0.2"
-        ports = ["http"]
-      }
-
-      env {
-        NEXT_PUBLIC_PUBLIC_API_URL = "/"
-      }
-    }
-  }
-
   group "public-api" {
     network {
       mode = "bridge"
@@ -62,11 +37,9 @@ job "hashicups" {
         static = var.public_api_port
       }
     }
-
     service {
       name = "public-api"
       port = "http"
-
       connect {
         sidecar_service {
           proxy {
@@ -82,15 +55,16 @@ job "hashicups" {
         }
       }
     }
-
     task "public-api" {
       driver = "docker"
-
+      resources {
+        cpu = 300 # MHz
+        memory = 128 # MB
+       }
       config {
         image = "hashicorpdemoapp/public-api:v0.0.6"
         ports = ["http"]
       }
-
       env {
         BIND_ADDRESS = ":${var.public_api_port}"
         PRODUCT_API_URI = "http://localhost:${var.product_api_port}"
@@ -102,12 +76,10 @@ job "hashicups" {
   group "payment-api" {
     network {
       mode = "bridge"
-
       port "http" {
         static = var.payment_api_port
       }
     }
-
     service {
       name = "payment-api"
       port = "http"
@@ -119,7 +91,10 @@ job "hashicups" {
 
     task "payment-api" {
       driver = "docker"
-
+      resources {
+        cpu = 300 # MHz
+        memory = 128 # MB
+       }
       config {
         image = "hashicorpdemoapp/payments:v0.0.16"
         ports = ["http"]
@@ -167,7 +142,10 @@ job "hashicups" {
 
     task "product-api" {
       driver = "docker"
-
+      resources {
+        cpu = 300 # MHz
+        memory = 128 # MB
+       }
       config {
         image = "hashicorpdemoapp/product-api:v0.0.20"
       }
@@ -187,24 +165,23 @@ job "hashicups" {
         static = var.product_db_port
       }
     }
-
     service {
       name = "product-db"
       port = "http"
-
       connect {
         sidecar_service {}
       }
     }
-
     task "db" {
       driver = "docker"
-
+      resources {
+        cpu = 300 # MHz
+        memory = 128 # MB
+       }
       config {
         image = "hashicorpdemoapp/product-api-db:v0.0.20"
         ports = ["http"]
       }
-
       env {
         POSTGRES_DB       = "products"
         POSTGRES_USER     = "postgres"

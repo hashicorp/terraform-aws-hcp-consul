@@ -9,6 +9,11 @@ variable "allowed_ssh_cidr_blocks" {
   default     = []
 }
 
+variable "ssh_keyname" {
+  description = "key pair name for ssh connection"
+  default     = ""
+}
+
 variable "allowed_http_cidr_blocks" {
   description = "A list of CIDR-formatted IP address ranges from which the EC2 Instances will allow connections over 8080"
   type        = list(string)
@@ -43,6 +48,18 @@ variable "vpc_cidr" {
   type        = string
   description = "VPC CIDR"
   default     = "10.0.0.0/8"
+}
+
+variable "install_demo_app" {
+  type        = bool
+  default     = true
+  description = "Choose to install the demo app"
+}
+
+#needed to setup the unique security groups per ec2 instance
+variable "vpc_id" {
+  type        = string
+  description = "VPC ID"
 }
 
 variable "node_id" {

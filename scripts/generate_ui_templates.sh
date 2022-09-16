@@ -34,7 +34,11 @@ generate_existing_vpc_terraform () {
 
 generate_locals () {
   echo "locals {"
-  cat scripts/locals.snip 
+  cat scripts/locals.snip
+  if [ $1 = "ec2" ]
+  then
+    cat scripts/ec2.snip
+  fi
   echo "}"
   echo ""
 }
@@ -50,7 +54,7 @@ generate_existing_vpc_locals () {
 generate () {
   file=hcp-ui-templates/$1/main.tf
   mkdir -p $(dirname $file)
-  generate_locals > $file
+  generate_locals $1> $file
   generate_base_terraform $1 >> $file
 
   file=hcp-ui-templates/$1-existing-vpc/main.tf
