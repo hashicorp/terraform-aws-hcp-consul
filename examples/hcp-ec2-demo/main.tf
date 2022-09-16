@@ -26,7 +26,7 @@ resource "hcp_hvn" "main" {
 
 module "aws_hcp_consul" {
   source  = "hashicorp/hcp-consul/aws"
-  version = "~> 0.8.1"
+  version = "~> 0.8.2"
 
   hvn             = hcp_hvn.main
   vpc_id          = module.vpc.vpc_id
@@ -65,17 +65,18 @@ resource "local_file" "ssh_key" {
 
 module "aws_ec2_consul_client" {
   source  = "hashicorp/hcp-consul/aws//modules/hcp-ec2-client"
-  version = "~> 0.8.1"
+  version = "~> 0.8.2"
 
-  ssh_keyname              = var.ssh ? aws_key_pair.hcp_ec2[0].key_name : ""
-  subnet_id                = module.vpc.public_subnets[0]
-  security_group_id        = module.aws_hcp_consul.security_group_id
-  allowed_ssh_cidr_blocks  = ["0.0.0.0/0"]
   allowed_http_cidr_blocks = ["0.0.0.0/0"]
-  client_config_file       = hcp_consul_cluster.main.consul_config_file
+  allowed_ssh_cidr_blocks  = ["0.0.0.0/0"]
   client_ca_file           = hcp_consul_cluster.main.consul_ca_file
-  root_token               = hcp_consul_cluster_root_token.token.secret_id
+  client_config_file       = hcp_consul_cluster.main.consul_config_file
   consul_version           = hcp_consul_cluster.main.consul_version
   install_demo_app         = var.install_demo_app
+  root_token               = hcp_consul_cluster_root_token.token.secret_id
+  security_group_id        = module.aws_hcp_consul.security_group_id
+  ssh_keyname              = var.ssh ? aws_key_pair.hcp_ec2[0].key_name : ""
+  ssm                      = var.ssm
+  subnet_id                = module.vpc.public_subnets[0]
   vpc_id                   = module.vpc.vpc_id
 }

@@ -63,7 +63,7 @@ resource "hcp_hvn" "main" {
 
 module "aws_hcp_consul" {
   source  = "hashicorp/hcp-consul/aws"
-  version = "~> 0.8.1"
+  version = "~> 0.8.2"
 
   hvn                = hcp_hvn.main
   vpc_id             = module.vpc.vpc_id
@@ -85,7 +85,7 @@ resource "hcp_consul_cluster_root_token" "token" {
 
 module "eks_consul_client" {
   source  = "hashicorp/hcp-consul/aws//modules/hcp-eks-client"
-  version = "~> 0.8.1"
+  version = "~> 0.8.2"
 
   cluster_id       = hcp_consul_cluster.main.cluster_id
   consul_hosts     = jsondecode(base64decode(hcp_consul_cluster.main.consul_config_file))["retry_join"]
@@ -106,7 +106,7 @@ module "eks_consul_client" {
 module "demo_app" {
   count   = var.install_demo_app ? 1 : 0
   source  = "hashicorp/hcp-consul/aws//modules/k8s-demo-app"
-  version = "~> 0.8.1"
+  version = "~> 0.8.2"
 
   depends_on = [module.eks_consul_client]
 }

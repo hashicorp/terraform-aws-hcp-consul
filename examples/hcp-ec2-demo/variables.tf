@@ -40,6 +40,12 @@ variable "ssh" {
   default     = true
 }
 
+variable "ssm" {
+  type        = bool
+  description = "Whether to enable SSM to the EC2 host"
+  default     = true
+}
+
 variable "install_demo_app" {
   type        = bool
   description = "Choose to install HashiCups"
