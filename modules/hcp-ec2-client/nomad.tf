@@ -64,7 +64,6 @@ resource "nomad_job" "hashicups-frontend-v2" {
   ]
 }
 
-
 resource "nomad_job" "hashicups-ingress" {
   count    = var.install_demo_app ? 1 : 0
   provider = nomad

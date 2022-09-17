@@ -10,9 +10,8 @@ resource "consul_config_entry" "service_intentions_deny" {
       }
     ]
   })
-  depends_on = [
-    aws_instance.host
-  ]
+
+  depends_on = [aws_instance.host]
 }
 
 resource "consul_config_entry" "service_intentions_product_api" {
@@ -47,6 +46,7 @@ resource "consul_config_entry" "service_intentions_frontend_publicapi" {
       },
     ]
   })
+
   depends_on = [
     aws_instance.host
   ]
@@ -66,9 +66,8 @@ resource "consul_config_entry" "service_intentions_ingress_frontend" {
       },
     ]
   })
-  depends_on = [
-    aws_instance.host
-  ]
+
+  depends_on = [aws_instance.host]
 }
 
 resource "consul_config_entry" "service_intentions_product_db" {
@@ -85,9 +84,8 @@ resource "consul_config_entry" "service_intentions_product_db" {
       },
     ]
   })
-  depends_on = [
-    aws_instance.host
-  ]
+
+  depends_on = [aws_instance.host]
 }
 
 resource "consul_config_entry" "service_intentions_payment_api" {
@@ -104,7 +102,6 @@ resource "consul_config_entry" "service_intentions_payment_api" {
       },
     ]
   })
-  depends_on = [
-    aws_instance.host
-  ]
+
+  depends_on = [aws_instance.host]
 }
