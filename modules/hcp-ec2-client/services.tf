@@ -9,5 +9,5 @@ resource "consul_config_entry" "service_default_frontend" {
     Protocol = "http"
   })
 
-  depends_on = [aws_instance.host]
+  depends_on = [time_sleep.wait_for_startup]
 }
