@@ -46,6 +46,7 @@ resource "consul_config_entry" "service_intentions_frontend_publicapi" {
       },
     ]
   })
+
   depends_on = [
     aws_instance.host
   ]
