@@ -26,7 +26,7 @@ resource "hcp_hvn" "main" {
 
 module "aws_hcp_consul" {
   source  = "hashicorp/hcp-consul/aws"
-  version = "~> 0.8.3"
+  version = "~> 0.8.4"
 
   hvn             = hcp_hvn.main
   vpc_id          = module.vpc.vpc_id
@@ -65,7 +65,7 @@ resource "local_file" "ssh_key" {
 
 module "aws_ec2_consul_client" {
   source  = "hashicorp/hcp-consul/aws//modules/hcp-ec2-client"
-  version = "~> 0.8.3"
+  version = "~> 0.8.4"
 
   allowed_http_cidr_blocks = ["0.0.0.0/0"]
   allowed_ssh_cidr_blocks  = ["0.0.0.0/0"]
