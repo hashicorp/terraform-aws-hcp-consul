@@ -3,8 +3,8 @@ provider "nomad" {
   http_auth = "nomad:${var.root_token}"
 }
 
-# wait for nomad server to be ready before deploying nomad jobs
-resource "time_sleep" "wait_for_client" {
+# wait for Consul and Nomad services to be ready
+resource "time_sleep" "wait_for_startup" {
   create_duration = "90s"
 
   depends_on = [aws_instance.host]
@@ -20,51 +20,43 @@ resource "nomad_job" "hashicups" {
     enabled = true
   }
 
-  depends_on = [
-    time_sleep.wait_for_client,
-    aws_instance.host
-  ]
+  depends_on = [time_sleep.wait_for_startup]
 }
 
-resource "nomad_job" "hashicups-frontend" {
+resource "nomad_job" "hashicups_frontend" {
   count    = var.install_demo_app ? 1 : 0
   provider = nomad
-  jobspec  = file("${path.module}/templates/hashicups-frontend.nomad")
+  jobspec  = file("${path.module}/templates/hashicups_frontend.nomad")
 
   hcl2 {
     enabled = true
   }
 
   depends_on = [
-    nomad_job.hashicups,
-    consul_config_entry.service_default_frontend,
-    aws_instance.host
+    time_sleep.wait_for_startup,
+    consul_config_entry.service_default_frontend
   ]
 }
 
-resource "time_sleep" "wait_15_seconds" {
-  depends_on = [nomad_job.hashicups-frontend]
+resource "time_sleep" "wait_for_frontend" {
+  depends_on = [nomad_job.hashicups_frontend]
 
   create_duration = "15s"
 }
 
-resource "nomad_job" "hashicups-frontend-v2" {
+resource "nomad_job" "hashicups_frontend_v2" {
   count    = var.install_demo_app ? 1 : 0
   provider = nomad
-  jobspec  = file("${path.module}/templates/hashicups-frontend-v2.nomad")
+  jobspec  = file("${path.module}/templates/hashicups_frontend_v2.nomad")
 
   hcl2 {
     enabled = true
   }
 
-  depends_on = [
-    time_sleep.wait_15_seconds,
-    consul_config_entry.service_default_frontend,
-    aws_instance.host
-  ]
+  depends_on = [time_sleep.wait_for_frontend]
 }
 
-resource "nomad_job" "hashicups-ingress" {
+resource "nomad_job" "ingress" {
   count    = var.install_demo_app ? 1 : 0
   provider = nomad
   jobspec  = file("${path.module}/templates/ingress.nomad")
@@ -73,9 +65,5 @@ resource "nomad_job" "hashicups-ingress" {
     enabled = true
   }
 
-  depends_on = [
-    nomad_job.hashicups-frontend-v2,
-    nomad_job.hashicups-frontend,
-    aws_instance.host
-  ]
+  depends_on = [nomad_job.hashicups_frontend_v2]
 }

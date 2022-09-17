@@ -8,7 +8,7 @@ variable "public_api_port" {
   default = 7070
 }
 
-job "hashicups-frontend" {
+job "hashicups_frontend" {
   datacenters = ["dc1"]
 
   group "frontend" {

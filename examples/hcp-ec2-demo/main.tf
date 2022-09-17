@@ -79,4 +79,6 @@ module "aws_ec2_consul_client" {
   ssm                      = var.ssm
   subnet_id                = module.vpc.public_subnets[0]
   vpc_id                   = module.vpc.vpc_id
+
+  depends_on = [module.aws_hcp_consul]
 }
