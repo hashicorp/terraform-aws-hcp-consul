@@ -60,7 +60,7 @@ resource "hcp_hvn" "main" {
 
 module "aws_hcp_consul" {
   source  = "hashicorp/hcp-consul/aws"
-  version = "~> 0.8.5"
+  version = "~> 0.8.6"
 
   hvn             = hcp_hvn.main
   vpc_id          = module.vpc.vpc_id
@@ -99,7 +99,7 @@ resource "local_file" "ssh_key" {
 
 module "aws_ec2_consul_client" {
   source  = "hashicorp/hcp-consul/aws//modules/hcp-ec2-client"
-  version = "~> 0.8.5"
+  version = "~> 0.8.6"
 
   allowed_http_cidr_blocks = ["0.0.0.0/0"]
   allowed_ssh_cidr_blocks  = ["0.0.0.0/0"]
@@ -113,8 +113,6 @@ module "aws_ec2_consul_client" {
   ssm                      = local.ssm
   subnet_id                = module.vpc.public_subnets[0]
   vpc_id                   = module.vpc.vpc_id
-
-  depends_on = [module.aws_hcp_consul]
 }
 output "consul_root_token" {
   value     = hcp_consul_cluster_root_token.token.secret_id

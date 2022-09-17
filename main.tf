@@ -62,7 +62,6 @@ resource "aws_vpc_peering_connection_accepter" "peer" {
   auto_accept               = true
 }
 
-
 data "aws_subnet" "selected" {
   count = length(var.subnet_ids)
   id    = var.subnet_ids[count.index]
@@ -70,11 +69,12 @@ data "aws_subnet" "selected" {
 
 resource "hcp_hvn_route" "peering_route" {
   count            = length(var.subnet_ids)
-  depends_on       = [aws_vpc_peering_connection_accepter.peer]
   hvn_link         = var.hvn.self_link
   hvn_route_id     = var.subnet_ids[count.index]
   destination_cidr = data.aws_subnet.selected[count.index].cidr_block
   target_link      = hcp_aws_network_peering.default.self_link
+
+  depends_on = [aws_vpc_peering_connection_accepter.peer]
 }
 
 resource "aws_route" "peering" {
