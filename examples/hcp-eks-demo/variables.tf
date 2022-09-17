@@ -4,16 +4,10 @@ variable "cluster_id" {
   default     = "cluster-eks-demo"
 }
 
-variable "vpc_region" {
+variable "hvn_cidr_block" {
   type        = string
-  description = "The AWS region to create resources in"
-  default     = "us-west-2"
-}
-
-variable "hvn_region" {
-  type        = string
-  description = "The HCP region to create resources in"
-  default     = "us-west-2"
+  description = "The CIDR range to create the HCP HVN with"
+  default     = "172.25.32.0/20"
 }
 
 variable "hvn_id" {
@@ -22,16 +16,10 @@ variable "hvn_id" {
   default     = "cluster-eks-demo-hvn"
 }
 
-variable "hvn_cidr_block" {
+variable "hvn_region" {
   type        = string
-  description = "The CIDR range to create the HCP HVN with"
-  default     = "172.25.32.0/20"
-}
-
-variable "tier" {
-  type        = string
-  description = "The HCP Consul tier to use when creating a Consul cluster"
-  default     = "development"
+  description = "The HCP region to create resources in"
+  default     = "us-west-2"
 }
 
 variable "install_demo_app" {
@@ -44,4 +32,16 @@ variable "install_eks_cluster" {
   type        = string
   description = "Choose if you want an eks cluster to be provisioned"
   default     = true
+}
+
+variable "tier" {
+  type        = string
+  description = "The HCP Consul tier to use when creating a Consul cluster"
+  default     = "development"
+}
+
+variable "vpc_region" {
+  type        = string
+  description = "The AWS region to create resources in"
+  default     = "us-west-2"
 }

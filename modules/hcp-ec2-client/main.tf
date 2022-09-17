@@ -93,7 +93,7 @@ resource "aws_instance" "host" {
   count = 1
 
   ami                         = data.aws_ami.ubuntu.id
-  associate_public_ip_address = true
+  associate_public_ip_address = length(var.igw_id) > 0
   iam_instance_profile        = length(aws_iam_instance_profile.hcp_ec2) >= 1 ? aws_iam_instance_profile.hcp_ec2[0].name : null
   instance_type               = "t3.medium"
   key_name                    = var.ssh_keyname

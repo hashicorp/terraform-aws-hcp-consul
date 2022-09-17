@@ -40,6 +40,8 @@ resource "aws_security_group_rule" "allow_http_inbound" {
 resource "aws_ecs_cluster" "clients" {
   name               = "hcp-ecs-cluster-${random_id.id.dec}"
   capacity_providers = ["FARGATE"]
+
+  depends_on = [var.igw_id]
 }
 
 resource "random_id" "id" {
