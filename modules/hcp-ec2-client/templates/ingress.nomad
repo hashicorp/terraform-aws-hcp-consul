@@ -20,9 +20,6 @@ job "ingress-demo" {
       connect {
         gateway {
           proxy {
-            config {
-              protocol = "http"
-            }
           }
 
           ingress {

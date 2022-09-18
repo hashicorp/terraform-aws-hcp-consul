@@ -68,7 +68,8 @@ data "aws_subnet" "selected" {
 }
 
 resource "hcp_hvn_route" "peering_route" {
-  count            = length(var.subnet_ids)
+  count = length(var.subnet_ids)
+
   hvn_link         = var.hvn.self_link
   hvn_route_id     = var.subnet_ids[count.index]
   destination_cidr = data.aws_subnet.selected[count.index].cidr_block
@@ -78,7 +79,8 @@ resource "hcp_hvn_route" "peering_route" {
 }
 
 resource "aws_route" "peering" {
-  count                     = length(var.route_table_ids)
+  count = length(var.route_table_ids)
+
   route_table_id            = var.route_table_ids[count.index]
   destination_cidr_block    = var.hvn.cidr_block
   vpc_peering_connection_id = aws_vpc_peering_connection_accepter.peer.vpc_peering_connection_id
@@ -86,7 +88,8 @@ resource "aws_route" "peering" {
 
 # If a list of security_group_ids was provided, set rules on those.
 resource "aws_security_group_rule" "hcp_consul_existing_grp" {
-  count             = length(local.hcp_consul_security_groups)
+  count = length(local.hcp_consul_security_groups)
+
   description       = local.hcp_consul_security_groups[count.index].description
   protocol          = local.hcp_consul_security_groups[count.index].protocol
   security_group_id = local.hcp_consul_security_groups[count.index].security_group_id

@@ -13,9 +13,8 @@ resource "time_sleep" "wait_for_startup" {
 resource "nomad_job" "hashicups" {
   count = var.install_demo_app ? 1 : 0
 
-  provider              = nomad
-  jobspec               = file("${path.module}/templates/hashicups.nomad")
-  deregister_on_destroy = false
+  provider = nomad
+  jobspec  = file("${path.module}/templates/hashicups.nomad")
 
   hcl2 {
     enabled = true
@@ -24,10 +23,6 @@ resource "nomad_job" "hashicups" {
   depends_on = [
     aws_instance.host,
     aws_security_group_rule.allow_nomad_inbound,
-    consul_config_entry.service_default_payment_api,
-    consul_config_entry.service_default_product_api,
-    consul_config_entry.service_default_product_db,
-    consul_config_entry.service_default_public_api,
     time_sleep.wait_for_startup
   ]
 }
@@ -35,9 +30,8 @@ resource "nomad_job" "hashicups" {
 resource "nomad_job" "hashicups_frontend" {
   count = var.install_demo_app ? 1 : 0
 
-  provider              = nomad
-  jobspec               = file("${path.module}/templates/hashicups-frontend.nomad")
-  deregister_on_destroy = false
+  provider = nomad
+  jobspec  = file("${path.module}/templates/hashicups-frontend.nomad")
 
   hcl2 {
     enabled = true
@@ -54,15 +48,14 @@ resource "nomad_job" "hashicups_frontend" {
 resource "time_sleep" "wait_for_frontend" {
   depends_on = [nomad_job.hashicups_frontend]
 
-  create_duration = "15s"
+  create_duration = "30s"
 }
 
 resource "nomad_job" "hashicups_frontend_v2" {
   count = var.install_demo_app ? 1 : 0
 
-  provider              = nomad
-  jobspec               = file("${path.module}/templates/hashicups-frontend-v2.nomad")
-  deregister_on_destroy = false
+  provider = nomad
+  jobspec  = file("${path.module}/templates/hashicups-frontend-v2.nomad")
 
   hcl2 {
     enabled = true
@@ -79,9 +72,8 @@ resource "nomad_job" "hashicups_frontend_v2" {
 resource "nomad_job" "ingress" {
   count = var.install_demo_app ? 1 : 0
 
-  provider              = nomad
-  jobspec               = file("${path.module}/templates/ingress.nomad")
-  deregister_on_destroy = false
+  provider = nomad
+  jobspec  = file("${path.module}/templates/ingress.nomad")
 
   hcl2 {
     enabled = true

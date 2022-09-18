@@ -1,19 +1,6 @@
 # This is needed for a tutorial on blue green deployments.
 # This helps show the functionality to make it happen and 
 # hide some of the complexity like service defaults
-resource "consul_config_entry" "proxy_defaults" {
-  count = var.install_demo_app ? 1 : 0
-
-  name = "global"
-  kind = "proxy-defaults"
-
-  config_json = jsonencode({
-    Config = {
-      protocol = "http"
-    }
-  })
-}
-
 resource "consul_config_entry" "service_default_frontend" {
   count = var.install_demo_app ? 1 : 0
 
@@ -49,50 +36,4 @@ resource "consul_config_entry" "ingress_gateway" {
   })
 
   depends_on = [consul_config_entry.service_default_frontend]
-}
-
-# All HashiCups service defaults
-# https://github.com/hashicorp/nomad/issues/8647#issuecomment-785484553
-resource "consul_config_entry" "service_default_public_api" {
-  count = var.install_demo_app ? 1 : 0
-
-  name = "public-api"
-  kind = "service-defaults"
-
-  config_json = jsonencode({
-    Protocol = "http"
-  })
-}
-
-resource "consul_config_entry" "service_default_payment_api" {
-  count = var.install_demo_app ? 1 : 0
-
-  name = "payment-api"
-  kind = "service-defaults"
-
-  config_json = jsonencode({
-    Protocol = "http"
-  })
-}
-
-resource "consul_config_entry" "service_default_product_api" {
-  count = var.install_demo_app ? 1 : 0
-
-  name = "product-api"
-  kind = "service-defaults"
-
-  config_json = jsonencode({
-    Protocol = "http"
-  })
-}
-
-resource "consul_config_entry" "service_default_product_db" {
-  count = var.install_demo_app ? 1 : 0
-
-  name = "product-db"
-  kind = "service-defaults"
-
-  config_json = jsonencode({
-    Protocol = "http"
-  })
 }

@@ -37,10 +37,6 @@ job "hashicups" {
       connect {
         sidecar_service {
           proxy {
-            config {
-              protocol = "http"
-            }
-
             upstreams {
               destination_name = "product-api"
               local_bind_port  = var.product_api_port
@@ -76,8 +72,8 @@ job "hashicups" {
 
       restart {
         interval = "30m"
-        attempts = 10
-        delay    = "15s"
+        attempts = 15
+        delay    = "30s"
         mode     = "fail"
       }
     }
@@ -99,9 +95,6 @@ job "hashicups" {
       connect {
         sidecar_service {
           proxy {
-            config {
-              protocol = "http"
-            }
           }
         }
       }
@@ -122,8 +115,8 @@ job "hashicups" {
 
       restart {
         interval = "30m"
-        attempts = 10
-        delay    = "15s"
+        attempts = 15
+        delay    = "30s"
         mode     = "fail"
       }
     }
@@ -158,10 +151,6 @@ job "hashicups" {
       connect {
         sidecar_service {
           proxy {
-            config {
-              protocol = "http"
-            }
-
             upstreams {
               destination_name = "product-db"
               local_bind_port  = var.product_db_port
@@ -190,8 +179,8 @@ job "hashicups" {
 
       restart {
         interval = "30m"
-        attempts = 10
-        delay    = "15s"
+        attempts = 15
+        delay    = "30s"
         mode     = "fail"
       }
     }
@@ -213,9 +202,6 @@ job "hashicups" {
       connect {
         sidecar_service {
           proxy {
-            config {
-              protocol = "http"
-            }
           }
         }
       }
@@ -242,8 +228,8 @@ job "hashicups" {
 
       restart {
         interval = "30m"
-        attempts = 10
-        delay    = "15s"
+        attempts = 15
+        delay    = "30s"
         mode     = "fail"
       }
     }

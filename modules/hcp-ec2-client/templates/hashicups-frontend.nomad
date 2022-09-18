@@ -38,10 +38,6 @@ job "hashicups_frontend" {
       connect {
         sidecar_service {
           proxy {
-            config {
-              protocol = "http"
-            }
-
             upstreams {
               destination_name = "public-api"
               local_bind_port  = var.public_api_port
@@ -113,8 +109,8 @@ job "hashicups_frontend" {
 
       restart {
         interval = "30m"
-        attempts = 10
-        delay    = "15s"
+        attempts = 15
+        delay    = "30s"
         mode     = "fail"
       }
     }
