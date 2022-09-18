@@ -60,7 +60,7 @@ module "aws_ecs_cluster" {
   consul_url               = hcp_consul_cluster.main.consul_private_endpoint_url
   consul_version           = substr(hcp_consul_cluster.main.consul_version, 1, -1)
   datacenter               = hcp_consul_cluster.main.datacenter
-  igw_id                   = module.vpc.igw_id
+  nat_public_ips           = module.vpc.nat_public_ips
   private_subnet_ids       = module.vpc.private_subnets
   public_subnet_ids        = module.vpc.public_subnets
   region                   = var.vpc_region

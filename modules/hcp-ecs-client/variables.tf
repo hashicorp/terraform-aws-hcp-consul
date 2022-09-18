@@ -30,9 +30,9 @@ variable "client_config_file" {
   description = "The client config file provided by HCP"
 }
 
-variable "igw_id" {
-  type        = string
-  description = "The ID of the VPC's Internet Gateway. Here to ensure the cluster and IP are freed before attempting to destroy the Internet Gateway which will otherwise fail"
+variable "nat_public_ips" {
+  type        = list(string)
+  description = "Here to ensure the cluster is deleted and public IP freed before attempting to destroy the Internet Gateway which will otherwise fail"
 }
 
 variable "client_ca_file" {
