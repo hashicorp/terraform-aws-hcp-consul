@@ -1,13 +1,3 @@
-variable "frontend_port" {
-  type    = number
-  default = 3000
-}
-
-variable "nginx_port" {
-  type    = number
-  default = 80
-}
-
 variable "public_api_port" {
   type    = number
   default = 7070
@@ -47,6 +37,10 @@ job "hashicups" {
       connect {
         sidecar_service {
           proxy {
+            config {
+              protocol = "http"
+            }
+
             upstreams {
               destination_name = "product-api"
               local_bind_port  = var.product_api_port
@@ -103,7 +97,13 @@ job "hashicups" {
       port = "http"
 
       connect {
-        sidecar_service {}
+        sidecar_service {
+          proxy {
+            config {
+              protocol = "http"
+            }
+          }
+        }
       }
     }
 
@@ -158,6 +158,10 @@ job "hashicups" {
       connect {
         sidecar_service {
           proxy {
+            config {
+              protocol = "http"
+            }
+
             upstreams {
               destination_name = "product-db"
               local_bind_port  = var.product_db_port
@@ -207,7 +211,13 @@ job "hashicups" {
       port = "http"
 
       connect {
-        sidecar_service {}
+        sidecar_service {
+          proxy {
+            config {
+              protocol = "http"
+            }
+          }
+        }
       }
     }
 

@@ -98,15 +98,17 @@ resource "aws_security_group_rule" "hcp_consul_existing_grp" {
 
 # If no security_group_ids were provided, create a new security_group.
 resource "aws_security_group" "hcp_consul" {
-  count       = length(var.security_group_ids) == 0 ? 1 : 0
+  count = length(var.security_group_ids) == 0 ? 1 : 0
+
   name_prefix = "hcp_consul"
   description = "HCP Consul security group"
   vpc_id      = data.aws_vpc.selected.id
 }
 
 # If no security_group_ids were provided, use the new security_group.
-resource "aws_security_group_rule" "hcp_consul_new_grp" {
-  count             = length(var.security_group_ids) == 0 ? length(local.ingress_consul_rules) : 0
+resource "aws_security_group_rule" "allow_lan_consul_gossip" {
+  count = length(var.security_group_ids) == 0 ? length(local.ingress_consul_rules) : 0
+
   description       = local.ingress_consul_rules[count.index].description
   protocol          = local.ingress_consul_rules[count.index].protocol
   security_group_id = aws_security_group.hcp_consul[0].id

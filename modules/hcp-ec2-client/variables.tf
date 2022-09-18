@@ -31,9 +31,9 @@ variable "install_demo_app" {
   description = "Choose to install the demo app"
 }
 
-variable "igw_id" {
-  type        = string
-  description = "The ID of the VPC's Internet Gateway. Here to ensure the instance is deleted and public IP freed before attempting to destroy the Internet Gateway which will otherwise fail"
+variable "nat_public_ips" {
+  type        = list(string)
+  description = "Here to ensure the instance is deleted and public IP freed before attempting to destroy the Internet Gateway which will otherwise fail"
 }
 
 variable "node_id" {

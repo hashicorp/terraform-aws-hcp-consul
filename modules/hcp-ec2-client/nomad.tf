@@ -1,11 +1,11 @@
 provider "nomad" {
-  address   = "http://${aws_instance.host[0].public_ip}:8081"
+  address   = "http://${aws_instance.host.public_ip}:8081"
   http_auth = "nomad:${var.root_token}"
 }
 
 # wait for Consul and Nomad services to be ready
 resource "time_sleep" "wait_for_startup" {
-  create_duration = "90s"
+  create_duration = "2m"
 
   depends_on = [aws_instance.host]
 }
@@ -13,28 +13,41 @@ resource "time_sleep" "wait_for_startup" {
 resource "nomad_job" "hashicups" {
   count = var.install_demo_app ? 1 : 0
 
-  provider = nomad
-  jobspec  = file("${path.module}/templates/hashicups.nomad")
-
-  hcl2 {
-    enabled = true
-  }
-
-  depends_on = [time_sleep.wait_for_startup]
-}
-
-resource "nomad_job" "hashicups_frontend" {
-  count    = var.install_demo_app ? 1 : 0
-  provider = nomad
-  jobspec  = file("${path.module}/templates/hashicups-frontend.nomad")
+  provider              = nomad
+  jobspec               = file("${path.module}/templates/hashicups.nomad")
+  deregister_on_destroy = false
 
   hcl2 {
     enabled = true
   }
 
   depends_on = [
-    time_sleep.wait_for_startup,
-    consul_config_entry.service_default_frontend
+    aws_instance.host,
+    aws_security_group_rule.allow_nomad_inbound,
+    consul_config_entry.service_default_payment_api,
+    consul_config_entry.service_default_product_api,
+    consul_config_entry.service_default_product_db,
+    consul_config_entry.service_default_public_api,
+    time_sleep.wait_for_startup
+  ]
+}
+
+resource "nomad_job" "hashicups_frontend" {
+  count = var.install_demo_app ? 1 : 0
+
+  provider              = nomad
+  jobspec               = file("${path.module}/templates/hashicups-frontend.nomad")
+  deregister_on_destroy = false
+
+  hcl2 {
+    enabled = true
+  }
+
+  depends_on = [
+    aws_instance.host,
+    aws_security_group_rule.allow_nomad_inbound,
+    consul_config_entry.service_default_frontend,
+    time_sleep.wait_for_startup
   ]
 }
 
@@ -45,25 +58,39 @@ resource "time_sleep" "wait_for_frontend" {
 }
 
 resource "nomad_job" "hashicups_frontend_v2" {
-  count    = var.install_demo_app ? 1 : 0
-  provider = nomad
-  jobspec  = file("${path.module}/templates/hashicups-frontend-v2.nomad")
+  count = var.install_demo_app ? 1 : 0
+
+  provider              = nomad
+  jobspec               = file("${path.module}/templates/hashicups-frontend-v2.nomad")
+  deregister_on_destroy = false
 
   hcl2 {
     enabled = true
   }
 
-  depends_on = [time_sleep.wait_for_frontend]
+  depends_on = [
+    aws_instance.host,
+    aws_security_group_rule.allow_nomad_inbound,
+    consul_config_entry.service_default_frontend,
+    time_sleep.wait_for_frontend
+  ]
 }
 
 resource "nomad_job" "ingress" {
-  count    = var.install_demo_app ? 1 : 0
-  provider = nomad
-  jobspec  = file("${path.module}/templates/ingress.nomad")
+  count = var.install_demo_app ? 1 : 0
+
+  provider              = nomad
+  jobspec               = file("${path.module}/templates/ingress.nomad")
+  deregister_on_destroy = false
 
   hcl2 {
     enabled = true
   }
 
-  depends_on = [nomad_job.hashicups_frontend_v2]
+  depends_on = [
+    aws_instance.host,
+    aws_security_group_rule.allow_nomad_inbound,
+    consul_config_entry.ingress_gateway,
+    time_sleep.wait_for_frontend
+  ]
 }

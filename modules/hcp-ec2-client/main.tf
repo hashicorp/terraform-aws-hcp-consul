@@ -90,10 +90,8 @@ resource "aws_iam_instance_profile" "hcp_ec2" {
 
 # Create the Consul and Nomad client
 resource "aws_instance" "host" {
-  count = 1
-
   ami                         = data.aws_ami.ubuntu.id
-  associate_public_ip_address = length(var.igw_id) > 0
+  associate_public_ip_address = true
   iam_instance_profile        = length(aws_iam_instance_profile.hcp_ec2) >= 1 ? aws_iam_instance_profile.hcp_ec2[0].name : null
   instance_type               = "t3.medium"
   key_name                    = var.ssh_keyname
@@ -135,6 +133,7 @@ resource "aws_instance" "host" {
     prevent_destroy       = false
   }
 
+  depends_on = [var.nat_public_ips]
 }
 
 resource "random_id" "id" {
