@@ -28,7 +28,7 @@ resource "hcp_hvn" "main" {
 
 module "aws_hcp_consul" {
   source  = "hashicorp/hcp-consul/aws"
-  version = "~> 0.8.7"
+  version = "~> 0.8.8"
 
   hvn             = hcp_hvn.main
   vpc_id          = module.vpc.vpc_id
@@ -49,7 +49,7 @@ resource "hcp_consul_cluster_root_token" "token" {
 
 module "aws_ecs_cluster" {
   source  = "hashicorp/hcp-consul/aws//modules/hcp-ecs-client"
-  version = "~> 0.8.7"
+  version = "~> 0.8.8"
 
   allowed_http_cidr_blocks = ["0.0.0.0/0"]
   allowed_ssh_cidr_blocks  = ["0.0.0.0/0"]
@@ -60,7 +60,7 @@ module "aws_ecs_cluster" {
   consul_url               = hcp_consul_cluster.main.consul_private_endpoint_url
   consul_version           = substr(hcp_consul_cluster.main.consul_version, 1, -1)
   datacenter               = hcp_consul_cluster.main.datacenter
-  igw_id                   = module.vpc.igw_id
+  nat_public_ips           = module.vpc.nat_public_ips
   private_subnet_ids       = module.vpc.private_subnets
   public_subnet_ids        = module.vpc.public_subnets
   region                   = var.vpc_region

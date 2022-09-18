@@ -7,7 +7,7 @@ job "ingress-demo" {
     network {
       mode = "bridge"
 
-      port "inbound" {
+      port "http" {
         static = 80
         to     = 80
       }
@@ -15,11 +15,12 @@ job "ingress-demo" {
 
     service {
       name = "hashicups-ingress"
-      port = "80"
+      port = "http"
 
       connect {
         gateway {
-          proxy {}
+          proxy {
+          }
 
           ingress {
             listener {

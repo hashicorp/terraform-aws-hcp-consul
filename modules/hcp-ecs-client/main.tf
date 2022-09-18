@@ -41,7 +41,7 @@ resource "aws_ecs_cluster" "clients" {
   name               = "hcp-ecs-cluster-${random_id.id.dec}"
   capacity_providers = ["FARGATE"]
 
-  depends_on = [var.igw_id]
+  depends_on = [var.nat_public_ips]
 }
 
 resource "random_id" "id" {

@@ -26,7 +26,7 @@ resource "hcp_hvn" "main" {
 
 module "aws_hcp_consul" {
   source  = "hashicorp/hcp-consul/aws"
-  version = "~> 0.8.7"
+  version = "~> 0.8.8"
 
   hvn             = hcp_hvn.main
   vpc_id          = module.vpc.vpc_id
@@ -54,7 +54,7 @@ resource "aws_key_pair" "hcp_ec2" {
   count = var.ssh ? 1 : 0
 
   public_key = tls_private_key.ssh.public_key_openssh
-  key_name   = "hcp-ec2-key"
+  key_name   = "hcp-ec2-key-${var.cluster_id}"
 }
 
 resource "local_file" "ssh_key" {
@@ -67,14 +67,14 @@ resource "local_file" "ssh_key" {
 
 module "aws_ec2_consul_client" {
   source  = "hashicorp/hcp-consul/aws//modules/hcp-ec2-client"
-  version = "~> 0.8.7"
+  version = "~> 0.8.8"
 
   allowed_http_cidr_blocks = ["0.0.0.0/0"]
   allowed_ssh_cidr_blocks  = ["0.0.0.0/0"]
   client_ca_file           = hcp_consul_cluster.main.consul_ca_file
   client_config_file       = hcp_consul_cluster.main.consul_config_file
   consul_version           = hcp_consul_cluster.main.consul_version
-  igw_id                   = module.vpc.igw_id
+  nat_public_ips           = module.vpc.nat_public_ips
   install_demo_app         = var.install_demo_app
   root_token               = hcp_consul_cluster_root_token.token.secret_id
   security_group_id        = module.aws_hcp_consul.security_group_id
