@@ -13,8 +13,9 @@ resource "time_sleep" "wait_for_startup" {
 resource "nomad_job" "hashicups" {
   count = var.install_demo_app ? 1 : 0
 
-  provider = nomad
-  jobspec  = file("${path.module}/templates/hashicups.nomad")
+  provider              = nomad
+  jobspec               = file("${path.module}/templates/hashicups.nomad")
+  deregister_on_destroy = false
 
   hcl2 {
     enabled = true
@@ -30,8 +31,9 @@ resource "nomad_job" "hashicups" {
 resource "nomad_job" "hashicups_frontend" {
   count = var.install_demo_app ? 1 : 0
 
-  provider = nomad
-  jobspec  = file("${path.module}/templates/hashicups-frontend.nomad")
+  provider              = nomad
+  jobspec               = file("${path.module}/templates/hashicups-frontend.nomad")
+  deregister_on_destroy = false
 
   hcl2 {
     enabled = true
@@ -54,8 +56,9 @@ resource "time_sleep" "wait_for_frontend" {
 resource "nomad_job" "hashicups_frontend_v2" {
   count = var.install_demo_app ? 1 : 0
 
-  provider = nomad
-  jobspec  = file("${path.module}/templates/hashicups-frontend-v2.nomad")
+  provider              = nomad
+  jobspec               = file("${path.module}/templates/hashicups-frontend-v2.nomad")
+  deregister_on_destroy = false
 
   hcl2 {
     enabled = true
@@ -72,8 +75,9 @@ resource "nomad_job" "hashicups_frontend_v2" {
 resource "nomad_job" "ingress" {
   count = var.install_demo_app ? 1 : 0
 
-  provider = nomad
-  jobspec  = file("${path.module}/templates/ingress.nomad")
+  provider              = nomad
+  jobspec               = file("${path.module}/templates/ingress.nomad")
+  deregister_on_destroy = false
 
   hcl2 {
     enabled = true

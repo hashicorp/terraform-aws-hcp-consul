@@ -69,13 +69,13 @@ job "hashicups" {
         PRODUCT_API_URI = "http://localhost:${var.product_api_port}"
         PAYMENT_API_URI = "http://localhost:${var.payment_api_port}"
       }
+    }
 
-      restart {
-        interval = "30m"
-        attempts = 15
-        delay    = "30s"
-        mode     = "fail"
-      }
+    restart {
+      interval = "30m"
+      attempts = 15
+      delay    = "30s"
+      mode     = "fail"
     }
   }
 
@@ -112,13 +112,13 @@ job "hashicups" {
         image = "hashicorpdemoapp/payments:v0.0.16"
         ports = ["http"]
       }
+    }
 
-      restart {
-        interval = "30m"
-        attempts = 15
-        delay    = "30s"
-        mode     = "fail"
-      }
+    restart {
+      interval = "30m"
+      attempts = 15
+      delay    = "30s"
+      mode     = "fail"
     }
   }
 
@@ -176,13 +176,13 @@ job "hashicups" {
         DB_CONNECTION = "host=localhost port=${var.product_db_port} user=postgres password=password dbname=products sslmode=disable"
         BIND_ADDRESS  = "localhost:${var.product_api_port}"
       }
+    }
 
-      restart {
-        interval = "30m"
-        attempts = 15
-        delay    = "30s"
-        mode     = "fail"
-      }
+    restart {
+      interval = "30m"
+      attempts = 15
+      delay    = "30s"
+      mode     = "fail"
     }
   }
 
@@ -225,13 +225,13 @@ job "hashicups" {
         POSTGRES_USER     = "postgres"
         POSTGRES_PASSWORD = "password"
       }
+    }
 
-      restart {
-        interval = "30m"
-        attempts = 15
-        delay    = "30s"
-        mode     = "fail"
-      }
+    restart {
+      interval = "30m"
+      attempts = 15
+      delay    = "30s"
+      mode     = "fail"
     }
   }
 }

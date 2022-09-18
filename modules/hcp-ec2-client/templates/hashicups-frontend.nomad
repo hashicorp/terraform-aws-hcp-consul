@@ -106,13 +106,13 @@ job "hashicups_frontend" {
             }
           EOF
       }
+    }
 
-      restart {
-        interval = "30m"
-        attempts = 15
-        delay    = "30s"
-        mode     = "fail"
-      }
+    restart {
+      interval = "30m"
+      attempts = 15
+      delay    = "30s"
+      mode     = "fail"
     }
   }
 }
