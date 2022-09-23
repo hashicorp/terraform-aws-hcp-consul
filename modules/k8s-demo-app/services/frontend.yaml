@@ -19,6 +19,38 @@ metadata:
   name: frontend
 automountServiceAccountToken: true
 ---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: frontend-nginx-config
+data:
+  nginx.conf: |
+    server {
+      listen 3000;
+      server_name localhost;
+
+      server_tokens off;
+
+      gzip on;
+      gzip_proxied any;
+      gzip_comp_level 4;
+      gzip_types text/css application/javascript image/svg+xml;
+
+      proxy_http_version 1.1;
+      proxy_set_header Upgrade $http_upgrade;
+      proxy_set_header Connection 'upgrade';
+      proxy_set_header Host $host;
+
+      location / {
+        root   /usr/share/nginx/html;
+        index  index.html index.htm;
+      }
+
+      location /api {
+        proxy_pass http://localhost:8080;
+      }
+    }
+---
 apiVersion: consul.hashicorp.com/v1alpha1
 kind: ServiceDefaults
 metadata:
@@ -50,7 +82,7 @@ spec:
       serviceAccountName: frontend
       containers:
         - name: frontend
-          image: hashicorpdemoapp/frontend:v1.0.2
+          image: hashicorpdemoapp/frontend-nginx:v1.0.9
           imagePullPolicy: Always
           ports:
             - containerPort: 3000
@@ -59,6 +91,16 @@ spec:
               value: "/"
             - name: NEXT_PUBLIC_FOOTER_FLAG
               value: "HashiCups-v1"
+          volumeMounts:
+            - name: frontend-nginx-config
+              mountPath: /etc/nginx/conf.d/
+      volumes:
+        - name: frontend-nginx-config
+          configMap:
+            name: frontend-nginx-config
+            items:
+              - key: nginx.conf
+                path: default.conf
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -84,7 +126,7 @@ spec:
       serviceAccountName: frontend
       containers:
         - name: frontend
-          image: hashicorpdemoapp/frontend:v1.0.2
+          image: hashicorpdemoapp/frontend-nginx:v1.0.9
           imagePullPolicy: Always
           ports:
             - containerPort: 3000
@@ -93,3 +135,13 @@ spec:
               value: "/"
             - name: NEXT_PUBLIC_FOOTER_FLAG
               value: "HashiCups-v2"
+          volumeMounts:
+            - name: frontend-nginx-config
+              mountPath: /etc/nginx/conf.d/
+      volumes:
+        - name: frontend-nginx-config
+          configMap:
+            name: frontend-nginx-config
+            items:
+              - key: nginx.conf
+                path: default.conf
