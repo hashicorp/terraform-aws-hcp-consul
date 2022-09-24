@@ -35,7 +35,7 @@ module "eks" {
   version                = "17.24.0"
   kubeconfig_api_version = "client.authentication.k8s.io/v1beta1"
 
-  cluster_name    = "${var.cluster_id}-eks"
+  cluster_name    = "riddhi-aws-114beta-eks"
   cluster_version = "1.21"
   subnets         = module.vpc.private_subnets
   vpc_id          = module.vpc.vpc_id
@@ -54,46 +54,54 @@ module "eks" {
 }
 
 # The HVN created in HCP
-resource "hcp_hvn" "main" {
-  hvn_id         = var.hvn_id
-  cloud_provider = "aws"
-  region         = var.hvn_region
-  cidr_block     = var.hvn_cidr_block
+# resource "hcp_hvn" "main" {
+#   hvn_id         = var.hvn_id
+#   cloud_provider = "aws"
+#   region         = var.hvn_region
+#   cidr_block     = var.hvn_cidr_block
+# }
+
+data "hcp_hvn" "example" {
+  hvn_id = "hvn"
 }
 
-module "aws_hcp_consul" {
-  source  = "hashicorp/hcp-consul/aws"
-  version = "~> 0.8.9"
+# Note: Uncomment the below module to setup peering for connecting to a private HCP Consul cluster
+# module "aws_hcp_consul" {
+#   source  = "hashicorp/hcp-consul/aws"
+#   version = "~> 0.8.9"
+#   hvn                = hcp_hvn.main
+#   vpc_id             = module.vpc.vpc_id
+#   subnet_ids         = module.vpc.private_subnets
+#   route_table_ids    = module.vpc.private_route_table_ids
+#   security_group_ids = var.install_eks_cluster ? [module.eks[0].cluster_primary_security_group_id] : [""]
+# }
 
-  hvn                = hcp_hvn.main
-  vpc_id             = module.vpc.vpc_id
-  subnet_ids         = module.vpc.private_subnets
-  route_table_ids    = module.vpc.private_route_table_ids
-  security_group_ids = var.install_eks_cluster ? [module.eks[0].cluster_primary_security_group_id] : [""]
-}
+# resource "data.hcp_consul_cluster" "main" {
+#   cluster_id      = var.cluster_id
+#   hvn_id          = hcp_hvn.main.hvn_id
+#   public_endpoint = true
+#   tier            = var.tier
+#   min_consul_version = "v1.14.0"
+# }
 
-resource "hcp_consul_cluster" "main" {
-  cluster_id      = var.cluster_id
-  hvn_id          = hcp_hvn.main.hvn_id
-  public_endpoint = true
-  tier            = var.tier
+data "hcp_consul_cluster"  "main" {
+  cluster_id = "riddhi-aws-114beta"
 }
 
 resource "hcp_consul_cluster_root_token" "token" {
-  cluster_id = hcp_consul_cluster.main.id
+  cluster_id = data.hcp_consul_cluster.main.id
 }
 
 module "eks_consul_client" {
-  source  = "hashicorp/hcp-consul/aws//modules/hcp-eks-client"
-  version = "~> 0.8.9"
+  # source  = "hashicorp/hcp-consul/aws//modules/hcp-eks-client"
+  # version = "~> 0.8.9"
+  source = "../../modules/hcp-eks-client/"
 
   boostrap_acl_token    = hcp_consul_cluster_root_token.token.secret_id
-  cluster_id            = hcp_consul_cluster.main.cluster_id
-  consul_ca_file        = base64decode(hcp_consul_cluster.main.consul_ca_file)
-  consul_hosts          = jsondecode(base64decode(hcp_consul_cluster.main.consul_config_file))["retry_join"]
-  consul_version        = hcp_consul_cluster.main.consul_version
-  datacenter            = hcp_consul_cluster.main.datacenter
-  gossip_encryption_key = jsondecode(base64decode(hcp_consul_cluster.main.consul_config_file))["encrypt"]
+  cluster_id            = data.hcp_consul_cluster.main.cluster_id
+  consul_hosts          = tolist([substr(data.hcp_consul_cluster.main.consul_public_endpoint_url, 8, -1)])
+  consul_version        = data.hcp_consul_cluster.main.consul_version
+  datacenter            = data.hcp_consul_cluster.main.datacenter
   k8s_api_endpoint      = var.install_eks_cluster ? module.eks[0].cluster_endpoint : ""
 
   # The EKS node group will fail to create if the clients are

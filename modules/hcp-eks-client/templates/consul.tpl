@@ -10,6 +10,8 @@ global:
       secretKey: bootstrapToken
   tls:
     enabled: true
+
+%{ if consul_client_agent ~}
     enableAutoEncrypt: true
     caCert:
       secretName: ${cluster_id}-hcp
@@ -17,6 +19,13 @@ global:
   gossipEncryption:
     secretName: ${cluster_id}-hcp
     secretKey: gossipEncryptionKey
+
+client:
+  enabled: true
+  join: ${consul_hosts}
+  nodeMeta:
+    terraform-module: "hcp-eks-client"
+%{ endif ~}
 
 externalServers:
   enabled: true
@@ -28,17 +37,16 @@ externalServers:
 server:
   enabled: false
 
-client:
-  enabled: true
-  join: ${consul_hosts}
-  nodeMeta:
-    terraform-module: "hcp-eks-client"
-
 connectInject:
   transparentProxy:
-    defaultEnabled: true
+    defaultEnabled: false
   enabled: true
   default: true
+%{ if !consul_client_agent ~}
+  consulNode:
+    meta: "hcp-eks-agentless-node"
+%{ endif ~}
+
 
 controller:
   enabled: true
