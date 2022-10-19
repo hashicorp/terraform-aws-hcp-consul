@@ -76,7 +76,7 @@ data "hcp_hvn" "example" {
 #   security_group_ids = var.install_eks_cluster ? [module.eks[0].cluster_primary_security_group_id] : [""]
 # }
 
-# resource "data.hcp_consul_cluster" "main" {
+# resource "hcp_consul_cluster" "main" {
 #   cluster_id      = var.cluster_id
 #   hvn_id          = hcp_hvn.main.hvn_id
 #   public_endpoint = true
@@ -99,6 +99,7 @@ module "eks_consul_client" {
 
   boostrap_acl_token    = hcp_consul_cluster_root_token.token.secret_id
   cluster_id            = data.hcp_consul_cluster.main.cluster_id
+  # strip out `https://` from the public url
   consul_hosts          = tolist([substr(data.hcp_consul_cluster.main.consul_public_endpoint_url, 8, -1)])
   consul_version        = data.hcp_consul_cluster.main.consul_version
   datacenter            = data.hcp_consul_cluster.main.datacenter
