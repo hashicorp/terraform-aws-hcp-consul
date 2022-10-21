@@ -208,7 +208,7 @@ output "howto_connect" {
 
   To access Consul from your local client run:
   export CONSUL_HTTP_ADDR="${hcp_consul_cluster.main.consul_public_endpoint_url}"
-  export CONSUL_HTTP_TOKEN=$(terraform output consul_root_token)
+  export CONSUL_HTTP_TOKEN=$(terraform output -raw consul_root_token)
   
   ${local.install_eks_cluster ? "You can access your provisioned eks cluster by first running following command" : ""}
   ${local.install_eks_cluster ? "export KUBECONFIG=$(terraform output -raw kubeconfig_filename)" : ""}    
