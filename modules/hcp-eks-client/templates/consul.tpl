@@ -44,7 +44,8 @@ connectInject:
   default: true
 %{ if !consul_client_agent ~}
   consulNode:
-    meta: "hcp-eks-agentless-node"
+    meta:
+      terraform-module: "hcp-eks-client"
 %{ endif ~}
 
 
