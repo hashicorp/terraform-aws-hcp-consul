@@ -59,4 +59,4 @@ ingressGateways:
       service:
         type: LoadBalancer
         ports:
-        - port: 80
+        - port: 8080

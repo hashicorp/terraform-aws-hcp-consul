@@ -35,6 +35,8 @@ provider "aws" {
   region = var.vpc_region
 }
 
+provider "hcp" {}
+
 provider "helm" {
   kubernetes {
     host                   = var.install_eks_cluster ? data.aws_eks_cluster.cluster[0].endpoint : ""

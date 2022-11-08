@@ -35,20 +35,22 @@ module "eks" {
   version                = "17.24.0"
   kubeconfig_api_version = "client.authentication.k8s.io/v1beta1"
 
-  cluster_name    = "riddhi-aws-114beta-eks"
+  cluster_name    = "chappie-fargate-eks"
   cluster_version = "1.21"
   subnets         = module.vpc.private_subnets
   vpc_id          = module.vpc.vpc_id
 
-  manage_aws_auth = false
-
-  node_groups = {
-    application = {
-      name_prefix      = "hashicups"
-      instance_types   = ["t3a.medium"]
-      desired_capacity = 3
-      max_capacity     = 3
-      min_capacity     = 3
+  fargate_profiles = {
+    default = {
+      name = "default"
+      selectors = [
+        {
+          namespace = "default"
+        },
+        {
+          namespace = "kube-system"
+        }
+      ]
     }
   }
 }
@@ -62,7 +64,7 @@ module "eks" {
 # }
 
 data "hcp_hvn" "example" {
-  hvn_id = "hvn"
+  hvn_id = "oidc-hvn"
 }
 
 # Note: Uncomment the below module to setup peering for connecting to a private HCP Consul cluster
@@ -85,7 +87,7 @@ data "hcp_hvn" "example" {
 # }
 
 data "hcp_consul_cluster"  "main" {
-  cluster_id = "riddhi-aws-114beta"
+  cluster_id = "114beta-chappie"
 }
 
 resource "hcp_consul_cluster_root_token" "token" {
