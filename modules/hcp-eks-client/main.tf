@@ -45,6 +45,7 @@ resource "helm_release" "consul" {
   repository = "https://helm.releases.hashicorp.com"
   version    = var.chart_version
   chart      = "consul"
+  timeout  = 720
 
   values = [local.helm_vaues]
 

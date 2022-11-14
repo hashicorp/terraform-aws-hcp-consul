@@ -11,9 +11,6 @@ output "consul_url" {
   )
 }
 
-output "kubeconfig_filename" {
-  value = abspath(one(module.eks[*].kubeconfig_filename))
-}
 
 output "helm_values_filename" {
   value = abspath(module.eks_consul_client.helm_values_file)
@@ -21,6 +18,8 @@ output "helm_values_filename" {
 
 output "hashicups_url" {
   value = one(module.demo_app[*].hashicups_url)
+  # value = "string"
+
 }
 
 output "next_steps" {

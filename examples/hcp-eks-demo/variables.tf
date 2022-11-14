@@ -1,7 +1,7 @@
 variable "cluster_id" {
   type        = string
   description = "The name of your HCP Consul cluster"
-  default     = "cluster-eks-demo"
+  default     = "chappie-eks"
 }
 
 variable "hvn_cidr_block" {
@@ -44,4 +44,10 @@ variable "vpc_region" {
   type        = string
   description = "The AWS region to create resources in"
   default     = "us-west-2"
+}
+
+variable "fargate_eks" {
+  type = bool
+  description = "Use fargate eks containers for consul instead of ec2 instances"
+  default = true
 }

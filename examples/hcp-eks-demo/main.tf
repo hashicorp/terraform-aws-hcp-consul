@@ -32,27 +32,92 @@ data "aws_eks_cluster_auth" "cluster" {
 module "eks" {
   count                  = var.install_eks_cluster ? 1 : 0
   source                 = "terraform-aws-modules/eks/aws"
-  version                = "17.24.0"
-  kubeconfig_api_version = "client.authentication.k8s.io/v1beta1"
+  version                = "18.30.3"
 
-  cluster_name    = "chappie-fargate-eks"
+  cluster_name    = "chappie-fargate-eks2"
   cluster_version = "1.21"
-  subnets         = module.vpc.private_subnets
+  subnet_ids        = module.vpc.private_subnets
   vpc_id          = module.vpc.vpc_id
 
-  fargate_profiles = {
+  node_security_group_additional_rules = {
+    ingress_all = {
+      description      = "Node all ingress"
+      protocol         = "-1"
+      from_port        = 0
+      to_port          = 0
+      type             = "ingress"
+      cidr_blocks      = ["0.0.0.0/0"]
+      ipv6_cidr_blocks = ["::/0"]
+    }
+    egress_all = {
+      description      = "Node all egress"
+      protocol         = "-1"
+      from_port        = 0
+      to_port          = 0
+      type             = "egress"
+      cidr_blocks      = ["0.0.0.0/0"]
+      ipv6_cidr_blocks = ["::/0"]
+    }
+  }
+  create_cluster_primary_security_group_tags = false
+
+  cluster_security_group_additional_rules = {
+    ingress_all = {
+      description      = "Node all ingress"
+      protocol         = "-1"
+      from_port        = 0
+      to_port          = 0
+      type             = "ingress"
+      cidr_blocks      = ["0.0.0.0/0"]
+      ipv6_cidr_blocks = ["::/0"]
+    }
+    egress_all = {
+      description      = "Node all egress"
+      protocol         = "-1"
+      from_port        = 0
+      to_port          = 0
+      type             = "egress"
+      cidr_blocks      = ["0.0.0.0/0"]
+      ipv6_cidr_blocks = ["::/0"]
+    }
+  }
+
+  eks_managed_node_groups = {
+    application = {
+      name_prefix      = "hashicups"
+      instance_types   = ["t3a.medium"]
+
+      desired_size = var.fargate_eks ? 2 : 3
+      max_size     = var.fargate_eks ? 2 : 3
+      min_size     = var.fargate_eks ? 2 : 3
+    }
+  }
+
+  fargate_profiles = var.fargate_eks ? {
     default = {
-      name = "default"
+      name      = "default"
       selectors = [
         {
-          namespace = "default"
+          namespace = "consul"
         },
         {
-          namespace = "kube-system"
+          namespace = "default"
         }
       ]
     }
-  }
+  } : {}
+
+}
+
+resource "aws_security_group_rule" "cluster" {
+  count = var.fargate_eks ? 1 : 0
+  security_group_id = module.eks[0].cluster_primary_security_group_id
+  protocol         = "tcp"
+  from_port        = 8080
+  to_port          = 8080
+  type             = "ingress"
+  cidr_blocks      = ["0.0.0.0/0"]
+  ipv6_cidr_blocks = ["::/0"]
 }
 
 # The HVN created in HCP
@@ -64,7 +129,7 @@ module "eks" {
 # }
 
 data "hcp_hvn" "example" {
-  hvn_id = "oidc-hvn"
+  hvn_id = "eks2"
 }
 
 # Note: Uncomment the below module to setup peering for connecting to a private HCP Consul cluster
@@ -87,7 +152,7 @@ data "hcp_hvn" "example" {
 # }
 
 data "hcp_consul_cluster"  "main" {
-  cluster_id = "114beta-chappie"
+  cluster_id = "eks3"
 }
 
 resource "hcp_consul_cluster_root_token" "token" {
@@ -118,7 +183,7 @@ module "demo_app" {
   # source  = "hashicorp/hcp-consul/aws//modules/k8s-demo-app"
   # version = "~> 0.8.9"
 
-    source = "../../modules/k8s-demo-app/"
+  source = "../../modules/k8s-demo-app/"
 
   depends_on = [module.eks_consul_client]
 }
