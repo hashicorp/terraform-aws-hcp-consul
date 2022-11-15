@@ -35,7 +35,7 @@ module "eks" {
   version                = "17.24.0"
   kubeconfig_api_version = "client.authentication.k8s.io/v1beta1"
 
-  cluster_name    = "riddhi-aws-114beta-eks"
+  cluster_name    = "chappie-aws-114beta-eks"
   cluster_version = "1.21"
   subnets         = module.vpc.private_subnets
   vpc_id          = module.vpc.vpc_id
@@ -44,13 +44,28 @@ module "eks" {
 
   node_groups = {
     application = {
-      name_prefix      = "hashicups"
-      instance_types   = ["t3a.medium"]
-      desired_capacity = 3
-      max_capacity     = 3
-      min_capacity     = 3
+      name_prefix    = "hashicups"
+      instance_types = ["t3a.medium"]
+
+      desired_capacity = var.fargate_eks ? 2 : 3
+      max_capacity     = var.fargate_eks ? 2 : 3
+      min_capacity     = var.fargate_eks ? 2 : 3
     }
   }
+
+  fargate_profiles = var.fargate_eks ? {
+    default = {
+      name = "default"
+      selectors = [
+        {
+          namespace = "consul"
+        },
+        {
+          namespace = "default"
+        }
+      ]
+    }
+  } : {}
 }
 
 # The HVN created in HCP
@@ -62,7 +77,7 @@ module "eks" {
 # }
 
 data "hcp_hvn" "example" {
-  hvn_id = "hvn"
+  hvn_id = "agentless"
 }
 
 # Note: Uncomment the below module to setup peering for connecting to a private HCP Consul cluster
@@ -85,7 +100,7 @@ data "hcp_hvn" "example" {
 # }
 
 data "hcp_consul_cluster"  "main" {
-  cluster_id = "riddhi-aws-114beta"
+  cluster_id = "chappiebeta114"
 }
 
 resource "hcp_consul_cluster_root_token" "token" {
@@ -113,8 +128,9 @@ module "eks_consul_client" {
 
 module "demo_app" {
   count   = var.install_demo_app ? 1 : 0
-  source  = "hashicorp/hcp-consul/aws//modules/k8s-demo-app"
-  version = "~> 0.8.9"
+  # source  = "hashicorp/hcp-consul/aws//modules/k8s-demo-app"
+  # version = "~> 0.8.9"
+  source = "../../modules/k8s-demo-app/"
 
   depends_on = [module.eks_consul_client]
 }
