@@ -84,7 +84,7 @@ module "eks" {
 
   eks_managed_node_groups = {
     application = {
-      name_prefix      = "hashicups"
+      name_prefix      = "hcp-eks-demo"
       instance_types   = ["t3a.medium"]
 
       desired_size = var.fargate_eks ? 2 : 3

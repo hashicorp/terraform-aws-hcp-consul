@@ -49,5 +49,5 @@ variable "vpc_region" {
 variable "fargate_eks" {
   type = bool
   description = "Use fargate eks containers for consul instead of ec2 instances"
-  default = true
+  default = false
 }
