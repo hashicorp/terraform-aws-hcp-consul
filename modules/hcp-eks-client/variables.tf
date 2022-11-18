@@ -43,7 +43,7 @@ variable "consul_version" {
 variable "chart_version" {
   type        = string
   description = "The Consul Helm chart version to use"
-  default     = "1.0.0-beta3"
+  default     = "1.0.0"
 }
 
 variable "gossip_encryption_key" {

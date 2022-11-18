@@ -47,7 +47,7 @@ data:
       }
 
       location /api {
-        proxy_pass http://localhost:8080;
+        proxy_pass http://public-api:8080;
       }
     }
 ---

@@ -25,6 +25,9 @@ client:
   join: ${consul_hosts}
   nodeMeta:
     terraform-module: "hcp-eks-client"
+
+controller:
+  enabled: true
 %{ endif ~}
 
 externalServers:
@@ -39,7 +42,7 @@ server:
 
 connectInject:
   transparentProxy:
-    defaultEnabled: false
+    defaultEnabled: true
   enabled: true
   default: true
 %{ if !consul_client_agent ~}
@@ -47,10 +50,6 @@ connectInject:
     meta:
       terraform-module: "hcp-eks-client"
 %{ endif ~}
-
-
-controller:
-  enabled: true
 
 ingressGateways:
   enabled: true

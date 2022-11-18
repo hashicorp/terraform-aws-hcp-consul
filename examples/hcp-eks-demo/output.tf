@@ -4,10 +4,10 @@ output "consul_root_token" {
 }
 
 output "consul_url" {
-  value = data.hcp_consul_cluster.main.public_endpoint ? (
-    data.hcp_consul_cluster.main.consul_public_endpoint_url
+  value = hcp_consul_cluster.main.public_endpoint ? (
+    hcp_consul_cluster.main.consul_public_endpoint_url
     ) : (
-    data.hcp_consul_cluster.main.consul_private_endpoint_url
+    hcp_consul_cluster.main.consul_private_endpoint_url
   )
 }
 
@@ -33,7 +33,7 @@ output "howto_connect" {
   ${var.install_demo_app ? "To access HashiCups navigate to: ${one(module.demo_app[*].hashicups_url)}:8080" : ""}
 
   To access Consul from your local client run:
-  export CONSUL_HTTP_ADDR="${data.hcp_consul_cluster.main.consul_public_endpoint_url}"
+  export CONSUL_HTTP_ADDR="${hcp_consul_cluster.main.consul_public_endpoint_url}"
   export CONSUL_HTTP_TOKEN=$(terraform output consul_root_token)
   
   ${var.install_eks_cluster ? "You can access your provisioned eks cluster by first running following command" : ""}

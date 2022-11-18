@@ -48,6 +48,6 @@ variable "vpc_region" {
 
 variable "fargate_eks" {
   type        = bool
-  description = "Use fargate eks containers for consul instead of ec2 instances. Only works for agentless"
+  description = "Use fargate eks containers for consul instead of ec2 instances. Only works for workloads using Consul Dataplane"
   default     = false
 }
