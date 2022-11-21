@@ -65,7 +65,7 @@ resource "hcp_hvn" "main" {
 # Note: Uncomment the below module to setup peering for connecting to a private HCP Consul cluster
 # module "aws_hcp_consul" {
 #   source  = "hashicorp/hcp-consul/aws"
-#   version = "~> 0.8.9"
+#   version = "~> 0.8.10"
 #   hvn                = hcp_hvn.main
 #   vpc_id             = module.vpc.vpc_id
 #   subnet_ids         = module.vpc.private_subnets
