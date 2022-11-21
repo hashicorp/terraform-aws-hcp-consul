@@ -1,14 +1,13 @@
 locals {
-  vpc_region             = "{{ .VPCRegion }}"
-  hvn_region             = "{{ .HVNRegion }}"
-  cluster_id             = "{{ .ClusterID }}"
-  hvn_id                 = "{{ .ClusterID }}-hvn"
-  install_demo_app       = true
-  vpc_id                 = "{{ .VPCID }}"
-  private_route_table_id = "{{ .PrivateRouteTableID }}"
-  private_subnet1        = "{{ .PrivateSubnet1 }}"
-  private_subnet2        = "{{ .PrivateSubnet2 }}"
-  install_eks_cluster    = true
+  vpc_region          = "{{ .VPCRegion }}"
+  hvn_region          = "{{ .HVNRegion }}"
+  cluster_id          = "{{ .ClusterID }}"
+  hvn_id              = "{{ .ClusterID }}-hvn"
+  install_demo_app    = true
+  vpc_id              = "{{ .VPCID }}"
+  private_subnet1     = "{{ .PrivateSubnet1 }}"
+  private_subnet2     = "{{ .PrivateSubnet2 }}"
+  install_eks_cluster = true
 }
 
 terraform {
@@ -25,17 +24,17 @@ terraform {
 
     kubernetes = {
       source  = "hashicorp/kubernetes"
-      version = ">= 2.4.1"
+      version = "~> 2.14.0"
     }
 
     helm = {
       source  = "hashicorp/helm"
-      version = ">= 2.3.0"
+      version = "~> 2.7.0"
     }
 
     kubectl = {
       source  = "gavinbunney/kubectl"
-      version = ">= 1.11.3"
+      version = "~> 1.14.0"
     }
   }
 
@@ -90,8 +89,9 @@ module "eks" {
 
   node_groups = {
     application = {
-      name_prefix      = "hashicups"
-      instance_types   = ["t3a.medium"]
+      name_prefix    = "hashicups"
+      instance_types = ["t3a.medium"]
+
       desired_capacity = 3
       max_capacity     = 3
       min_capacity     = 3
@@ -107,22 +107,24 @@ resource "hcp_hvn" "main" {
   cidr_block     = "172.25.32.0/20"
 }
 
-module "aws_hcp_consul" {
-  source  = "hashicorp/hcp-consul/aws"
-  version = "~> 0.8.10"
-
-  hvn                = hcp_hvn.main
-  vpc_id             = local.vpc_id
-  subnet_ids         = [local.private_subnet1, local.private_subnet2]
-  route_table_ids    = [local.private_route_table_id]
-  security_group_ids = local.install_eks_cluster ? [module.eks[0].cluster_primary_security_group_id] : [""]
-}
+# Note: Uncomment the below module to setup peering for connecting to a private HCP Consul cluster
+# module "aws_hcp_consul" {
+#   source  = "hashicorp/hcp-consul/aws"
+#   version = "~> 0.8.11"
+#
+#   hvn                = hcp_hvn.main
+#   vpc_id             = local.vpc_id
+#   subnet_ids         = [local.private_subnet1, local.private_subnet2]
+#   route_table_ids    = [local.private_route_table_id]
+#   security_group_ids = local.install_eks_cluster ? [module.eks[0].cluster_primary_security_group_id] : [""]
+# }
 
 resource "hcp_consul_cluster" "main" {
-  cluster_id      = local.cluster_id
-  hvn_id          = hcp_hvn.main.hvn_id
-  public_endpoint = true
-  tier            = "development"
+  cluster_id         = local.cluster_id
+  hvn_id             = hcp_hvn.main.hvn_id
+  public_endpoint    = true
+  tier               = "development"
+  min_consul_version = "v1.14.0"
 }
 
 resource "hcp_consul_cluster_root_token" "token" {
@@ -131,16 +133,15 @@ resource "hcp_consul_cluster_root_token" "token" {
 
 module "eks_consul_client" {
   source  = "hashicorp/hcp-consul/aws//modules/hcp-eks-client"
-  version = "~> 0.8.10"
+  version = "~> 0.8.11"
 
-  boostrap_acl_token    = hcp_consul_cluster_root_token.token.secret_id
-  cluster_id            = hcp_consul_cluster.main.cluster_id
-  consul_ca_file        = base64decode(hcp_consul_cluster.main.consul_ca_file)
-  consul_hosts          = jsondecode(base64decode(hcp_consul_cluster.main.consul_config_file))["retry_join"]
-  consul_version        = hcp_consul_cluster.main.consul_version
-  datacenter            = hcp_consul_cluster.main.datacenter
-  gossip_encryption_key = jsondecode(base64decode(hcp_consul_cluster.main.consul_config_file))["encrypt"]
-  k8s_api_endpoint      = local.install_eks_cluster ? module.eks[0].cluster_endpoint : ""
+  boostrap_acl_token = hcp_consul_cluster_root_token.token.secret_id
+  cluster_id         = hcp_consul_cluster.main.cluster_id
+  # strip out `https://` from the public url
+  consul_hosts     = tolist([substr(hcp_consul_cluster.main.consul_public_endpoint_url, 8, -1)])
+  consul_version   = hcp_consul_cluster.main.consul_version
+  datacenter       = hcp_consul_cluster.main.datacenter
+  k8s_api_endpoint = local.install_eks_cluster ? module.eks[0].cluster_endpoint : ""
 
   # The EKS node group will fail to create if the clients are
   # created at the same time. This forces the client to wait until
@@ -151,7 +152,7 @@ module "eks_consul_client" {
 module "demo_app" {
   count   = local.install_demo_app ? 1 : 0
   source  = "hashicorp/hcp-consul/aws//modules/k8s-demo-app"
-  version = "~> 0.8.10"
+  version = "~> 0.8.11"
 
   depends_on = [module.eks_consul_client]
 }
@@ -177,7 +178,7 @@ output "helm_values_filename" {
 }
 
 output "hashicups_url" {
-  value = one(module.demo_app[*].hashicups_url)
+  value = "${one(module.demo_app[*].hashicups_url)}:8080"
 }
 
 output "next_steps" {
@@ -187,7 +188,7 @@ output "next_steps" {
 output "howto_connect" {
   value = <<EOF
   ${local.install_demo_app ? "The demo app, HashiCups, Has been installed for you and its components registered in Consul." : ""}
-  ${local.install_demo_app ? "To access HashiCups navigate to: ${module.demo_app[0].hashicups_url}" : ""}
+  ${local.install_demo_app ? "To access HashiCups navigate to: ${one(module.demo_app[*].hashicups_url)}:8080" : ""}
 
   To access Consul from your local client run:
   export CONSUL_HTTP_ADDR="${hcp_consul_cluster.main.consul_public_endpoint_url}"
