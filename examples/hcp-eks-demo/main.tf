@@ -35,7 +35,7 @@ module "eks" {
   version                = "17.24.0"
   kubeconfig_api_version = "client.authentication.k8s.io/v1beta1"
 
-  cluster_name    = "riddhi-demo1-eks"
+  cluster_name    = "${var.cluster_id}-eks"
   cluster_version = "1.21"
   subnets         = module.vpc.private_subnets
   vpc_id          = module.vpc.vpc_id
@@ -81,7 +81,6 @@ resource "hcp_consul_cluster" "main" {
   tier               = var.tier
   min_consul_version = "v1.14.0"
 }
-
 
 resource "hcp_consul_cluster_root_token" "token" {
   cluster_id = hcp_consul_cluster.main.id
