@@ -1,7 +1,7 @@
 #!/bin/bash
 
-old="0\.8\.9"
-new=0.8.10
+old="0\.8\.10"
+new=0.9.0
 
 for platform in ec2 ecs eks; do
   file=examples/hcp-$platform-demo/main.tf
