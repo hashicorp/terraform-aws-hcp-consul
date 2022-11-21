@@ -32,7 +32,7 @@ output "howto_connect" {
 
   To access Consul from your local client run:
   export CONSUL_HTTP_ADDR="${hcp_consul_cluster.main.consul_public_endpoint_url}"
-  export CONSUL_HTTP_TOKEN=$(terraform output consul_root_token)
+  export CONSUL_HTTP_TOKEN=$(terraform output -raw consul_root_token)
   
   To connect to the ec2 instance deployed: 
 ${var.ssh ? "  - To access via SSH run: ssh -i ${abspath(local_file.ssh_key[0].filename)} ubuntu@${module.aws_ec2_consul_client.public_ip}" : ""}

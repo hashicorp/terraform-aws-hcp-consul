@@ -45,7 +45,7 @@ resource "hcp_hvn" "main" {
 
 module "aws_hcp_consul" {
   source  = "hashicorp/hcp-consul/aws"
-  version = "~> 0.8.9"
+  version = "~> 0.8.10"
 
   hvn             = hcp_hvn.main
   vpc_id          = local.vpc_id
@@ -86,7 +86,7 @@ resource "local_file" "ssh_key" {
 
 module "aws_ec2_consul_client" {
   source  = "hashicorp/hcp-consul/aws//modules/hcp-ec2-client"
-  version = "~> 0.8.9"
+  version = "~> 0.8.10"
 
   allowed_http_cidr_blocks = ["0.0.0.0/0"]
   allowed_ssh_cidr_blocks  = ["0.0.0.0/0"]
@@ -136,7 +136,7 @@ output "howto_connect" {
 
   To access Consul from your local client run:
   export CONSUL_HTTP_ADDR="${hcp_consul_cluster.main.consul_public_endpoint_url}"
-  export CONSUL_HTTP_TOKEN=$(terraform output consul_root_token)
+  export CONSUL_HTTP_TOKEN=$(terraform output -raw consul_root_token)
   
   To connect to the ec2 instance deployed: 
 ${local.ssh ? "  - To access via SSH run: ssh -i ${abspath(local_file.ssh_key[0].filename)} ubuntu@${module.aws_ec2_consul_client.public_ip}" : ""}
