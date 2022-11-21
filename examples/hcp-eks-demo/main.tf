@@ -44,8 +44,9 @@ module "eks" {
 
   node_groups = {
     application = {
-      name_prefix      = "hashicups"
-      instance_types   = ["t3a.medium"]
+      name_prefix    = "hashicups"
+      instance_types = ["t3a.medium"]
+
       desired_capacity = 3
       max_capacity     = 3
       min_capacity     = 3
@@ -61,22 +62,24 @@ resource "hcp_hvn" "main" {
   cidr_block     = var.hvn_cidr_block
 }
 
-module "aws_hcp_consul" {
-  source  = "hashicorp/hcp-consul/aws"
-  version = "~> 0.8.10"
-
-  hvn                = hcp_hvn.main
-  vpc_id             = module.vpc.vpc_id
-  subnet_ids         = module.vpc.private_subnets
-  route_table_ids    = module.vpc.private_route_table_ids
-  security_group_ids = var.install_eks_cluster ? [module.eks[0].cluster_primary_security_group_id] : [""]
-}
+# Note: Uncomment the below module to setup peering for connecting to a private HCP Consul cluster
+# module "aws_hcp_consul" {
+#   source  = "hashicorp/hcp-consul/aws"
+#   version = "~> 0.8.10"
+#
+#   hvn                = hcp_hvn.main
+#   vpc_id             = module.vpc.vpc_id
+#   subnet_ids         = module.vpc.private_subnets
+#   route_table_ids    = module.vpc.private_route_table_ids
+#   security_group_ids = var.install_eks_cluster ? [module.eks[0].cluster_primary_security_group_id] : [""]
+# }
 
 resource "hcp_consul_cluster" "main" {
-  cluster_id      = var.cluster_id
-  hvn_id          = hcp_hvn.main.hvn_id
-  public_endpoint = true
-  tier            = var.tier
+  cluster_id         = var.cluster_id
+  hvn_id             = hcp_hvn.main.hvn_id
+  public_endpoint    = true
+  tier               = var.tier
+  min_consul_version = "v1.14.0"
 }
 
 resource "hcp_consul_cluster_root_token" "token" {
@@ -87,14 +90,13 @@ module "eks_consul_client" {
   source  = "hashicorp/hcp-consul/aws//modules/hcp-eks-client"
   version = "~> 0.8.10"
 
-  boostrap_acl_token    = hcp_consul_cluster_root_token.token.secret_id
-  cluster_id            = hcp_consul_cluster.main.cluster_id
-  consul_ca_file        = base64decode(hcp_consul_cluster.main.consul_ca_file)
-  consul_hosts          = jsondecode(base64decode(hcp_consul_cluster.main.consul_config_file))["retry_join"]
-  consul_version        = hcp_consul_cluster.main.consul_version
-  datacenter            = hcp_consul_cluster.main.datacenter
-  gossip_encryption_key = jsondecode(base64decode(hcp_consul_cluster.main.consul_config_file))["encrypt"]
-  k8s_api_endpoint      = var.install_eks_cluster ? module.eks[0].cluster_endpoint : ""
+  boostrap_acl_token = hcp_consul_cluster_root_token.token.secret_id
+  cluster_id         = hcp_consul_cluster.main.cluster_id
+  # strip out `https://` from the public url
+  consul_hosts     = tolist([substr(hcp_consul_cluster.main.consul_public_endpoint_url, 8, -1)])
+  consul_version   = hcp_consul_cluster.main.consul_version
+  datacenter       = hcp_consul_cluster.main.datacenter
+  k8s_api_endpoint = var.install_eks_cluster ? module.eks[0].cluster_endpoint : ""
 
   # The EKS node group will fail to create if the clients are
   # created at the same time. This forces the client to wait until

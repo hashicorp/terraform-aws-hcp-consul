@@ -20,7 +20,7 @@ output "helm_values_filename" {
 }
 
 output "hashicups_url" {
-  value = one(module.demo_app[*].hashicups_url)
+  value = "${one(module.demo_app[*].hashicups_url)}:8080"
 }
 
 output "next_steps" {
@@ -30,7 +30,7 @@ output "next_steps" {
 output "howto_connect" {
   value = <<EOF
   ${var.install_demo_app ? "The demo app, HashiCups, Has been installed for you and its components registered in Consul." : ""}
-  ${var.install_demo_app ? "To access HashiCups navigate to: ${module.demo_app[0].hashicups_url}" : ""}
+  ${var.install_demo_app ? "To access HashiCups navigate to: ${one(module.demo_app[*].hashicups_url)}:8080" : ""}
 
   To access Consul from your local client run:
   export CONSUL_HTTP_ADDR="${hcp_consul_cluster.main.consul_public_endpoint_url}"
