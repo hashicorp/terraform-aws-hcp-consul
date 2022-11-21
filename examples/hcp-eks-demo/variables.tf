@@ -45,9 +45,3 @@ variable "vpc_region" {
   description = "The AWS region to create resources in"
   default     = "us-west-2"
 }
-
-variable "fargate_eks" {
-  type        = bool
-  description = "Use fargate eks containers for consul instead of ec2 instances. Only works for workloads using Consul Dataplane"
-  default     = false
-}

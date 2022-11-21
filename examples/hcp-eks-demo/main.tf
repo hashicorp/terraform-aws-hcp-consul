@@ -47,25 +47,11 @@ module "eks" {
       name_prefix    = "hashicups"
       instance_types = ["t3a.medium"]
 
-      desired_capacity = var.fargate_eks ? 2 : 3
-      max_capacity     = var.fargate_eks ? 2 : 3
-      min_capacity     = var.fargate_eks ? 2 : 3
+      desired_capacity = 3
+      max_capacity     = 3
+      min_capacity     = 3
     }
   }
-
-  fargate_profiles = var.fargate_eks ? {
-    default = {
-      name = "default"
-      selectors = [
-        {
-          namespace = "consul"
-        },
-        {
-          namespace = "default"
-        }
-      ]
-    }
-  } : {}
 }
 
 # The HVN created in HCP
