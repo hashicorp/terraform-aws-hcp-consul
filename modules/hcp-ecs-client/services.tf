@@ -20,40 +20,6 @@ module "acl-controller" {
   name_prefix = local.secret_prefix
 }
 
-resource "aws_iam_role" "frontend-task-role" {
-  name = "frontend_${local.scope}_task_role"
-  assume_role_policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Action = "sts:AssumeRole"
-        Effect = "Allow"
-        Principal = {
-          Service = "ecs-tasks.amazonaws.com"
-        }
-      }
-    ]
-  })
-}
-
-resource "aws_iam_role" "frontend-execution-role" {
-  name = "frontend_${local.scope}_execution_role"
-  path = "/ecs/"
-
-  assume_role_policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Action = "sts:AssumeRole"
-        Effect = "Allow"
-        Principal = {
-          Service = "ecs-tasks.amazonaws.com"
-        }
-      }
-    ]
-  })
-}
-
 module "frontend" {
   source  = "hashicorp/consul-ecs/aws//modules/mesh-task"
   version = "~> 0.5.0"
@@ -137,40 +103,6 @@ resource "aws_ecs_service" "frontend" {
   launch_type            = "FARGATE"
   propagate_tags         = "TASK_DEFINITION"
   enable_execute_command = true
-}
-
-resource "aws_iam_role" "public-api-task-role" {
-  name = "public_api_${local.scope}_task_role"
-  assume_role_policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Action = "sts:AssumeRole"
-        Effect = "Allow"
-        Principal = {
-          Service = "ecs-tasks.amazonaws.com"
-        }
-      }
-    ]
-  })
-}
-
-resource "aws_iam_role" "public-api-execution-role" {
-  name = "public_api_${local.scope}_execution_role"
-  path = "/ecs/"
-
-  assume_role_policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Action = "sts:AssumeRole"
-        Effect = "Allow"
-        Principal = {
-          Service = "ecs-tasks.amazonaws.com"
-        }
-      }
-    ]
-  })
 }
 
 module "public-api" {
@@ -277,40 +209,6 @@ resource "aws_ecs_service" "public-api" {
   enable_execute_command = true
 }
 
-resource "aws_iam_role" "payment-api-task-role" {
-  name = "payment_api_${local.scope}_task_role"
-  assume_role_policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Action = "sts:AssumeRole"
-        Effect = "Allow"
-        Principal = {
-          Service = "ecs-tasks.amazonaws.com"
-        }
-      }
-    ]
-  })
-}
-
-resource "aws_iam_role" "payment-api-execution-role" {
-  name = "payment_api_${local.scope}_execution_role"
-  path = "/ecs/"
-
-  assume_role_policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Action = "sts:AssumeRole"
-        Effect = "Allow"
-        Principal = {
-          Service = "ecs-tasks.amazonaws.com"
-        }
-      }
-    ]
-  })
-}
-
 module "payment-api" {
   source  = "hashicorp/consul-ecs/aws//modules/mesh-task"
   version = "~> 0.5.0"
@@ -380,40 +278,6 @@ resource "aws_ecs_service" "payment-api" {
   launch_type            = "FARGATE"
   propagate_tags         = "TASK_DEFINITION"
   enable_execute_command = true
-}
-
-resource "aws_iam_role" "product-api-task-role" {
-  name = "product_api_${local.scope}_task_role"
-  assume_role_policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Action = "sts:AssumeRole"
-        Effect = "Allow"
-        Principal = {
-          Service = "ecs-tasks.amazonaws.com"
-        }
-      }
-    ]
-  })
-}
-
-resource "aws_iam_role" "product-api-execution-role" {
-  name = "product_api_${local.scope}_execution_role"
-  path = "/ecs/"
-
-  assume_role_policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Action = "sts:AssumeRole"
-        Effect = "Allow"
-        Principal = {
-          Service = "ecs-tasks.amazonaws.com"
-        }
-      }
-    ]
-  })
 }
 
 module "product-api" {
@@ -502,40 +366,6 @@ resource "aws_ecs_service" "product-api" {
   launch_type            = "FARGATE"
   propagate_tags         = "TASK_DEFINITION"
   enable_execute_command = true
-}
-
-resource "aws_iam_role" "product-db-task-role" {
-  name = "product_db_${local.scope}_task_role"
-  assume_role_policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Action = "sts:AssumeRole"
-        Effect = "Allow"
-        Principal = {
-          Service = "ecs-tasks.amazonaws.com"
-        }
-      }
-    ]
-  })
-}
-
-resource "aws_iam_role" "product-db-execution-role" {
-  name = "product_db_${local.scope}_execution_role"
-  path = "/ecs/"
-
-  assume_role_policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Action = "sts:AssumeRole"
-        Effect = "Allow"
-        Principal = {
-          Service = "ecs-tasks.amazonaws.com"
-        }
-      }
-    ]
-  })
 }
 
 module "product-db" {
