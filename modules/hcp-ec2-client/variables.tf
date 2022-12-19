@@ -33,7 +33,7 @@ variable "install_demo_app" {
 
 variable "nat_public_ips" {
   type        = list(string)
-  description = "Here to ensure the instance is deleted and public IP freed before attempting to destroy the Internet Gateway which will otherwise fail"
+  description = "Here to ensure the instance is deleted and public IP freed before attempting to destroy the Internet Gateway which will otherwise fail. Note: this is only necessary for new VPCs"
 }
 
 variable "node_id" {
