@@ -93,6 +93,7 @@ module "aws_ec2_consul_client" {
   client_ca_file           = hcp_consul_cluster.main.consul_ca_file
   client_config_file       = hcp_consul_cluster.main.consul_config_file
   consul_version           = hcp_consul_cluster.main.consul_version
+  nat_public_ips           = []
   install_demo_app         = local.install_demo_app
   root_token               = hcp_consul_cluster_root_token.token.secret_id
   security_group_id        = module.aws_hcp_consul.security_group_id
