@@ -12,6 +12,7 @@ KillMode=process
 KillSignal=SIGTERM
 Restart=on-failure
 LimitNOFILE=65536
+WorkingDirectory=/etc/consul.d/
 
 [Install]
 WantedBy=multi-user.target
