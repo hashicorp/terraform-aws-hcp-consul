@@ -20,7 +20,7 @@ output "hashicups_url" {
 }
 
 output "next_steps" {
-  value = local.install_demo_app ? "HashiCups Application will be ready in ~2 minutes. Use 'terraform output consul_root_token' to retrieve the root token." : null
+  value = var.install_demo_app ? "HashiCups Application will be ready in ~2 minutes. Use 'terraform output consul_root_token' to retrieve the root token." : null
 }
 
 output "howto_connect" {
@@ -36,6 +36,6 @@ output "howto_connect" {
   
   To connect to the ec2 instance deployed: 
 ${var.ssh ? "  - To access via SSH run: ssh -i ${abspath(local_file.ssh_key[0].filename)} ubuntu@${module.aws_ec2_consul_client.public_ip}" : ""}
-${var.ssm ? "  - To access via SSM run: aws ssm start-session --target ${module.aws_ec2_consul_client.host_id} --region ${local.vpc_region}" : ""}
+${var.ssm ? "  - To access via SSM run: aws ssm start-session --target ${module.aws_ec2_consul_client.host_id} --region ${var.vpc_region}" : ""}
   EOF
 }
