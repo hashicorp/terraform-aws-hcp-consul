@@ -182,7 +182,7 @@ output "hashicups_url" {
 }
 
 output "next_steps" {
-  value = "HashiCups Application will be ready in ~2 minutes. Use 'terraform output consul_root_token' to retrieve the root token."
+  value = "HashiCups Application will be ready in ~2 minutes. Use 'terraform output -raw consul_root_token' to retrieve the root token."
 }
 
 output "howto_connect" {

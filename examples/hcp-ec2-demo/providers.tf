@@ -25,3 +25,8 @@ provider "consul" {
   token      = hcp_consul_cluster_root_token.token.secret_id
 }
 
+provider "nomad" {
+  address   = "http://${module.aws_ec2_consul_client.public_ip}:8081"
+  http_auth = "nomad:${hcp_consul_cluster_root_token.token.secret_id}"
+}
+
