@@ -35,6 +35,11 @@ provider "consul" {
   token      = hcp_consul_cluster_root_token.token.secret_id
 }
 
+provider "nomad" {
+  address   = "http://${module.aws_ec2_consul_client.public_ip}:8081"
+  http_auth = "nomad:${hcp_consul_cluster_root_token.token.secret_id}"
+}
+
 
 resource "hcp_hvn" "main" {
   hvn_id         = local.hvn_id
@@ -102,6 +107,13 @@ module "aws_ec2_consul_client" {
   subnet_id                = local.public_subnet1
   vpc_id                   = local.vpc_id
 }
+
+module "hashicups" {
+  count = local.install_demo_app ? 1 : 0
+
+  source  = "hashicorp/hcp-consul/aws/modules/ec2-demo-app"
+  version = "~> 0.9.4"
+}
 output "consul_root_token" {
   value     = hcp_consul_cluster_root_token.token.secret_id
   sensitive = true
@@ -138,7 +150,7 @@ output "howto_connect" {
   export CONSUL_HTTP_ADDR="${hcp_consul_cluster.main.consul_public_endpoint_url}"
   export CONSUL_HTTP_TOKEN=$(terraform output -raw consul_root_token)
   
-  To connect to the ec2 instance deployed: 
+  To connect to the deployed EC2 instance: 
 ${local.ssh ? "  - To access via SSH run: ssh -i ${abspath(local_file.ssh_key[0].filename)} ubuntu@${module.aws_ec2_consul_client.public_ip}" : ""}
 ${local.ssm ? "  - To access via SSM run: aws ssm start-session --target ${module.aws_ec2_consul_client.host_id} --region ${local.vpc_region}" : ""}
   EOF

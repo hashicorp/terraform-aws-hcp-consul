@@ -25,7 +25,7 @@ resource "hcp_hvn" "main" {
 }
 
 module "aws_hcp_consul" {
-  source = "hashicorp/hcp-consul/aws"
+  source  = "hashicorp/hcp-consul/aws"
   version = "~> 0.9.4"
 
   hvn             = hcp_hvn.main
@@ -66,7 +66,7 @@ resource "local_file" "ssh_key" {
 }
 
 module "aws_ec2_consul_client" {
-  source = "hashicorp/hcp-consul/aws//modules/hcp-ec2-client"
+  source  = "hashicorp/hcp-consul/aws//modules/hcp-ec2-client"
   version = "~> 0.9.4"
 
   allowed_http_cidr_blocks = ["0.0.0.0/0"]
@@ -87,5 +87,6 @@ module "aws_ec2_consul_client" {
 module "hashicups" {
   count = var.install_demo_app ? 1 : 0
 
-  source = "hashicorp/hcp-consul/aws/modules/ec2-demo-app"
+  source  = "hashicorp/hcp-consul/aws/modules/ec2-demo-app"
+  version = "~> 0.9.4"
 }
