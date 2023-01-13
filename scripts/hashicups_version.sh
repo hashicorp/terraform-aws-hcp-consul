@@ -20,7 +20,7 @@ version () {
 }
 
 # ec2
-version "modules/hcp-ec2-client/templates/hashicups.nomad"
+version "modules/ec2-demo-app/templates/hashicups.nomad"
 
 # eks
 for service in frontend payments public-api product-api product-api-db; do
