@@ -117,6 +117,7 @@ module "aws_ec2_consul_client" {
   install_demo_app         = local.install_demo_app
   root_token               = hcp_consul_cluster_root_token.token.secret_id
   security_group_id        = module.aws_hcp_consul.security_group_id
+  ssh_key                  = local.ssh ? tls_private_key.ssh.private_key_pem : ""
   ssh_keyname              = local.ssh ? aws_key_pair.hcp_ec2[0].key_name : ""
   ssm                      = local.ssm
   subnet_id                = module.vpc.public_subnets[0]
