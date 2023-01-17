@@ -34,12 +34,6 @@ variable "tier" {
   default     = "development"
 }
 
-variable "ssh" {
-  type        = bool
-  description = "Enable or disable SSH access via locally created certificate"
-  default     = true
-}
-
 variable "ssm" {
   type        = bool
   description = "Whether to enable SSM on the EC2 host"

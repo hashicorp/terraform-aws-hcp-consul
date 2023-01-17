@@ -58,7 +58,6 @@ variable "ssh_key" {
 
 variable "ssh_keyname" {
   description = "Key pair name for the EC2 instance"
-  default     = ""
 }
 
 variable "ssm" {

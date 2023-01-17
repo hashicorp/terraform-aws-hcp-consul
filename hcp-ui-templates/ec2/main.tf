@@ -4,7 +4,6 @@ locals {
   cluster_id       = "{{ .ClusterID }}"
   hvn_id           = "{{ .ClusterID }}-hvn"
   install_demo_app = true
-  ssh              = true
   ssm              = true
 }
 
@@ -90,18 +89,14 @@ resource "tls_private_key" "ssh" {
 }
 
 resource "aws_key_pair" "hcp_ec2" {
-  count = local.ssh ? 1 : 0
-
   public_key = tls_private_key.ssh.public_key_openssh
   key_name   = "hcp-ec2-key-${local.cluster_id}"
 }
 
 resource "local_file" "ssh_key" {
-  count = local.ssh ? 1 : 0
-
   content         = tls_private_key.ssh.private_key_pem
   file_permission = "400"
-  filename        = "${path.module}/${aws_key_pair.hcp_ec2[0].key_name}.pem"
+  filename        = "${path.module}/${aws_key_pair.hcp_ec2.key_name}.pem"
 }
 
 module "aws_ec2_consul_client" {
@@ -117,8 +112,8 @@ module "aws_ec2_consul_client" {
   install_demo_app         = local.install_demo_app
   root_token               = hcp_consul_cluster_root_token.token.secret_id
   security_group_id        = module.aws_hcp_consul.security_group_id
-  ssh_key                  = local.ssh ? tls_private_key.ssh.private_key_pem : ""
-  ssh_keyname              = local.ssh ? aws_key_pair.hcp_ec2[0].key_name : ""
+  ssh_key                  = tls_private_key.ssh.private_key_pem
+  ssh_keyname              = aws_key_pair.hcp_ec2.key_name
   ssm                      = local.ssm
   subnet_id                = module.vpc.public_subnets[0]
   vpc_id                   = module.vpc.vpc_id
@@ -129,6 +124,10 @@ module "hashicups" {
 
   source  = "hashicorp/hcp-consul/aws/modules/ec2-demo-app"
   version = "~> 0.10.0"
+
+  depends_on = [
+    module.aws_ec2_consul_client
+  ]
 }
 output "consul_root_token" {
   value     = hcp_consul_cluster_root_token.token.secret_id
@@ -167,7 +166,7 @@ output "howto_connect" {
   export CONSUL_HTTP_TOKEN=$(terraform output -raw consul_root_token)
   
   To connect to the deployed EC2 instance: 
-${local.ssh ? "  - To access via SSH run: ssh -i ${abspath(local_file.ssh_key[0].filename)} ubuntu@${module.aws_ec2_consul_client.public_ip}" : ""}
-${local.ssm ? "  - To access via SSM run: aws ssm start-session --target ${module.aws_ec2_consul_client.host_id} --region ${local.vpc_region}" : ""}
+    - via SSH run: ssh -i ${abspath(local_file.ssh_key.filename)} ubuntu@${module.aws_ec2_consul_client.public_ip}
+${local.ssm ? "  - via SSM run: aws ssm start-session --target ${module.aws_ec2_consul_client.host_id} --region ${local.vpc_region}" : ""}
   EOF
 }
