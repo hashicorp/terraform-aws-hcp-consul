@@ -166,7 +166,7 @@ output "howto_connect" {
   export CONSUL_HTTP_TOKEN=$(terraform output -raw consul_root_token)
   
   To connect to the deployed EC2 instance: 
-    - via SSH run: ssh -i ${abspath(local_file.ssh_key.filename)} ubuntu@${module.aws_ec2_consul_client.public_ip}
+  - via SSH run: ssh -i ${abspath(local_file.ssh_key.filename)} ubuntu@${module.aws_ec2_consul_client.public_ip}
 ${local.ssm ? "  - via SSM run: aws ssm start-session --target ${module.aws_ec2_consul_client.host_id} --region ${local.vpc_region}" : ""}
   EOF
 }
