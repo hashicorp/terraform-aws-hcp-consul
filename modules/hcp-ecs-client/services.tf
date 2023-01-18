@@ -58,10 +58,10 @@ module "frontend" {
   source  = "hashicorp/consul-ecs/aws//modules/mesh-task"
   version = "~> 0.5.0"
 
-  family         = "frontend"
-  task_role      = aws_iam_role.frontend-task-role
-  create_task_role = false
-  execution_role = aws_iam_role.frontend-execution-role
+  family                = "frontend"
+  task_role             = aws_iam_role.frontend-task-role
+  create_task_role      = false
+  execution_role        = aws_iam_role.frontend-execution-role
   create_execution_role = false
   container_definitions = [
     {
@@ -118,7 +118,7 @@ module "frontend" {
   consul_server_ca_cert_arn = aws_secretsmanager_secret.ca_cert.arn
   gossip_key_secret_arn     = aws_secretsmanager_secret.gossip_key.arn
 
-  acls                           = true
+  acls = true
 }
 
 resource "aws_ecs_service" "frontend" {
@@ -181,10 +181,10 @@ module "public-api" {
   source  = "hashicorp/consul-ecs/aws//modules/mesh-task"
   version = "~> 0.5.0"
 
-  family         = "public-api"
-  task_role      = aws_iam_role.public-api-task-role
-  create_task_role = false
-  execution_role = aws_iam_role.public-api-execution-role
+  family                = "public-api"
+  task_role             = aws_iam_role.public-api-task-role
+  create_task_role      = false
+  execution_role        = aws_iam_role.public-api-execution-role
   create_execution_role = false
   container_definitions = [
     {
@@ -260,7 +260,7 @@ module "public-api" {
   consul_server_ca_cert_arn = aws_secretsmanager_secret.ca_cert.arn
   gossip_key_secret_arn     = aws_secretsmanager_secret.gossip_key.arn
 
-  acls                           = true
+  acls = true
 }
 
 resource "aws_ecs_service" "public-api" {
@@ -323,10 +323,10 @@ module "payment-api" {
   source  = "hashicorp/consul-ecs/aws//modules/mesh-task"
   version = "~> 0.5.0"
 
-  family         = "payment-api"
-  task_role      = aws_iam_role.payment-api-task-role
-  create_task_role = false
-  execution_role = aws_iam_role.payment-api-execution-role
+  family                = "payment-api"
+  task_role             = aws_iam_role.payment-api-task-role
+  create_task_role      = false
+  execution_role        = aws_iam_role.payment-api-execution-role
   create_execution_role = false
   container_definitions = [
     {
@@ -375,7 +375,7 @@ module "payment-api" {
   consul_server_ca_cert_arn = aws_secretsmanager_secret.ca_cert.arn
   gossip_key_secret_arn     = aws_secretsmanager_secret.gossip_key.arn
 
-  acls                           = true
+  acls = true
 }
 
 resource "aws_ecs_service" "payment-api" {
@@ -432,10 +432,10 @@ module "product-api" {
   source  = "hashicorp/consul-ecs/aws//modules/mesh-task"
   version = "~> 0.5.0"
 
-  family         = "product-api"
-  task_role      = aws_iam_role.product-api-task-role
-  create_task_role = false
-  execution_role = aws_iam_role.product-api-execution-role
+  family                = "product-api"
+  task_role             = aws_iam_role.product-api-task-role
+  create_task_role      = false
+  execution_role        = aws_iam_role.product-api-execution-role
   create_execution_role = false
   container_definitions = [
     {
@@ -501,7 +501,7 @@ module "product-api" {
   consul_server_ca_cert_arn = aws_secretsmanager_secret.ca_cert.arn
   gossip_key_secret_arn     = aws_secretsmanager_secret.gossip_key.arn
 
-  acls                           = true
+  acls = true
 }
 
 resource "aws_ecs_service" "product-api" {
@@ -558,10 +558,10 @@ module "product-db" {
   source  = "hashicorp/consul-ecs/aws//modules/mesh-task"
   version = "~> 0.5.0"
 
-  family         = "product-db"
-  task_role      = aws_iam_role.product-db-task-role
-  create_task_role = false
-  execution_role = aws_iam_role.product-db-execution-role
+  family                = "product-db"
+  task_role             = aws_iam_role.product-db-task-role
+  create_task_role      = false
+  execution_role        = aws_iam_role.product-db-execution-role
   create_execution_role = false
   container_definitions = [
     {
@@ -624,7 +624,7 @@ module "product-db" {
   consul_server_ca_cert_arn = aws_secretsmanager_secret.ca_cert.arn
   gossip_key_secret_arn     = aws_secretsmanager_secret.gossip_key.arn
 
-  acls                           = true
+  acls = true
 }
 
 resource "aws_ecs_service" "product-db" {
