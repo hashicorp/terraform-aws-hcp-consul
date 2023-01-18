@@ -51,14 +51,18 @@ variable "security_group_id" {
   type = string
 }
 
+variable "ssh_key" {
+  description = "Private SSH key for an SSH connection to the EC2 instance"
+  sensitive   = true
+}
+
 variable "ssh_keyname" {
-  description = "key pair name for ssh connection"
-  default     = ""
+  description = "Key pair name for the EC2 instance"
 }
 
 variable "ssm" {
   type        = bool
-  description = "Whether to enable SSM on the EC2 host"
+  description = "Whether to enable SSM on the EC2 instance"
   default     = true
 }
 

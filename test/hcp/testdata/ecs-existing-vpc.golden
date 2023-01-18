@@ -45,7 +45,7 @@ resource "hcp_hvn" "main" {
 
 module "aws_hcp_consul" {
   source  = "hashicorp/hcp-consul/aws"
-  version = "~> 0.9.4"
+  version = "~> 0.10.0"
 
   hvn             = hcp_hvn.main
   vpc_id          = local.vpc_id
@@ -66,7 +66,7 @@ resource "hcp_consul_cluster_root_token" "token" {
 
 module "aws_ecs_cluster" {
   source  = "hashicorp/hcp-consul/aws//modules/hcp-ecs-client"
-  version = "~> 0.9.4"
+  version = "~> 0.10.0"
 
   allowed_http_cidr_blocks = ["0.0.0.0/0"]
   allowed_ssh_cidr_blocks  = ["0.0.0.0/0"]
@@ -103,5 +103,5 @@ output "hashicups_url" {
 }
 
 output "next_steps" {
-  value = "HashiCups Application will be ready in ~2 minutes. Use 'terraform output consul_root_token' to retrieve the root token."
+  value = "HashiCups Application will be ready in ~2 minutes. Use 'terraform output -raw consul_root_token' to retrieve the root token."
 }

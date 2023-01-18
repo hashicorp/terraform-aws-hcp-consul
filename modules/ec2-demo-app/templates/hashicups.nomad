@@ -104,8 +104,8 @@ job "hashicups" {
       driver = "docker"
 
       resources {
-        cpu    = 300 # MHz
-        memory = 128 # MB
+        cpu    = 500 # MHz
+        memory = 512 # MB
       }
 
       config {

@@ -88,7 +88,12 @@ resource "aws_iam_instance_profile" "hcp_ec2" {
   name_prefix = "hcp_ec2_profile"
 }
 
-# Create the Consul and Nomad client
+resource "random_id" "id" {
+  prefix      = "hcp-consul-client"
+  byte_length = 8
+}
+
+# Create a provisioned EC2 instance that waits on cloud-init to finish and prints cloud-init logs
 resource "aws_instance" "host" {
   ami                         = data.aws_ami.ubuntu.id
   associate_public_ip_address = true
@@ -125,7 +130,7 @@ resource "aws_instance" "host" {
   })
 
   tags = {
-    Name = "${random_id.id.dec}-hcp-client"
+    Name = random_id.id.dec
   }
 
   lifecycle {
@@ -133,10 +138,23 @@ resource "aws_instance" "host" {
     prevent_destroy       = false
   }
 
-  depends_on = [var.nat_public_ips]
-}
+  # Attempt to connect to the EC2 host and wait for cloud-init to finish.
+  # We wait here so the subsequent Nomad commands are timed such that the Nomad server is ready.
+  # https://developer.hashicorp.com/terraform/language/resources/provisioners/remote-exec
+  provisioner "remote-exec" {
+    inline = [
+      # wait on cloud-init to finish
+      "cloud-init status --wait",
+      # "cat /var/log/cloud-init-output.log"
+    ]
 
-resource "random_id" "id" {
-  prefix      = "consul-client"
-  byte_length = 8
+    connection {
+      type        = "ssh"
+      user        = "ubuntu"
+      private_key = var.ssh_key
+      host        = self.public_ip
+    }
+  }
+
+  depends_on = [var.nat_public_ips]
 }
