@@ -1,6 +1,6 @@
 locals {
-  secret_prefix = random_id.id.dec
-  scope         = random_id.id.dec
+  prefix = random_id.id.dec
+  scope  = random_id.id.dec
 
   lb_port          = 80
   frontend_port    = 3000
@@ -49,7 +49,7 @@ resource "random_id" "id" {
 }
 
 resource "aws_secretsmanager_secret" "bootstrap_token" {
-  name                    = "${local.secret_prefix}-bootstrap-token"
+  name                    = "${local.prefix}-bootstrap-token"
   recovery_window_in_days = 0
 }
 
@@ -59,7 +59,7 @@ resource "aws_secretsmanager_secret_version" "bootstrap_token" {
 }
 
 resource "aws_secretsmanager_secret" "ca_cert" {
-  name                    = "${local.secret_prefix}-client-ca-cert"
+  name                    = "${local.prefix}-client-ca-cert"
   recovery_window_in_days = 0
 }
 
@@ -69,7 +69,7 @@ resource "aws_secretsmanager_secret_version" "ca_cert" {
 }
 
 resource "aws_secretsmanager_secret" "gossip_key" {
-  name                    = "${local.secret_prefix}-gossip-encryption-key"
+  name                    = "${local.prefix}-gossip-encryption-key"
   recovery_window_in_days = 0
 }
 
@@ -79,5 +79,5 @@ resource "aws_secretsmanager_secret_version" "gossip_key" {
 }
 
 resource "aws_cloudwatch_log_group" "log_group" {
-  name = "${local.secret_prefix}-ecs-client"
+  name = "${local.prefix}-ecs-client"
 }

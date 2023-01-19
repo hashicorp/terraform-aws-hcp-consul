@@ -17,7 +17,7 @@ module "acl-controller" {
   region                            = var.region
   subnets                           = var.private_subnet_ids
 
-  name_prefix = local.secret_prefix
+  name_prefix = local.prefix
 }
 
 resource "aws_iam_role" "frontend-task-role" {
