@@ -11,9 +11,10 @@ output "consul_url" {
   )
 }
 
-output "kubeconfig_filename" {
-  value = abspath(one(module.eks[*].kubeconfig_filename))
-}
+# output "kubeconfig_filename" {
+#   value = abspath(one(module.eks[*].kubeconfig_filename))
+# }
+# TODO: aws eks update-kubeconfig --name
 
 output "helm_values_filename" {
   value = abspath(module.eks_consul_client.helm_values_file)

@@ -2,7 +2,7 @@ terraform {
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      version = "~> 3.43"
+      version = "~> 4.47"
     }
 
     hcp = {
@@ -37,21 +37,21 @@ provider "aws" {
 
 provider "helm" {
   kubernetes {
-    host                   = var.install_eks_cluster ? data.aws_eks_cluster.cluster[0].endpoint : ""
-    cluster_ca_certificate = var.install_eks_cluster ? base64decode(data.aws_eks_cluster.cluster[0].certificate_authority.0.data) : ""
-    token                  = var.install_eks_cluster ? data.aws_eks_cluster_auth.cluster[0].token : ""
+    host                   = data.aws_eks_cluster.cluster.endpoint
+    cluster_ca_certificate = base64decode(data.aws_eks_cluster.cluster.certificate_authority.0.data)
+    token                  = data.aws_eks_cluster_auth.cluster.token
   }
 }
 
 provider "kubernetes" {
-  host                   = var.install_eks_cluster ? data.aws_eks_cluster.cluster[0].endpoint : ""
-  cluster_ca_certificate = var.install_eks_cluster ? base64decode(data.aws_eks_cluster.cluster[0].certificate_authority.0.data) : ""
-  token                  = var.install_eks_cluster ? data.aws_eks_cluster_auth.cluster[0].token : ""
+  host                   = data.aws_eks_cluster.cluster.endpoint
+  cluster_ca_certificate = base64decode(data.aws_eks_cluster.cluster.certificate_authority.0.data)
+  token                  = data.aws_eks_cluster_auth.cluster.token
 }
 
 provider "kubectl" {
-  host                   = var.install_eks_cluster ? data.aws_eks_cluster.cluster[0].endpoint : ""
-  cluster_ca_certificate = var.install_eks_cluster ? base64decode(data.aws_eks_cluster.cluster[0].certificate_authority.0.data) : ""
-  token                  = var.install_eks_cluster ? data.aws_eks_cluster_auth.cluster[0].token : ""
+  host                   = data.aws_eks_cluster.cluster.endpoint
+  cluster_ca_certificate = base64decode(data.aws_eks_cluster.cluster.certificate_authority.0.data)
+  token                  = data.aws_eks_cluster_auth.cluster.token
   load_config_file       = false
 }
