@@ -81,7 +81,7 @@ module "eks" {
   kubeconfig_api_version = "client.authentication.k8s.io/v1beta1"
 
   cluster_name    = "${local.cluster_id}-eks"
-  cluster_version = "1.21"
+  cluster_version = "1.25"
   subnets         = [local.private_subnet1, local.private_subnet2]
   vpc_id          = local.vpc_id
 
