@@ -33,9 +33,9 @@ module "eks" {
   source  = "terraform-aws-modules/eks/aws"
   version = "19.5.1"
 
-  cluster_name = "${var.cluster_id}-eks"
-  subnet_ids   = module.vpc.private_subnets
-  vpc_id       = module.vpc.vpc_id
+  cluster_name                   = "${var.cluster_id}-eks"
+  subnet_ids                     = module.vpc.private_subnets
+  vpc_id                         = module.vpc.vpc_id
   cluster_endpoint_public_access = true
 
   eks_managed_node_groups = {
@@ -49,7 +49,7 @@ module "eks" {
     }
   }
 
-   node_security_group_additional_rules = {
+  node_security_group_additional_rules = {
     ingress_self_all = {
       description = "Node to node all ports/protocols"
       protocol    = "-1"

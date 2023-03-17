@@ -11,7 +11,7 @@ terraform {
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      version = "~> 3.43"
+      version = "~> 4.47"
     }
 
     hcp = {
@@ -43,24 +43,25 @@ provider "aws" {
 
 provider "helm" {
   kubernetes {
-    host                   = local.install_eks_cluster ? data.aws_eks_cluster.cluster[0].endpoint : ""
-    cluster_ca_certificate = local.install_eks_cluster ? base64decode(data.aws_eks_cluster.cluster[0].certificate_authority.0.data) : ""
-    token                  = local.install_eks_cluster ? data.aws_eks_cluster_auth.cluster[0].token : ""
+    host                   = data.aws_eks_cluster.cluster.endpoint
+    cluster_ca_certificate = base64decode(data.aws_eks_cluster.cluster.certificate_authority.0.data)
+    token                  = data.aws_eks_cluster_auth.cluster.token
   }
 }
 
 provider "kubernetes" {
-  host                   = local.install_eks_cluster ? data.aws_eks_cluster.cluster[0].endpoint : ""
-  cluster_ca_certificate = local.install_eks_cluster ? base64decode(data.aws_eks_cluster.cluster[0].certificate_authority.0.data) : ""
-  token                  = local.install_eks_cluster ? data.aws_eks_cluster_auth.cluster[0].token : ""
+  host                   = data.aws_eks_cluster.cluster.endpoint
+  cluster_ca_certificate = base64decode(data.aws_eks_cluster.cluster.certificate_authority.0.data)
+  token                  = data.aws_eks_cluster_auth.cluster.token
 }
 
 provider "kubectl" {
-  host                   = local.install_eks_cluster ? data.aws_eks_cluster.cluster[0].endpoint : ""
-  cluster_ca_certificate = local.install_eks_cluster ? base64decode(data.aws_eks_cluster.cluster[0].certificate_authority.0.data) : ""
-  token                  = local.install_eks_cluster ? data.aws_eks_cluster_auth.cluster[0].token : ""
-  load_config_file       = false
+  host                   = data.aws_eks_cluster.cluster.endpoint
+  cluster_ca_certificate = base64decode(data.aws_eks_cluster.cluster.certificate_authority.0.data)
+  token                  = data.aws_eks_cluster_auth.cluster.token
+  load_config_file       = true
 }
+
 data "aws_availability_zones" "available" {
   filter {
     name   = "zone-type"
@@ -83,29 +84,25 @@ module "vpc" {
 }
 
 data "aws_eks_cluster" "cluster" {
-  count = local.install_eks_cluster ? 1 : 0
-  name  = module.eks[0].cluster_id
+  name       = module.eks.cluster_name
+  depends_on = [module.eks.cluster_arn]
 }
 
 data "aws_eks_cluster_auth" "cluster" {
-  count = local.install_eks_cluster ? 1 : 0
-  name  = module.eks[0].cluster_id
+  name       = module.eks.cluster_name
+  depends_on = [module.eks.cluster_arn]
 }
 
 module "eks" {
-  count                  = local.install_eks_cluster ? 1 : 0
-  source                 = "terraform-aws-modules/eks/aws"
-  version                = "17.24.0"
-  kubeconfig_api_version = "client.authentication.k8s.io/v1beta1"
+  source  = "terraform-aws-modules/eks/aws"
+  version = "19.5.1"
 
-  cluster_name    = "${local.cluster_id}-eks"
-  cluster_version = "1.21"
-  subnets         = module.vpc.private_subnets
-  vpc_id          = module.vpc.vpc_id
+  cluster_name                   = "${local.cluster_id}-eks"
+  subnet_ids                     = module.vpc.private_subnets
+  vpc_id                         = module.vpc.vpc_id
+  cluster_endpoint_public_access = true
 
-  manage_aws_auth = false
-
-  node_groups = {
+  eks_managed_node_groups = {
     application = {
       name_prefix    = "hashicups"
       instance_types = ["t3a.medium"]
@@ -115,6 +112,63 @@ module "eks" {
       min_capacity     = 3
     }
   }
+
+  node_security_group_additional_rules = {
+    ingress_self_all = {
+      description = "Node to node all ports/protocols"
+      protocol    = "-1"
+      from_port   = 0
+      to_port     = 0
+      type        = "ingress"
+      self        = true
+    }
+    ingress_cluster_all = {
+      description                   = "Cluster to node all ports/protocols"
+      protocol                      = "-1"
+      from_port                     = 0
+      to_port                       = 0
+      type                          = "ingress"
+      source_cluster_security_group = true
+    }
+    egress_all = {
+      description      = "Node all egress"
+      protocol         = "-1"
+      from_port        = 0
+      to_port          = 0
+      type             = "egress"
+      cidr_blocks      = ["0.0.0.0/0"]
+      ipv6_cidr_blocks = ["::/0"]
+    }
+  }
+}
+
+# https://aws.amazon.com/blogs/containers/amazon-ebs-csi-driver-is-now-generally-available-in-amazon-eks-add-ons/
+data "aws_iam_policy" "ebs_csi_policy" {
+  arn = "arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy"
+}
+
+module "irsa-ebs-csi" {
+  source  = "terraform-aws-modules/iam/aws//modules/iam-assumable-role-with-oidc"
+  version = "4.7.0"
+
+  create_role                   = true
+  role_name                     = "AmazonEKSTFEBSCSIRole-${module.eks.cluster_name}"
+  provider_url                  = module.eks.oidc_provider
+  role_policy_arns              = [data.aws_iam_policy.ebs_csi_policy.arn]
+  oidc_fully_qualified_subjects = ["system:serviceaccount:kube-system:ebs-csi-controller-sa"]
+}
+
+resource "aws_eks_addon" "ebs-csi" {
+  cluster_name             = module.eks.cluster_name
+  addon_name               = "aws-ebs-csi-driver"
+  addon_version            = "v1.16.1-eksbuild.1"
+  service_account_role_arn = module.irsa-ebs-csi.iam_role_arn
+  tags = {
+    "eks_addon" = "ebs-csi"
+    "terraform" = "true"
+  }
+
+  depends_on = [module.eks]
 }
 
 # The HVN created in HCP
@@ -159,12 +213,12 @@ module "eks_consul_client" {
   consul_hosts     = tolist([substr(hcp_consul_cluster.main.consul_public_endpoint_url, 8, -1)])
   consul_version   = hcp_consul_cluster.main.consul_version
   datacenter       = hcp_consul_cluster.main.datacenter
-  k8s_api_endpoint = local.install_eks_cluster ? module.eks[0].cluster_endpoint : ""
+  k8s_api_endpoint = module.eks.cluster_endpoint
 
   # The EKS node group will fail to create if the clients are
   # created at the same time. This forces the client to wait until
   # the node group is successfully created.
-  depends_on = [module.eks]
+  depends_on = [module.eks, aws_eks_addon.ebs-csi]
 }
 
 module "demo_app" {
@@ -187,10 +241,6 @@ output "consul_url" {
   )
 }
 
-output "kubeconfig_filename" {
-  value = abspath(one(module.eks[*].kubeconfig_filename))
-}
-
 output "helm_values_filename" {
   value = abspath(module.eks_consul_client.helm_values_file)
 }
@@ -209,11 +259,13 @@ output "howto_connect" {
   ${local.install_demo_app ? "To access HashiCups navigate to: ${one(module.demo_app[*].hashicups_url)}:8080" : ""}
 
   To access Consul from your local client run:
-  export CONSUL_HTTP_ADDR="${hcp_consul_cluster.main.consul_public_endpoint_url}"
-  export CONSUL_HTTP_TOKEN=$(terraform output -raw consul_root_token)
+
+      export CONSUL_HTTP_ADDR="${hcp_consul_cluster.main.consul_public_endpoint_url}"
+      export CONSUL_HTTP_TOKEN=$(terraform output -raw consul_root_token)
   
   ${local.install_eks_cluster ? "You can access your provisioned eks cluster by first running following command" : ""}
-  ${local.install_eks_cluster ? "export KUBECONFIG=$(terraform output -raw kubeconfig_filename)" : ""}    
+
+      ${local.install_eks_cluster ? "aws eks update-kubeconfig --region ${local.vpc_region} --name  ${module.eks.cluster_name}" : ""}
 
   Consul has been installed in the default namespace. To explore what has been installed run:
   
