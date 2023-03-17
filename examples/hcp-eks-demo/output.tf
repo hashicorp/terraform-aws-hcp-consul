@@ -34,11 +34,13 @@ output "howto_connect" {
   ${var.install_demo_app ? "To access HashiCups navigate to: ${one(module.demo_app[*].hashicups_url)}:8080" : ""}
 
   To access Consul from your local client run:
-  export CONSUL_HTTP_ADDR="${hcp_consul_cluster.main.consul_public_endpoint_url}"
-  export CONSUL_HTTP_TOKEN=$(terraform output -raw consul_root_token)
+
+      export CONSUL_HTTP_ADDR="${hcp_consul_cluster.main.consul_public_endpoint_url}"
+      export CONSUL_HTTP_TOKEN=$(terraform output -raw consul_root_token)
   
   ${var.install_eks_cluster ? "You can access your provisioned eks cluster by first running following command" : ""}
-  ${var.install_eks_cluster ? "export KUBECONFIG=$(terraform output -raw kubeconfig_filename)" : ""}    
+
+      ${var.install_eks_cluster ? "aws eks update-kubeconfig --region ${var.vpc_region} --name  ${module.eks.cluster_name}" : ""}
 
   Consul has been installed in the default namespace. To explore what has been installed run:
   

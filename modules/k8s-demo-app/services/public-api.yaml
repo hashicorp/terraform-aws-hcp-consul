@@ -45,7 +45,6 @@ spec:
         prometheus.io/scrape: "true"
         prometheus.io/port: "9102"
         consul.hashicorp.com/connect-inject: "true"
-        consul.hashicorp.com/connect-service-upstreams: "product-api:9090, payments:1800"
     spec:
       serviceAccountName: public-api
       containers:
@@ -58,9 +57,9 @@ spec:
             - name: BIND_ADDRESS
               value: ":8080"
             - name: PRODUCT_API_URI
-              value: "http://product-api:9090"
+              value: "http://product-api"
             - name: PAYMENT_API_URI
-              value: "http://payments:1800"
+              value: "http://payments"
         - name: jaeger-agent
           image: jaegertracing/jaeger-agent:latest
           imagePullPolicy: IfNotPresent

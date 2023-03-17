@@ -36,6 +36,7 @@ module "eks" {
   cluster_name = "${var.cluster_id}-eks"
   subnet_ids   = module.vpc.private_subnets
   vpc_id       = module.vpc.vpc_id
+  cluster_endpoint_public_access = true
 
   eks_managed_node_groups = {
     application = {
@@ -45,6 +46,34 @@ module "eks" {
       desired_capacity = 3
       max_capacity     = 3
       min_capacity     = 3
+    }
+  }
+
+   node_security_group_additional_rules = {
+    ingress_self_all = {
+      description = "Node to node all ports/protocols"
+      protocol    = "-1"
+      from_port   = 0
+      to_port     = 0
+      type        = "ingress"
+      self        = true
+    }
+    ingress_cluster_all = {
+      description                   = "Cluster to node all ports/protocols"
+      protocol                      = "-1"
+      from_port                     = 0
+      to_port                       = 0
+      type                          = "ingress"
+      source_cluster_security_group = true
+    }
+    egress_all = {
+      description      = "Node all egress"
+      protocol         = "-1"
+      from_port        = 0
+      to_port          = 0
+      type             = "egress"
+      cidr_blocks      = ["0.0.0.0/0"]
+      ipv6_cidr_blocks = ["::/0"]
     }
   }
 }
