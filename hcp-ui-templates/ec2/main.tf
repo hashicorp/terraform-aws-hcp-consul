@@ -122,7 +122,7 @@ module "aws_ec2_consul_client" {
 module "hashicups" {
   count = local.install_demo_app ? 1 : 0
 
-  source  = "hashicorp/hcp-consul/aws/modules/ec2-demo-app"
+  source  = "hashicorp/hcp-consul/aws//modules/ec2-demo-app"
   version = "~> 0.11.0"
 
   depends_on = [
