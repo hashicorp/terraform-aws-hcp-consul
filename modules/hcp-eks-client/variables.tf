@@ -69,3 +69,4 @@ variable "helm_values_file_permission" {
   type        = string
   default     = "0600"
 }
+
