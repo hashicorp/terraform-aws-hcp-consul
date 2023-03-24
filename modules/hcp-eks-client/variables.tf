@@ -69,3 +69,9 @@ variable "helm_values_file_permission" {
   type        = string
   default     = "0600"
 }
+
+variable "tags" {
+  description = "A map of tags to add to all resources"
+  type        = map(string)
+  default     = {}
+}

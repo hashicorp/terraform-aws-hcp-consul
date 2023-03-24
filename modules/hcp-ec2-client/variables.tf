@@ -71,6 +71,12 @@ variable "subnet_id" {
   description = "The subnet ID to create EC2 clients in"
 }
 
+variable "tags" {
+  description = "A map of tags to add to all resources"
+  type        = map(string)
+  default     = {}
+}
+
 variable "vpc_cidr" {
   type        = string
   description = "VPC CIDR"
