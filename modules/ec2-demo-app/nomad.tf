@@ -1,3 +1,6 @@
+# Copyright (c) HashiCorp, Inc.
+# SPDX-License-Identifier: MPL-2.0
+
 resource "nomad_job" "hashicups" {
   jobspec               = file("${path.module}/templates/hashicups.nomad")
   deregister_on_destroy = false

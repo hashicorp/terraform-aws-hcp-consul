@@ -1,4 +1,7 @@
 #!/bin/bash
+# Copyright (c) HashiCorp, Inc.
+# SPDX-License-Identifier: MPL-2.0
+
 
 generate_base_terraform () {
   cat examples/hcp-$1-demo/{providers,main,output}.tf \

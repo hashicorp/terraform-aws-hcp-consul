@@ -1,3 +1,6 @@
+# Copyright (c) HashiCorp, Inc.
+# SPDX-License-Identifier: MPL-2.0
+
 resource "aws_lb" "ingress" {
   name               = "${local.secret_prefix}-ingress"
   internal           = false

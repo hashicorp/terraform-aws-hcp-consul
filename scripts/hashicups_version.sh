@@ -1,4 +1,7 @@
 #!/bin/bash
+# Copyright (c) HashiCorp, Inc.
+# SPDX-License-Identifier: MPL-2.0
+
 
 # https://github.com/hashicorp-demoapp/hashicups-setups/blob/main/docker-compose-deployment/docker-compose.yaml
 FRONTEND_VERSION="v1.0.2"
