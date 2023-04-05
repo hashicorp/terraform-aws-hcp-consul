@@ -1,6 +1,3 @@
-# Copyright (c) HashiCorp, Inc.
-# SPDX-License-Identifier: MPL-2.0
-
 locals {
   vpc_region             = "eu-west-1"
   hvn_region             = "eu-west-2"
@@ -14,6 +11,7 @@ locals {
   private_subnet1        = "subnet-44afc1709a875ad5d"
   private_subnet2        = "subnet-5aa8d55f44387908d"
 }
+
 
 terraform {
   required_providers {
@@ -38,6 +36,7 @@ provider "consul" {
   datacenter = hcp_consul_cluster.main.datacenter
   token      = hcp_consul_cluster_root_token.token.secret_id
 }
+
 
 resource "hcp_hvn" "main" {
   hvn_id         = local.hvn_id
@@ -88,6 +87,7 @@ module "aws_ecs_cluster" {
   security_group_id        = module.aws_hcp_consul.security_group_id
   vpc_id                   = local.vpc_id
 }
+
 output "consul_root_token" {
   value     = hcp_consul_cluster_root_token.token.secret_id
   sensitive = true

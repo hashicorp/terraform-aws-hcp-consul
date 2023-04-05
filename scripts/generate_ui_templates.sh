@@ -8,7 +8,9 @@ generate_base_terraform () {
     | sed -e '/provider_meta/,+2d' \
     | sed -e 's/var/local/g' \
     | sed -e 's/local\.tier/"development"/g' \
-    | sed -e 's/local\.hvn_cidr_block/"172.25.32.0\/20"/g'
+    | sed -e 's/local\.hvn_cidr_block/"172.25.32.0\/20"/g' \
+    | sed -e '/Copyright/d' \
+    | sed -e '/License/d' 
 }
 
 generate_base_existing_vpc_terraform () {

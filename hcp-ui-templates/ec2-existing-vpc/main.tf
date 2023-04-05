@@ -1,6 +1,3 @@
-# Copyright (c) HashiCorp, Inc.
-# SPDX-License-Identifier: MPL-2.0
-
 locals {
   vpc_region            = "{{ .VPCRegion }}"
   hvn_region            = "{{ .HVNRegion }}"
@@ -12,6 +9,7 @@ locals {
   public_subnet1        = "{{ .PublicSubnet1 }}"
   ssm                   = true
 }
+
 
 terraform {
   required_providers {
@@ -41,6 +39,7 @@ provider "nomad" {
   address   = "http://${module.aws_ec2_consul_client.public_ip}:8081"
   http_auth = "nomad:${hcp_consul_cluster_root_token.token.secret_id}"
 }
+
 
 
 resource "hcp_hvn" "main" {
@@ -117,6 +116,7 @@ module "hashicups" {
     module.aws_ec2_consul_client
   ]
 }
+
 output "consul_root_token" {
   value     = hcp_consul_cluster_root_token.token.secret_id
   sensitive = true
