@@ -1,11 +1,16 @@
 #!/bin/bash
+# Copyright (c) HashiCorp, Inc.
+# SPDX-License-Identifier: MPL-2.0
+
 
 generate_base_terraform () {
   cat examples/hcp-$1-demo/{providers,main,output}.tf \
     | sed -e '/provider_meta/,+2d' \
     | sed -e 's/var/local/g' \
     | sed -e 's/local\.tier/"development"/g' \
-    | sed -e 's/local\.hvn_cidr_block/"172.25.32.0\/20"/g'
+    | sed -e 's/local\.hvn_cidr_block/"172.25.32.0\/20"/g' \
+    | sed -e '/Copyright/d' \
+    | sed -e '/License/d' 
 }
 
 generate_base_existing_vpc_terraform () {

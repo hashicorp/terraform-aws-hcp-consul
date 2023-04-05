@@ -1,3 +1,6 @@
+# Copyright (c) HashiCorp, Inc.
+# SPDX-License-Identifier: MPL-2.0
+
 variable "private_subnet_ids" {
   type        = list(string)
   description = "The private subnet IDs to create ECS services in"

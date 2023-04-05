@@ -10,6 +10,7 @@ locals {
   install_eks_cluster = true
 }
 
+
 terraform {
   required_providers {
     aws = {
@@ -64,6 +65,7 @@ provider "kubectl" {
   token                  = local.install_eks_cluster ? data.aws_eks_cluster_auth.cluster[0].token : ""
   load_config_file       = false
 }
+
 data "aws_eks_cluster" "cluster" {
   count = local.install_eks_cluster ? 1 : 0
   name  = module.eks[0].cluster_id
@@ -156,6 +158,7 @@ module "demo_app" {
 
   depends_on = [module.eks_consul_client]
 }
+
 output "consul_root_token" {
   value     = hcp_consul_cluster_root_token.token.secret_id
   sensitive = true

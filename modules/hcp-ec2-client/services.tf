@@ -1,3 +1,6 @@
+# Copyright (c) HashiCorp, Inc.
+# SPDX-License-Identifier: MPL-2.0
+
 # This is needed for a tutorial on blue green deployments.
 # This helps show the functionality to make it happen and 
 # hide some of the complexity like service defaults

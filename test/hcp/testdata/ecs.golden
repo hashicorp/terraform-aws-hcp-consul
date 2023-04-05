@@ -6,6 +6,7 @@ locals {
   install_demo_app = true
 }
 
+
 terraform {
   required_providers {
     aws = {
@@ -29,6 +30,7 @@ provider "consul" {
   datacenter = hcp_consul_cluster.main.datacenter
   token      = hcp_consul_cluster_root_token.token.secret_id
 }
+
 
 data "aws_availability_zones" "available" {
   filter {
@@ -100,6 +102,7 @@ module "aws_ecs_cluster" {
   security_group_id        = module.aws_hcp_consul.security_group_id
   vpc_id                   = module.vpc.vpc_id
 }
+
 output "consul_root_token" {
   value     = hcp_consul_cluster_root_token.token.secret_id
   sensitive = true
