@@ -1,3 +1,6 @@
+# Copyright (c) HashiCorp, Inc.
+# SPDX-License-Identifier: MPL-2.0
+
 locals {
   vpc_region          = "eu-west-1"
   hvn_region          = "eu-west-2"
