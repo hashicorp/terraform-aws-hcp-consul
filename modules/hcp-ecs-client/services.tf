@@ -14,15 +14,15 @@ module "acl-controller" {
     }
   }
 
-  consul_http_addr               = var.consul_url
-  consul_https_ca_cert_arn       = aws_secretsmanager_secret.ca_cert.arn
-  #consul_server_http_addr           = var.consul_url
+  #consul_http_addr               = var.consul_url
+  #consul_https_ca_cert_arn       = aws_secretsmanager_secret.ca_cert.arn
+  consul_server_http_addr           = var.consul_url
   consul_bootstrap_token_secret_arn = aws_secretsmanager_secret.bootstrap_token.arn
-  #consul_server_ca_cert_arn         = aws_secretsmanager_secret.ca_cert.arn
+  consul_server_ca_cert_arn         = aws_secretsmanager_secret.ca_cert.arn
   ecs_cluster_arn                   = aws_ecs_cluster.clients.arn
   region                            = var.region
   subnets                           = var.private_subnet_ids
-  #security_groups = [aws_security_group.disney_sg.id]
+  security_groups = [var.security_group_id]
   name_prefix = local.secret_prefix
 }
 
