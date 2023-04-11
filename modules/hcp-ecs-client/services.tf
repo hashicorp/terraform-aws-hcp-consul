@@ -3,23 +3,24 @@
 
 module "acl-controller" {
   source  = "hashicorp/consul-ecs/aws//modules/acl-controller"
-  version = "0.4.2"
+  version = "0.6.0"
 
   log_configuration = {
     logDriver = "awslogs"
     options = {
       awslogs-group         = aws_cloudwatch_log_group.log_group.name
       awslogs-region        = var.region
-      awslogs-stream-prefix = "consul-acl-controller"
+      awslogs-stream-prefix = "consul-acl-controller-hcp"
     }
   }
 
   consul_server_http_addr           = var.consul_url
   consul_bootstrap_token_secret_arn = aws_secretsmanager_secret.bootstrap_token.arn
+  consul_server_ca_cert_arn         = aws_secretsmanager_secret.ca_cert.arn
   ecs_cluster_arn                   = aws_ecs_cluster.clients.arn
   region                            = var.region
   subnets                           = var.private_subnet_ids
-
+  #security_groups = [aws_security_group.disney_sg.id]
   name_prefix = local.secret_prefix
 }
 
@@ -59,7 +60,7 @@ resource "aws_iam_role" "frontend-execution-role" {
 
 module "frontend" {
   source  = "hashicorp/consul-ecs/aws//modules/mesh-task"
-  version = "~> 0.3.0"
+  version = "~> 0.6.0"
 
   family         = "frontend"
   task_role      = aws_iam_role.frontend-task-role
@@ -113,14 +114,16 @@ module "frontend" {
   retry_join        = var.client_retry_join
   consul_datacenter = var.datacenter
   consul_image      = "public.ecr.aws/hashicorp/consul:${var.consul_version}"
-
+  consul_partition               = "default"
+  consul_namespace               = "default"
   tls                       = true
   consul_server_ca_cert_arn = aws_secretsmanager_secret.ca_cert.arn
   gossip_key_secret_arn     = aws_secretsmanager_secret.gossip_key.arn
-
+  consul_http_addr               = var.consul_url
+  consul_https_ca_cert_arn       = aws_secretsmanager_secret.ca_cert.arn
   acls                           = true
-  consul_client_token_secret_arn = module.acl-controller.client_token_secret_arn
-  acl_secret_name_prefix         = local.secret_prefix
+  #consul_client_token_secret_arn = module.acl-controller.client_token_secret_arn
+  #acl_secret_name_prefix         = local.secret_prefix
 }
 
 resource "aws_ecs_service" "frontend" {
@@ -181,7 +184,7 @@ resource "aws_iam_role" "public-api-execution-role" {
 
 module "public-api" {
   source  = "hashicorp/consul-ecs/aws//modules/mesh-task"
-  version = "~> 0.3.0"
+  version = "~> 0.6.0"
 
   family         = "public-api"
   task_role      = aws_iam_role.public-api-task-role
@@ -254,14 +257,16 @@ module "public-api" {
   retry_join        = var.client_retry_join
   consul_datacenter = var.datacenter
   consul_image      = "public.ecr.aws/hashicorp/consul:${var.consul_version}"
-
+  consul_partition               = "default"
+  consul_namespace               = "default"
   tls                       = true
   consul_server_ca_cert_arn = aws_secretsmanager_secret.ca_cert.arn
   gossip_key_secret_arn     = aws_secretsmanager_secret.gossip_key.arn
-
+  consul_http_addr               = var.consul_url
+  consul_https_ca_cert_arn       = aws_secretsmanager_secret.ca_cert.arn
   acls                           = true
-  consul_client_token_secret_arn = module.acl-controller.client_token_secret_arn
-  acl_secret_name_prefix         = local.secret_prefix
+  #consul_client_token_secret_arn = module.acl-controller.client_token_secret_arn
+  #acl_secret_name_prefix         = local.secret_prefix
 }
 
 resource "aws_ecs_service" "public-api" {
@@ -322,7 +327,7 @@ resource "aws_iam_role" "payment-api-execution-role" {
 
 module "payment-api" {
   source  = "hashicorp/consul-ecs/aws//modules/mesh-task"
-  version = "~> 0.3.0"
+  version = "~> 0.6.0"
 
   family         = "payment-api"
   task_role      = aws_iam_role.payment-api-task-role
@@ -365,17 +370,20 @@ module "payment-api" {
 
   port = local.payment_api_port
 
+  
   retry_join        = var.client_retry_join
   consul_datacenter = var.datacenter
   consul_image      = "public.ecr.aws/hashicorp/consul:${var.consul_version}"
-
+  consul_partition               = "default"
+  consul_namespace               = "default"
   tls                       = true
   consul_server_ca_cert_arn = aws_secretsmanager_secret.ca_cert.arn
   gossip_key_secret_arn     = aws_secretsmanager_secret.gossip_key.arn
-
+  consul_http_addr               = var.consul_url
+  consul_https_ca_cert_arn       = aws_secretsmanager_secret.ca_cert.arn
   acls                           = true
-  consul_client_token_secret_arn = module.acl-controller.client_token_secret_arn
-  acl_secret_name_prefix         = local.secret_prefix
+  #consul_client_token_secret_arn = module.acl-controller.client_token_secret_arn
+  #acl_secret_name_prefix         = local.secret_prefix
 }
 
 resource "aws_ecs_service" "payment-api" {
@@ -430,7 +438,7 @@ resource "aws_iam_role" "product-api-execution-role" {
 
 module "product-api" {
   source  = "hashicorp/consul-ecs/aws//modules/mesh-task"
-  version = "~> 0.3.0"
+  version = "~> 0.6.0"
 
   family         = "product-api"
   task_role      = aws_iam_role.product-api-task-role
@@ -490,17 +498,20 @@ module "product-api" {
 
   port = local.product_api_port
 
+  
   retry_join        = var.client_retry_join
   consul_datacenter = var.datacenter
   consul_image      = "public.ecr.aws/hashicorp/consul:${var.consul_version}"
-
+  consul_partition               = "default"
+  consul_namespace               = "default"
   tls                       = true
   consul_server_ca_cert_arn = aws_secretsmanager_secret.ca_cert.arn
   gossip_key_secret_arn     = aws_secretsmanager_secret.gossip_key.arn
-
+  consul_http_addr               = var.consul_url
+  consul_https_ca_cert_arn       = aws_secretsmanager_secret.ca_cert.arn
   acls                           = true
-  consul_client_token_secret_arn = module.acl-controller.client_token_secret_arn
-  acl_secret_name_prefix         = local.secret_prefix
+  #consul_client_token_secret_arn = module.acl-controller.client_token_secret_arn
+  #acl_secret_name_prefix         = local.secret_prefix
 }
 
 resource "aws_ecs_service" "product-api" {
@@ -555,7 +566,7 @@ resource "aws_iam_role" "product-db-execution-role" {
 
 module "product-db" {
   source  = "hashicorp/consul-ecs/aws//modules/mesh-task"
-  version = "~> 0.3.0"
+  version = "~> 0.6.0"
 
   family         = "product-db"
   task_role      = aws_iam_role.product-db-task-role
@@ -612,17 +623,20 @@ module "product-db" {
 
   port = local.product_db_port
 
+  
   retry_join        = var.client_retry_join
   consul_datacenter = var.datacenter
   consul_image      = "public.ecr.aws/hashicorp/consul:${var.consul_version}"
-
+  consul_partition               = "default"
+  consul_namespace               = "default"
   tls                       = true
   consul_server_ca_cert_arn = aws_secretsmanager_secret.ca_cert.arn
   gossip_key_secret_arn     = aws_secretsmanager_secret.gossip_key.arn
-
+  consul_http_addr               = var.consul_url
+  consul_https_ca_cert_arn       = aws_secretsmanager_secret.ca_cert.arn
   acls                           = true
-  consul_client_token_secret_arn = module.acl-controller.client_token_secret_arn
-  acl_secret_name_prefix         = local.secret_prefix
+  #consul_client_token_secret_arn = module.acl-controller.client_token_secret_arn
+  #acl_secret_name_prefix         = local.secret_prefix
 }
 
 resource "aws_ecs_service" "product-db" {
