@@ -14,6 +14,8 @@ module "acl-controller" {
     }
   }
 
+  #consul_http_addr               = var.consul_url
+  #consul_https_ca_cert_arn       = aws_secretsmanager_secret.ca_cert.arn
   consul_server_http_addr           = var.consul_url
   consul_bootstrap_token_secret_arn = aws_secretsmanager_secret.bootstrap_token.arn
   consul_server_ca_cert_arn         = aws_secretsmanager_secret.ca_cert.arn
