@@ -115,7 +115,7 @@ module "frontend" {
 
   retry_join        = var.client_retry_join
   consul_datacenter = var.datacenter
-  consul_image      = "public.ecr.aws/hashicorp/consul:${var.consul_version}"
+  consul_image      = "public.ecr.aws/hashicorp/consul-enterprise:${var.consul_version}-ent"
   consul_partition               = "default"
   consul_namespace               = "default"
   tls                       = true
@@ -258,7 +258,7 @@ module "public-api" {
 
   retry_join        = var.client_retry_join
   consul_datacenter = var.datacenter
-  consul_image      = "public.ecr.aws/hashicorp/consul:${var.consul_version}"
+  consul_image      = "public.ecr.aws/hashicorp/consul-enterprise:${var.consul_version}-ent"
   consul_partition               = "default"
   consul_namespace               = "default"
   tls                       = true
@@ -375,7 +375,7 @@ module "payment-api" {
   
   retry_join        = var.client_retry_join
   consul_datacenter = var.datacenter
-  consul_image      = "public.ecr.aws/hashicorp/consul:${var.consul_version}"
+  consul_image      = "public.ecr.aws/hashicorp/consul-enterprise:${var.consul_version}-ent"
   consul_partition               = "default"
   consul_namespace               = "default"
   tls                       = true
@@ -503,7 +503,7 @@ module "product-api" {
   
   retry_join        = var.client_retry_join
   consul_datacenter = var.datacenter
-  consul_image      = "public.ecr.aws/hashicorp/consul:${var.consul_version}"
+  consul_image      = "public.ecr.aws/hashicorp/consul-enterprise:${var.consul_version}-ent"
   consul_partition               = "default"
   consul_namespace               = "default"
   tls                       = true
@@ -628,7 +628,7 @@ module "product-db" {
   
   retry_join        = var.client_retry_join
   consul_datacenter = var.datacenter
-  consul_image      = "public.ecr.aws/hashicorp/consul:${var.consul_version}"
+  consul_image      = "public.ecr.aws/hashicorp/consul-enterprise:${var.consul_version}-ent"
   consul_partition               = "default"
   consul_namespace               = "default"
   tls                       = true
