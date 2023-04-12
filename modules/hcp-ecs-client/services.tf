@@ -122,7 +122,7 @@ module "frontend" {
   consul_server_ca_cert_arn = aws_secretsmanager_secret.ca_cert.arn
   gossip_key_secret_arn     = aws_secretsmanager_secret.gossip_key.arn
   consul_http_addr               = var.consul_url
-  consul_https_ca_cert_arn       = aws_secretsmanager_secret.ca_cert.arn
+  #consul_https_ca_cert_arn       = aws_secretsmanager_secret.ca_cert.arn
   acls                           = true
   #consul_client_token_secret_arn = module.acl-controller.client_token_secret_arn
   #acl_secret_name_prefix         = local.secret_prefix
@@ -265,7 +265,7 @@ module "public-api" {
   consul_server_ca_cert_arn = aws_secretsmanager_secret.ca_cert.arn
   gossip_key_secret_arn     = aws_secretsmanager_secret.gossip_key.arn
   consul_http_addr               = var.consul_url
-  consul_https_ca_cert_arn       = aws_secretsmanager_secret.ca_cert.arn
+ #consul_https_ca_cert_arn       = aws_secretsmanager_secret.ca_cert.arn
   acls                           = true
   #consul_client_token_secret_arn = module.acl-controller.client_token_secret_arn
   #acl_secret_name_prefix         = local.secret_prefix
@@ -382,7 +382,7 @@ module "payment-api" {
   consul_server_ca_cert_arn = aws_secretsmanager_secret.ca_cert.arn
   gossip_key_secret_arn     = aws_secretsmanager_secret.gossip_key.arn
   consul_http_addr               = var.consul_url
-  consul_https_ca_cert_arn       = aws_secretsmanager_secret.ca_cert.arn
+  #consul_https_ca_cert_arn       = aws_secretsmanager_secret.ca_cert.arn
   acls                           = true
   #consul_client_token_secret_arn = module.acl-controller.client_token_secret_arn
   #acl_secret_name_prefix         = local.secret_prefix
@@ -510,7 +510,7 @@ module "product-api" {
   consul_server_ca_cert_arn = aws_secretsmanager_secret.ca_cert.arn
   gossip_key_secret_arn     = aws_secretsmanager_secret.gossip_key.arn
   consul_http_addr               = var.consul_url
-  consul_https_ca_cert_arn       = aws_secretsmanager_secret.ca_cert.arn
+  #consul_https_ca_cert_arn       = aws_secretsmanager_secret.ca_cert.arn
   acls                           = true
   #consul_client_token_secret_arn = module.acl-controller.client_token_secret_arn
   #acl_secret_name_prefix         = local.secret_prefix
@@ -635,7 +635,7 @@ module "product-db" {
   consul_server_ca_cert_arn = aws_secretsmanager_secret.ca_cert.arn
   gossip_key_secret_arn     = aws_secretsmanager_secret.gossip_key.arn
   consul_http_addr               = var.consul_url
-  consul_https_ca_cert_arn       = aws_secretsmanager_secret.ca_cert.arn
+  #consul_https_ca_cert_arn       = aws_secretsmanager_secret.ca_cert.arn
   acls                           = true
   #consul_client_token_secret_arn = module.acl-controller.client_token_secret_arn
   #acl_secret_name_prefix         = local.secret_prefix
