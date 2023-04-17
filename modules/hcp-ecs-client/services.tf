@@ -13,12 +13,9 @@ module "acl-controller" {
       awslogs-stream-prefix = "consul-acl-controller-hcp"
     }
   }
-
-  #consul_http_addr               = var.consul_url
-  #consul_https_ca_cert_arn       = aws_secretsmanager_secret.ca_cert.arn
   consul_server_http_addr           = var.consul_url
   consul_bootstrap_token_secret_arn = aws_secretsmanager_secret.bootstrap_token.arn
-  #consul_server_ca_cert_arn         = aws_secretsmanager_secret.ca_cert.arn
+  #consul_server_ca_cert_arn         = aws_secretsmanager_secret.ca_cert.arn #Do not configure for HCP
   ecs_cluster_arn                   = aws_ecs_cluster.clients.arn
   region                            = var.region
   subnets                           = var.private_subnet_ids
@@ -122,10 +119,8 @@ module "frontend" {
   consul_server_ca_cert_arn = aws_secretsmanager_secret.ca_cert.arn
   gossip_key_secret_arn     = aws_secretsmanager_secret.gossip_key.arn
   consul_http_addr               = var.consul_url
-  #consul_https_ca_cert_arn       = aws_secretsmanager_secret.ca_cert.arn
+  #consul_https_ca_cert_arn       = aws_secretsmanager_secret.ca_cert.arn #Do not configure for HCP
   acls                           = true
-  #consul_client_token_secret_arn = module.acl-controller.client_token_secret_arn
-  #acl_secret_name_prefix         = local.secret_prefix
 }
 
 resource "aws_ecs_service" "frontend" {
@@ -265,10 +260,8 @@ module "public-api" {
   consul_server_ca_cert_arn = aws_secretsmanager_secret.ca_cert.arn
   gossip_key_secret_arn     = aws_secretsmanager_secret.gossip_key.arn
   consul_http_addr               = var.consul_url
- #consul_https_ca_cert_arn       = aws_secretsmanager_secret.ca_cert.arn
+ #consul_https_ca_cert_arn       = aws_secretsmanager_secret.ca_cert.arn #Do not configure for HCP
   acls                           = true
-  #consul_client_token_secret_arn = module.acl-controller.client_token_secret_arn
-  #acl_secret_name_prefix         = local.secret_prefix
 }
 
 resource "aws_ecs_service" "public-api" {
@@ -382,10 +375,8 @@ module "payment-api" {
   consul_server_ca_cert_arn = aws_secretsmanager_secret.ca_cert.arn
   gossip_key_secret_arn     = aws_secretsmanager_secret.gossip_key.arn
   consul_http_addr               = var.consul_url
-  #consul_https_ca_cert_arn       = aws_secretsmanager_secret.ca_cert.arn
+  #consul_https_ca_cert_arn       = aws_secretsmanager_secret.ca_cert.arn #Do not configure for HCP
   acls                           = true
-  #consul_client_token_secret_arn = module.acl-controller.client_token_secret_arn
-  #acl_secret_name_prefix         = local.secret_prefix
 }
 
 resource "aws_ecs_service" "payment-api" {
@@ -510,10 +501,8 @@ module "product-api" {
   consul_server_ca_cert_arn = aws_secretsmanager_secret.ca_cert.arn
   gossip_key_secret_arn     = aws_secretsmanager_secret.gossip_key.arn
   consul_http_addr               = var.consul_url
-  #consul_https_ca_cert_arn       = aws_secretsmanager_secret.ca_cert.arn
+  #consul_https_ca_cert_arn       = aws_secretsmanager_secret.ca_cert.arn #Do not configure for HCP
   acls                           = true
-  #consul_client_token_secret_arn = module.acl-controller.client_token_secret_arn
-  #acl_secret_name_prefix         = local.secret_prefix
 }
 
 resource "aws_ecs_service" "product-api" {
@@ -635,10 +624,8 @@ module "product-db" {
   consul_server_ca_cert_arn = aws_secretsmanager_secret.ca_cert.arn
   gossip_key_secret_arn     = aws_secretsmanager_secret.gossip_key.arn
   consul_http_addr               = var.consul_url
-  #consul_https_ca_cert_arn       = aws_secretsmanager_secret.ca_cert.arn
+  #consul_https_ca_cert_arn       = aws_secretsmanager_secret.ca_cert.arn #Do not configure for HCP
   acls                           = true
-  #consul_client_token_secret_arn = module.acl-controller.client_token_secret_arn
-  #acl_secret_name_prefix         = local.secret_prefix
 }
 
 resource "aws_ecs_service" "product-db" {
