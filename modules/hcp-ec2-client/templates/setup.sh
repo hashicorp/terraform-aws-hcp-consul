@@ -14,14 +14,18 @@ setup_deps () {
 	add-apt-repository universe -y
 
 	# Add HashiCorp repository
-  	curl -fSL --retry 3 https://apt.releases.hashicorp.com/gpg | sudo apt-key add -
+	curl -fSL --retry 3 https://apt.releases.hashicorp.com/gpg | sudo apt-key add -
 	apt-add-repository "deb [arch=amd64] https://apt.releases.hashicorp.com $(lsb_release -cs) main"
+	# test repo for release candidate versions
+	apt-add-repository "deb [arch=amd64] https://apt.releases.hashicorp.com $(lsb_release -cs) test"
 	curl -L --retry 3 'https://deb.dl.getenvoy.io/public/gpg.8115BA8E629CC074.key' | gpg --dearmor -o /usr/share/keyrings/getenvoy-keyring.gpg
 	echo "deb [arch=amd64 signed-by=/usr/share/keyrings/getenvoy-keyring.gpg] https://deb.dl.getenvoy.io/public/deb/ubuntu $(lsb_release -cs) main" | tee /etc/apt/sources.list.d/getenvoy.list
 	apt update -y
 
 	# Install Consul, Nomad, Envoy, and Nginx
-	version="${consul_version}"
+	# Note: apt is unable to find packages if '-rc*' is used. Hence trimming '-rc' from version which is present only in case
+	# of candidate release versions.
+	version=$(sed -r 's/-rc([0-9]*)//g'<<<${consul_version})
 	consul_package="consul-enterprise="$${version:1}"*"
 	apt install -y apt-transport-https gnupg2 curl lsb-release nomad $${consul_package} getenvoy-envoy unzip jq apache2-utils nginx
 
