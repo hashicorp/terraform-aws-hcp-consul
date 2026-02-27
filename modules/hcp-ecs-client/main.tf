@@ -42,9 +42,18 @@ resource "aws_security_group_rule" "allow_http_inbound" {
 
 resource "aws_ecs_cluster" "clients" {
   name               = "hcp-ecs-cluster-${random_id.id.dec}"
+  #capacity_providers = ["FARGATE"] removed as it is no longer an option as of 0.5.0
+  
+  depends_on = [var.nat_public_ips]
+}
+
+#new resource as aws_ecs_cluster 0.5.0+ removed capacity_providers option 
+
+resource "aws_ecs_cluster_capacity_providers" "clients" {
+  cluster_name = aws_ecs_cluster.clients.name
+
   capacity_providers = ["FARGATE"]
 
-  depends_on = [var.nat_public_ips]
 }
 
 resource "random_id" "id" {
