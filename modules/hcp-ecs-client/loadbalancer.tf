@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: MPL-2.0
 
 resource "aws_lb" "ingress" {
-  name               = "${local.secret_prefix}-ingress"
+  name               = "${local.prefix}-ingress"
   internal           = false
   load_balancer_type = "application"
   security_groups    = [var.security_group_id]
@@ -10,7 +10,7 @@ resource "aws_lb" "ingress" {
 }
 
 resource "aws_lb_target_group" "frontend" {
-  name                 = "${local.secret_prefix}-frontend"
+  name                 = "${local.prefix}-frontend"
   port                 = local.frontend_port
   protocol             = "HTTP"
   vpc_id               = var.vpc_id
@@ -19,7 +19,7 @@ resource "aws_lb_target_group" "frontend" {
 }
 
 resource "aws_lb_target_group" "public-api" {
-  name                 = "${local.secret_prefix}-api"
+  name                 = "${local.prefix}-api"
   port                 = local.public_api_port
   protocol             = "HTTP"
   vpc_id               = var.vpc_id
